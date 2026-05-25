@@ -16,8 +16,8 @@ final FlutterLocalNotificationsPlugin localNotifs = FlutterLocalNotificationsPlu
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 const AndroidNotificationChannel _channel = AndroidNotificationChannel(
-  'astrovaak_high_importance',
-  'AstroVaak Notifications',
+  'grahvarta_high_importance',
+  'Grahvarta Notifications',
   importance: Importance.high,
   playSound: true,
 );

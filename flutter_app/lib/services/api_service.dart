@@ -8,8 +8,8 @@ import '../models/family_member.dart';
 import '../models/report.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://api.astrovaak.online/api';
-  static const String socketUrl = 'https://api.astrovaak.online';
+  static const String baseUrl = 'https://api.grahvarta.com/api';
+  static const String socketUrl = 'https://api.grahvarta.com';
   static const _storage = FlutterSecureStorage();
 
   static Future<String?> getToken() => _storage.read(key: 'auth_token');

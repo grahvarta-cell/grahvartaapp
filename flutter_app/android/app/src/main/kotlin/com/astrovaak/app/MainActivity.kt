@@ -1,4 +1,4 @@
-package com.astrovaak.app
+package com.grahvarta.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.astrovaak.app"
+    namespace = "com.grahvarta.app"
     compileSdk = 36
     ndkVersion = "27.0.12077973"
 
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.astrovaak.app"
+        applicationId = "com.grahvarta.app"
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

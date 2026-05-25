@@ -24,7 +24,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
-        android:label="AstroVaak"
+        android:label="Grahvarta"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -58,7 +58,7 @@
         <!-- FCM default notification channel -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="astrovaak_high_importance" />
+            android:value="grahvarta_high_importance" />
 
         <!-- FCM background message handler -->
         <service

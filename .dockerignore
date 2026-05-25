@@ -1,0 +1,7 @@
+.git
+*.md
+deploy
+docker
+flutter_app
+preview
+.env*

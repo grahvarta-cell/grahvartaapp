@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-    name: 'astro-talk-api',
+    name: 'grahvarta-api',
     script: 'server.js',
     instances: 'max',
     exec_mode: 'cluster',

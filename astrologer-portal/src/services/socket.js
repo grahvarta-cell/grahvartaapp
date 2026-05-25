@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client'
 
-const SOCKET_URL = 'https://api.astrovaak.online'
+const SOCKET_URL = import.meta.env.VITE_API_URL || 'https://api.grahvarta.com'
 
 let socket = null
 

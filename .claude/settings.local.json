@@ -6,7 +6,9 @@
       "PowerShell($env:PATH = [System.Environment]::GetEnvironmentVariable\\(\"PATH\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"PATH\",\"User\"\\); cd d:\\\\Astrowaak; python create_pitch.py 2>&1)",
       "Bash(Get-ChildItem -Path \"d:\\\\Astrowaak\\\\flutter_app\" -Recurse -Directory)",
       "Bash(Select-Object FullName)",
-      "Bash(Head -30)"
+      "Bash(Head -30)",
+      "Bash(find /mnt/d/grahvartaapp -maxdepth 3 \\\\\\( -name \"Dockerfile\" -o -name \"docker-compose.yml\" -o -name \".dockerignore\" -o -name \"docker-entrypoint.sh\" -o -name \"deploy.sh\" -o -name \"nginx.conf\" -o -name \"nginx-init.conf\" -o -name \".env.example\" \\\\\\) | sort)",
+      "Read(//mnt/d/**)"
     ]
   }
 }

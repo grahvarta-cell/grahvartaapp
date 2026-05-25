@@ -9,7 +9,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'https://api.astrovaak.online',
+      '/api': 'https://api.grahvarta.com',
     },
   },
 });

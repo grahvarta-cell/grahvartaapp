@@ -22,6 +22,6 @@ CREATE TABLE IF NOT EXISTS thread_messages (
   created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_thread_messages_thread_id ON thread_messages(thread_id);
-CREATE INDEX idx_thread_messages_created_at ON thread_messages(thread_id, created_at DESC);
-CREATE INDEX idx_chat_threads_user ON chat_threads(user_id, last_message_at DESC);
+CREATE INDEX IF NOT EXISTS idx_thread_messages_thread_id ON thread_messages(thread_id);
+CREATE INDEX IF NOT EXISTS idx_thread_messages_created_at ON thread_messages(thread_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_chat_threads_user ON chat_threads(user_id, last_message_at DESC);

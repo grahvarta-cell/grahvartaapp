@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/prateek.sharma5/Downloads/astro/flutter_app/lib/screens/consultation/**)",
+      "Read(//c/Users/prateek.sharma5/Downloads/astro/flutter_app/lib/**)",
+      "Read(//c/Users/prateek.sharma5/Downloads/astro/flutter_app/lib/models/**)",
+      "Read(//c/Users/prateek.sharma5/Downloads/astro/flutter_app/lib/services/**)",
+      "Bash(mkdir \"c:\\\\Users\\\\prateek.sharma5\\\\Downloads\\\\astro\\\\flutter_app\\\\lib\\\\screens\\\\reports\")",
+      "Read(//c/Users/prateek.sharma5/Downloads/astro/**)",
+      "PowerShell(cmd /c \"dir /b /a C:\\\\Users\\\\prateek.sharma5\\\\Downloads\\\\astro\\\\backend\\\\src\\\\routes\")",
+      "PowerShell(cmd /c \"dir /b /a C:\\\\Users\\\\prateek.sharma5\\\\Downloads\\\\astro\\\\astrologer-portal\\\\src\")",
+      "PowerShell(cmd /c \"dir /b /a C:\\\\Users\\\\prateek.sharma5\\\\Downloads\\\\astro\\\\backend\\\\migrations\")",
+      "PowerShell(cmd /c \"dir /b /a C:\\\\Users\\\\prateek.sharma5\\\\Downloads\\\\astro\\\\astrologer-portal\\\\src\\\\pages\")"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\prateek.sharma5\\Downloads\\astro\\flutter_app\\lib\\screens\\marketplace",
+      "c:\\Users\\prateek.sharma5\\Downloads\\astro\\flutter_app\\lib\\services",
+      "c:\\Users\\prateek.sharma5\\Downloads\\astro\\flutter_app\\lib\\screens",
+      "c:\\Users\\prateek.sharma5\\Downloads\\astro\\admin-portal\\src",
+      "c:\\Users\\prateek.sharma5\\Downloads\\astro\\admin-portal",
+      "C:\\Users\\prateek.sharma5\\Downloads\\astro\\astrologer-portal\\src"
+    ]
+  }
+}

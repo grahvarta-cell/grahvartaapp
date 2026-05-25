@@ -1,0 +1,388 @@
+import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
+import '../../services/api_service.dart';
+import '../../services/socket_service.dart';
+import '../../theme/app_theme.dart';
+
+class AstrologerChatScreen extends StatefulWidget {
+  final String consultationId;
+  final String userName;
+  final String? userId;
+
+  const AstrologerChatScreen({super.key, required this.consultationId, required this.userName, this.userId});
+
+  @override
+  State<AstrologerChatScreen> createState() => _AstrologerChatScreenState();
+}
+
+class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
+  final _ctrl = TextEditingController();
+  final _scroll = ScrollController();
+  final List<Map<String, dynamic>> _messages = [];
+  bool _loading = true;
+  bool _isEnded = false;
+  bool _isPeerTyping = false;
+  int _elapsed = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHistory();
+    _setupSocket();
+  }
+
+  @override
+  void dispose() {
+    SocketService.instance.off('new_message');
+    SocketService.instance.off('billing_tick');
+    SocketService.instance.off('peer_typing');
+    SocketService.instance.off('consultation_ended');
+    _ctrl.dispose();
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadHistory() async {
+    try {
+      // Load old cross-session history first (if userId is known)
+      if (widget.userId != null && widget.userId!.isNotEmpty) {
+        try {
+          final data = await ApiService.getAstrologerUserMessages(widget.userId!);
+          final old = List<dynamic>.from(data['messages'] ?? []);
+          if (old.isNotEmpty && mounted) {
+            setState(() {
+              _messages.addAll(old.map((m) => Map<String, dynamic>.from(m as Map)));
+              _messages.add({'sender_type': 'system', 'content': '─── Current session ───', 'created_at': DateTime.now().toIso8601String()});
+            });
+          }
+        } catch (_) {}
+      }
+
+      final msgs = await ApiService.getAstrologerConsultationMessages(widget.consultationId);
+      if (mounted) {
+        setState(() {
+          _messages.addAll(msgs.map((m) => Map<String, dynamic>.from(m as Map)));
+          _loading = false;
+        });
+        _scrollBottom();
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  void _setupSocket() {
+    final socket = SocketService.instance;
+    // Join the consultation room so we receive new_message and billing_tick
+    socket.joinConsultation(widget.consultationId);
+    socket.on('new_message', (data) {
+      if (!mounted) return;
+      final msg = Map<String, dynamic>.from(data as Map);
+      // Ignore messages we sent ourselves (already added optimistically)
+      if (msg['sender_type'] == 'astrologer') return;
+      setState(() => _messages.add(msg));
+      _scrollBottom();
+    });
+    socket.on('billing_tick', (data) {
+      if (!mounted) return;
+      final d = Map<String, dynamic>.from(data as Map);
+      setState(() => _elapsed = d['seconds'] ?? _elapsed);
+    });
+    socket.on('peer_typing', (data) {
+      if (!mounted) return;
+      setState(() => _isPeerTyping = (data as Map)['is_typing'] == true);
+    });
+    socket.on('consultation_ended', (data) {
+      if (!mounted || _isEnded) return;
+      setState(() => _isEnded = true);
+      final d = Map<String, dynamic>.from(data as Map);
+      _showEndDialog(d);
+    });
+  }
+
+  void _showEndDialog(Map<String, dynamic> data) {
+    final duration = data['duration'] ?? _elapsed;
+    final total = double.tryParse(data['total_amount']?.toString() ?? '0') ?? 0;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Session Ended', style: TextStyle(color: AppColors.textPrimary)),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          const Icon(Icons.check_circle_outline, color: AppColors.success, size: 48),
+          const SizedBox(height: 12),
+          Text('Duration: ${_formatTime(duration is int ? duration : (duration as num).toInt())}',
+              style: const TextStyle(color: AppColors.textSecondary)),
+          const SizedBox(height: 4),
+          Text('Earned: ₹${(total * 0.8).toStringAsFixed(2)}',
+              style: const TextStyle(color: AppColors.success, fontSize: 18, fontWeight: FontWeight.bold)),
+        ]),
+        actions: [
+          ElevatedButton(
+            onPressed: () { Navigator.pop(context); Navigator.pop(context); },
+            child: const Text('Done'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _scrollBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scroll.hasClients) _scroll.animateTo(_scroll.position.maxScrollExtent, duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+    });
+  }
+
+  void _sendMessage() {
+    final text = _ctrl.text.trim();
+    if (text.isEmpty || _isEnded) return;
+    SocketService.instance.sendTypingStop(widget.consultationId);
+    SocketService.instance.sendMessage(widget.consultationId, text);
+    setState(() => _messages.add({'sender_type': 'astrologer', 'content': text, 'created_at': DateTime.now().toIso8601String()}));
+    _ctrl.clear();
+    _scrollBottom();
+  }
+
+  void _endConsultation() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.card,
+        title: const Text('End Consultation', style: TextStyle(color: AppColors.textPrimary)),
+        content: const Text('Are you sure you want to end this consultation?', style: TextStyle(color: AppColors.textSecondary)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary))),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              if (!_isEnded) {
+                setState(() => _isEnded = true);
+                SocketService.instance.astrologerEndConsultation(widget.consultationId);
+              }
+            },
+            child: const Text('End'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTypingIndicator() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+      child: Row(children: [
+        CircleAvatar(
+          radius: 12,
+          backgroundColor: AppColors.orange.withOpacity(0.2),
+          child: Text(widget.userName[0].toUpperCase(), style: const TextStyle(color: AppColors.orange, fontSize: 10)),
+        ),
+        const SizedBox(width: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(18)),
+          child: Row(children: List.generate(3, (i) => Container(
+            margin: EdgeInsets.only(right: i < 2 ? 3 : 0),
+            width: 6, height: 6,
+            decoration: const BoxDecoration(color: AppColors.textMuted, shape: BoxShape.circle),
+          ))),
+        ),
+      ]),
+    );
+  }
+
+  String _formatTime(int seconds) {
+    final m = seconds ~/ 60;
+    final s = seconds % 60;
+    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.surface,
+        titleSpacing: 0,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.userName, style: const TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
+            if (_elapsed > 0)
+              Text('Duration: ${_formatTime(_elapsed)}', style: const TextStyle(color: AppColors.orange, fontSize: 12)),
+          ],
+        ),
+        actions: [
+          TextButton.icon(
+            onPressed: _endConsultation,
+            icon: const Icon(Icons.call_end, color: AppColors.error, size: 18),
+            label: const Text('End', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: _isEnded
+                ? const Center(child: Text('Session ended', style: TextStyle(color: AppColors.textMuted)))
+                : _loading
+                ? _buildShimmer()
+                : _messages.isEmpty
+                    ? const Center(child: Text('No messages yet', style: TextStyle(color: AppColors.textMuted)))
+                    : ListView.builder(
+                        controller: _scroll,
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _messages.length,
+                        itemBuilder: (_, i) => _AnimatedBubble(
+                          key: ValueKey(_messages[i]['id'] ?? _messages[i]['created_at'] ?? i),
+                          child: _buildMessage(_messages[i]),
+                        ),
+                      ),
+          ),
+          if (_isPeerTyping) _buildTypingIndicator(),
+          if (!_isEnded) _buildInput(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShimmer() {
+    return Shimmer.fromColors(
+      baseColor: AppColors.card,
+      highlightColor: AppColors.surface,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: 8,
+        itemBuilder: (_, i) {
+          final isMe = i % 3 != 0;
+          final width = (i % 3 == 0 ? 200.0 : i % 3 == 1 ? 140.0 : 240.0);
+          return Align(
+            alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              width: width,
+              height: 38,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(16),
+                  topRight: const Radius.circular(16),
+                  bottomLeft: Radius.circular(isMe ? 16 : 4),
+                  bottomRight: Radius.circular(isMe ? 4 : 16),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildMessage(Map<String, dynamic> msg) {
+    final senderType = msg['sender_type'] ?? msg['sender_role'] ?? '';
+    if (senderType == 'system') {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Center(child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(20)),
+          child: Text(msg['content'] ?? msg['message'] ?? '', style: const TextStyle(color: AppColors.textMuted, fontSize: 12), textAlign: TextAlign.center),
+        )),
+      );
+    }
+    final isMe = senderType == 'astrologer';
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.72),
+        decoration: BoxDecoration(
+          color: isMe ? AppColors.orange : AppColors.card,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
+            bottomLeft: Radius.circular(isMe ? 16 : 4),
+            bottomRight: Radius.circular(isMe ? 4 : 16),
+          ),
+        ),
+        child: Text(msg['content'] ?? msg['message'] ?? '', style: TextStyle(color: isMe ? Colors.white : AppColors.textPrimary, fontSize: 14)),
+      ),
+    );
+  }
+
+  Widget _buildInput() {
+    return Container(
+      padding: EdgeInsets.only(left: 16, right: 16, top: 12, bottom: MediaQuery.of(context).padding.bottom + 12),
+      color: AppColors.surface,
+      child: Row(children: [
+        Expanded(
+          child: TextField(
+            controller: _ctrl,
+            style: const TextStyle(color: AppColors.textPrimary),
+            decoration: InputDecoration(
+              hintText: 'Type a message…',
+              hintStyle: const TextStyle(color: AppColors.textMuted),
+              filled: true,
+              fillColor: AppColors.card,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            onChanged: (v) {
+              v.isNotEmpty
+                  ? SocketService.instance.sendTypingStart(widget.consultationId)
+                  : SocketService.instance.sendTypingStop(widget.consultationId);
+            },
+            onSubmitted: (_) => _sendMessage(),
+          ),
+        ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: _sendMessage,
+          child: Container(
+            width: 44, height: 44,
+            decoration: BoxDecoration(color: AppColors.orange, shape: BoxShape.circle),
+            child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+          ),
+        ),
+      ]),
+    );
+  }
+}
+
+class _AnimatedBubble extends StatefulWidget {
+  final Widget child;
+  const _AnimatedBubble({super.key, required this.child});
+
+  @override
+  State<_AnimatedBubble> createState() => _AnimatedBubbleState();
+}
+
+class _AnimatedBubbleState extends State<_AnimatedBubble> with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _fade;
+  late final Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 280));
+    _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
+    _slide = Tween<Offset>(begin: const Offset(0, 0.12), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+    _ctrl.forward();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => FadeTransition(
+        opacity: _fade,
+        child: SlideTransition(position: _slide, child: widget.child),
+      );
+}

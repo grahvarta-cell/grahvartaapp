@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Astro Talk v2 — Full Platform Preview</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0D0D0D;--surface:#1A1A1A;--card:#1E1E1E;--sl:#222;--orange:#E8762A;--gold:#D4A843;--text:#FFF;--sec:#AAA;--muted:#666;--border:#2A2A2A;--green:#4CAF50;--red:#E53935;--blue:#2196F3}
+body{background:#111;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:30px 20px 80px;color:var(--text)}
+
+.site-title{font-size:11px;letter-spacing:5px;color:var(--muted);text-transform:uppercase;margin-bottom:28px}
+
+.tabs{display:flex;gap:6px;margin-bottom:30px;flex-wrap:wrap;justify-content:center;max-width:800px}
+.tab{padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--sec);font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab.active,.tab:hover{background:var(--orange);color:#fff;border-color:var(--orange)}
+
+.phones{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+
+.phone{width:300px;height:640px;background:var(--bg);border-radius:44px;border:2px solid #2a2a2a;overflow:hidden;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.7),inset 0 0 0 1px #333;flex-shrink:0;display:none}
+.phone.active{display:block}
+.phone::before{content:'9:41';position:absolute;top:14px;left:22px;font-size:10px;font-weight:600;color:var(--sec);z-index:100}
+.phone::after{content:'▪ ▪ ▪';position:absolute;top:13px;right:18px;font-size:9px;color:var(--sec);z-index:100;letter-spacing:2px}
+
+.scr{width:100%;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;position:relative}
+.scr::-webkit-scrollbar{display:none}
+
+/* Stars */
+.stars{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.star{position:absolute;background:rgba(255,255,255,.5);border-radius:50%;animation:twinkle 3s infinite alternate}
+@keyframes twinkle{from{opacity:.1}to{opacity:.7}}
+
+/* SPLASH */
+.splash{background:radial-gradient(circle at center,#1A0D00,#0D0D0D 70%);height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.splash-spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin 1s linear infinite;margin-top:20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* APP BAR */
+.appbar{display:flex;align-items:center;padding:48px 16px 10px;gap:10px;position:relative;z-index:10}
+.back{font-size:16px;cursor:pointer;color:var(--text)}
+.appbar h3{flex:1;text-align:center;font-size:16px;font-weight:600}
+.av{width:34px;height:34px;border-radius:50%;background:rgba(232,118,42,.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--orange);flex-shrink:0}
+
+/* COMMON */
+.inp{width:100%;padding:12px 14px;background:var(--sl);border:1px solid var(--border);border-radius:11px;color:var(--text);font-size:13px;margin-bottom:10px;outline:none}
+.inp:focus{border-color:var(--orange)}
+.inp::placeholder{color:var(--muted)}
+.btn{width:100%;padding:13px;background:var(--orange);color:#fff;border:none;border-radius:11px;font-size:14px;font-weight:600;cursor:pointer}
+.btn:hover{opacity:.9}
+.btn-outline{background:transparent;border:1px solid var(--orange);color:var(--orange)}
+.chip{display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;font-size:11px;gap:4px;border:1px solid var(--border);color:var(--sec);background:var(--card)}
+.chip.active,.chip.orange{background:rgba(232,118,42,.15);border-color:rgba(232,118,42,.4);color:var(--orange)}
+.chip.green{background:rgba(76,175,80,.12);border-color:rgba(76,175,80,.3);color:var(--green)}
+.chip.red{background:rgba(229,57,53,.12);border-color:rgba(229,57,53,.3);color:var(--red)}
+.section-row{display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin:18px 0 10px}
+.section-row h4{font-size:15px;font-weight:600}
+.section-row span{color:var(--orange);font-size:12px;cursor:pointer}
+.card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:14px}
+.period-tabs{display:flex;gap:7px;padding:0 16px;margin-bottom:16px}
+.period-tab{flex:1;padding:8px;border-radius:11px;background:var(--sl);color:var(--sec);text-align:center;font-size:12px;cursor:pointer;transition:all .2s}
+.period-tab.active{background:var(--orange);color:#fff;font-weight:600}
+
+/* BOTTOM NAV */
+.bnav{position:absolute;bottom:0;left:0;right:0;background:var(--surface);border-radius:22px 22px 0 0;padding:10px 6px 18px;display:flex;justify-content:space-around;box-shadow:0 -4px 20px rgba(0,0,0,.4);z-index:50}
+.ni{padding:7px 14px;border-radius:18px;background:transparent;color:var(--muted);font-size:18px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:2px}
+.ni.active{background:var(--orange);color:#fff}
+.ni span{font-size:9px;color:inherit}
+
+/* HOME */
+.home-header{padding:52px 16px 0;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.home-header h3{flex:1;font-size:16px;font-weight:700}
+.wallet-btn{padding:5px 10px;background:var(--card);border-radius:10px;border:1px solid var(--border);font-size:11px;color:var(--gold);cursor:pointer;display:flex;align-items:center;gap:4px}
+.horoscope-card{margin:0 16px 16px;padding:16px;background:linear-gradient(135deg,#2A1500,#1A0D00);border-radius:18px;border:1px solid rgba(232,118,42,.3)}
+.horoscope-card .tag{color:var(--orange);font-size:11px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.horoscope-card p{color:var(--sec);font-size:12px;line-height:1.6}
+.horoscope-card .lucky{color:var(--muted);font-size:10px;margin-top:8px}
+.astrologer-scroll{display:flex;gap:10px;padding:0 16px;overflow-x:auto;scrollbar-width:none;margin-bottom:16px}
+.astrologer-scroll::-webkit-scrollbar{display:none}
+.astro-mini{min-width:78px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.astro-mini .av-wrap{position:relative}
+.astro-mini .av{width:52px;height:52px;font-size:18px}
+.online-dot{position:absolute;bottom:2px;right:2px;width:11px;height:11px;background:var(--green);border-radius:50%;border:2px solid var(--bg)}
+.astro-mini span{font-size:10px;color:var(--text);font-weight:500;text-align:center}
+.astro-mini .rate{font-size:10px;color:var(--orange);font-weight:600}
+.scores-row{display:flex;gap:8px;padding:0 16px;margin-bottom:16px}
+.score-card{flex:1;background:var(--card);border-radius:14px;padding:12px 8px;text-align:center}
+.score-ring{width:58px;height:58px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;position:relative}
+.score-ring svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+.score-ring span{position:relative;z-index:1}
+.score-label{color:var(--sec);font-size:10px}
+.action-btn{margin:0 16px 16px;background:var(--orange);border-radius:14px;padding:14px;text-align:center;font-size:13px;font-weight:600;cursor:pointer}
+.course-item{margin:0 16px 9px;background:var(--card);border-radius:13px;padding:12px;display:flex;align-items:center;gap:10px;border:1px solid var(--border)}
+.course-icon{width:40px;height:40px;border-radius:10px;background:rgba(232,118,42,.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.course-text h5{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px}
+.course-text p{color:var(--muted);font-size:10px}
+
+/* MARKETPLACE */
+.mkt-header{padding:52px 16px 10px;display:flex;align-items:center;justify-content:space-between}
+.online-count{color:var(--orange);font-size:11px}
+.search-bar{margin:0 14px 8px;background:var(--sl);border-radius:12px;border:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+.spec-chips{display:flex;gap:8px;padding:0 14px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px}
+.spec-chips::-webkit-scrollbar{display:none}
+.spec-chip{padding:6px 14px;border-radius:20px;background:var(--sl);font-size:11px;color:var(--sec);white-space:nowrap;cursor:pointer;transition:all .2s}
+.spec-chip.active{background:var(--orange);color:#fff}
+.astro-card{margin:0 14px 12px;background:var(--card);border-radius:18px;border:1px solid var(--border);padding:14px}
+.astro-card-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.astro-card-header .av{width:52px;height:52px;font-size:18px;flex-shrink:0;position:relative}
+.astro-name{font-size:13px;font-weight:700;margin-bottom:3px}
+.stars-row{display:flex;align-items:center;gap:3px;margin-bottom:3px;font-size:11px;color:var(--sec)}
+.stars-row .s{color:var(--gold)}
+.astro-meta{display:flex;gap:8px;font-size:10px;color:var(--muted)}
+.astro-status{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.status-badge{padding:3px 8px;border-radius:7px;font-size:9px;font-weight:600}
+.status-online{background:rgba(76,175,80,.15);color:var(--green)}
+.status-offline{background:var(--border);color:var(--muted)}
+.rate-tag{color:var(--orange);font-size:12px;font-weight:700}
+.spec-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.consult-btns{display:flex;gap:7px}
+.consult-btn{flex:1;padding:8px;border-radius:10px;text-align:center;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px}
+.cb-chat{background:rgba(232,118,42,.12);border:1px solid rgba(232,118,42,.3);color:var(--orange)}
+.cb-call{background:rgba(76,175,80,.12);border:1px solid rgba(76,175,80,.3);color:var(--green)}
+.cb-video{background:rgba(33,150,243,.12);border:1px solid rgba(33,150,243,.3);color:var(--blue)}
+
+/* CHAT */
+.chat-appbar{background:var(--surface);padding:48px 12px 10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.billing-bar{background:rgba(232,118,42,.1);padding:6px 14px;display:flex;align-items:center;gap:6px;font-size:11px}
+.msg-list{flex:1;padding:12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
+.msg-bubble{display:flex;align-items:flex-end;gap:6px}
+.msg-bubble.user{flex-direction:row-reverse}
+.bubble{padding:10px 14px;border-radius:18px;max-width:72%;font-size:12px;line-height:1.5}
+.bubble.user{background:var(--orange);color:#fff;border-bottom-right-radius:4px}
+.bubble.astro{background:var(--card);color:var(--text);border-bottom-left-radius:4px}
+.bubble.system{background:var(--sl);color:var(--muted);font-size:10px;text-align:center;padding:5px 10px;border-radius:12px;width:100%;max-width:100%}
+.bubble-time{font-size:9px;opacity:.6}
+.chat-input{background:var(--surface);padding:8px 12px 22px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--border)}
+.chat-input input{flex:1;background:var(--sl);border:none;border-radius:22px;padding:9px 14px;color:var(--text);font-size:12px;outline:none}
+.send-btn{width:38px;height:38px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;flex-shrink:0}
+
+/* CALL */
+.call-screen{background:radial-gradient(circle at top,#2A1500,#000);height:100%;display:flex;flex-direction:column;position:relative}
+.call-top{padding:48px 14px 0;display:flex;align-items:center;justify-content:space-between}
+.call-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.call-av{width:90px;height:90px;border-radius:50%;background:rgba(232,118,42,.2);display:flex;align-items:center;justify-content:center;font-size:42px;color:var(--orange);font-weight:700;box-shadow:0 0 30px rgba(232,118,42,.2)}
+.call-controls{padding:16px;display:flex;justify-content:space-evenly;align-items:center}
+.ctrl-btn{display:flex;flex-direction:column;align-items:center;gap:5px}
+.ctrl-circle{width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
+.ctrl-circle.red{background:var(--red)}
+.ctrl-label{font-size:9px;color:#fff8}
+
+/* WALLET */
+.balance-card{margin:0 16px 16px;padding:22px;background:linear-gradient(135deg,#2A1500,#1A0D00);border-radius:22px;border:1px solid rgba(232,118,42,.3);text-align:center}
+.balance-card .label{color:var(--sec);font-size:12px;margin-bottom:6px}
+.balance-card .amount{font-size:32px;font-weight:700;color:var(--text);margin-bottom:16px}
+.balance-stats{display:flex;justify-content:space-around}
+.bstat span:first-child{font-size:14px;font-weight:700;display:block;margin-bottom:3px}
+.bstat span:last-child{font-size:10px;color:var(--muted)}
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px;margin-bottom:16px}
+.quick-btn{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:10px;text-align:center;color:var(--orange);font-size:12px;font-weight:600;cursor:pointer}
+.tx-item{margin:0 16px 9px;background:var(--card);border-radius:13px;border:1px solid var(--border);padding:12px;display:flex;align-items:center;gap:10px}
+.tx-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.tx-icon.credit{background:rgba(76,175,80,.15)}
+.tx-icon.debit{background:rgba(229,57,53,.15)}
+.tx-text{flex:1}
+.tx-text h5{font-size:12px;color:var(--text);font-weight:500;margin-bottom:2px}
+.tx-text p{font-size:10px;color:var(--muted)}
+.tx-amount{font-size:13px;font-weight:700}
+.tx-amount.credit{color:var(--green)}
+.tx-amount.debit{color:var(--red)}
+.plan-card{margin:0 16px 14px;background:var(--card);border-radius:18px;border:1px solid var(--border);padding:18px;position:relative}
+.plan-card.popular{border-color:var(--orange)}
+.plan-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.plan-name{font-size:16px;font-weight:700}
+.plan-price{font-size:12px;color:var(--sec)}
+.plan-badge{position:absolute;top:12px;right:18px;background:var(--orange);color:#fff;font-size:8px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:1px}
+.plan-feature{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--sec);margin-bottom:5px}
+
+/* LIVE */
+.live-card{margin:0 14px 14px;background:var(--card);border-radius:18px;border:1px solid var(--border);overflow:hidden}
+.live-thumb{height:140px;background:linear-gradient(135deg,#3A0D00,#1A0500);position:relative;display:flex;align-items:flex-end;padding:12px}
+.live-badge{position:absolute;top:10px;left:10px;background:var(--red);border-radius:10px;padding:3px 8px;font-size:9px;font-weight:700;display:flex;align-items:center;gap:3px}
+.viewer-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.4);border-radius:10px;padding:3px 8px;font-size:10px;color:#ddd;display:flex;align-items:center;gap:3px}
+.live-info{padding:12px}
+.live-info h4{font-size:13px;font-weight:600;margin-bottom:4px}
+.live-info p{font-size:11px;color:var(--sec);margin-bottom:10px}
+.community-post{margin:0 14px 12px;background:var(--card);border-radius:16px;border:1px solid var(--border);padding:14px}
+.post-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.post-content{color:var(--text);font-size:12px;line-height:1.6;margin-bottom:10px}
+.post-actions{display:flex;gap:16px}
+.post-action{display:flex;align-items:center;gap:4px;color:var(--sec);font-size:11px;cursor:pointer}
+.post-action.liked{color:var(--red)}
+
+/* NOTIFICATIONS */
+.notif-item{margin:0 16px 9px;background:var(--card);border-radius:14px;border:1px solid var(--border);padding:12px;display:flex;gap:10px;align-items:flex-start}
+.notif-item.unread{background:rgba(232,118,42,.05);border-color:rgba(232,118,42,.2)}
+.notif-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.notif-dot{width:7px;height:7px;background:var(--orange);border-radius:50%;margin-top:4px;flex-shrink:0}
+
+/* ONBOARDING */
+.ob-screen{height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.ob-symbols{position:absolute;inset:0;z-index:0;pointer-events:none;font-size:14px;color:inherit;overflow:hidden}
+.ob-symbol{position:absolute;animation:ob-float 8s ease-in-out infinite alternate;opacity:.07}
+@keyframes ob-float{from{transform:translateY(0) rotate(0deg)}to{transform:translateY(-12px) rotate(15deg)}}
+.ob-skip{position:absolute;top:52px;right:14px;color:var(--muted);font-size:12px;z-index:20;cursor:pointer}
+.ob-content{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 30px;position:relative;z-index:10;text-align:center}
+.ob-icon-wrap{position:relative;width:160px;height:160px;display:flex;align-items:center;justify-content:center;margin-bottom:36px}
+.ob-ring{position:absolute;border-radius:50%;border:1px solid;animation:ob-pulse 3s ease-in-out infinite}
+.ob-ring:nth-child(1){width:160px;height:160px;opacity:.1;animation-delay:0s}
+.ob-ring:nth-child(2){width:130px;height:130px;opacity:.2;animation-delay:.5s}
+.ob-icon-box{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:44px;position:relative;border:1.5px solid}
+@keyframes ob-pulse{0%,100%{transform:scale(1);opacity:.15}50%{transform:scale(1.04);opacity:.25}}
+.ob-title{font-size:26px;font-weight:800;line-height:1.2;letter-spacing:-.5px;color:var(--text);margin-bottom:14px}
+.ob-sub{font-size:13px;color:var(--sec);line-height:1.65;margin-bottom:24px}
+.ob-pills{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}
+.ob-pill{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid}
+.ob-bottom{padding:0 22px 28px;position:relative;z-index:10}
+.ob-dots{display:flex;justify-content:center;gap:6px;margin-bottom:22px}
+.ob-dot{height:8px;border-radius:4px;transition:all .3s}
+.ob-cta{width:100%;padding:15px;border-radius:16px;border:none;font-size:15px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:.3px;position:relative;overflow:hidden}
+.ob-cta::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.1);opacity:0;transition:opacity .2s}
+.ob-cta:hover::after{opacity:1}
+.ob-signin{text-align:center;margin-top:12px;color:var(--muted);font-size:12px;cursor:pointer}
+
+/* Profile */
+.profile-screen{padding:52px 0 100px}
+.profile-hero{text-align:center;padding:20px}
+.profile-av{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--orange),#B85C1A);display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff;font-weight:700;margin:0 auto 12px;box-shadow:0 0 20px rgba(232,118,42,.3)}
+.profile-section{margin:0 16px 12px}
+.profile-section-title{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase}
+.profile-item{background:var(--card);border-radius:0;padding:13px 14px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.profile-item:first-child{border-radius:14px 14px 0 0}
+.profile-item:last-child{border-radius:0 0 14px 14px;border-bottom:none}
+.profile-item-icon{font-size:18px;width:20px;text-align:center}
+.profile-item-text{flex:1;font-size:13px}
+.profile-item-value{font-size:12px;color:var(--sec)}
+</style>
+</head>
+<body>
+<h1 class="site-title">✦ Astro Talk v2 — Full Platform Preview</h1>
+
+<div class="tabs" id="tabBar">
+  <div class="tab active" data-screen="splash">Splash</div>
+  <div class="tab" data-screen="ob1">Onboarding 1</div>
+  <div class="tab" data-screen="ob2">Onboarding 2</div>
+  <div class="tab" data-screen="ob3">Onboarding 3</div>
+  <div class="tab" data-screen="login">Login</div>
+  <div class="tab" data-screen="home">Home</div>
+  <div class="tab" data-screen="marketplace">Astrologers</div>
+  <div class="tab" data-screen="astro-profile">Profile</div>
+  <div class="tab" data-screen="chat">Live Chat</div>
+  <div class="tab" data-screen="call">Voice Call</div>
+  <div class="tab" data-screen="birthchart">Birth Chart</div>
+  <div class="tab" data-screen="transits">Transits</div>
+  <div class="tab" data-screen="wallet">Wallet</div>
+  <div class="tab" data-screen="live">Live & Community</div>
+  <div class="tab" data-screen="listen">Listen</div>
+  <div class="tab" data-screen="notifications">Notifications</div>
+</div>
+
+<div class="phones">
+
+<!-- SPLASH -->
+<div class="phone active" id="screen-splash"><div class="scr">
+  <div class="splash">
+    <div class="stars" id="s-splash"></div>
+    <svg width="80" height="80" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="45" stroke="#E8762A" stroke-width="1.5" fill="none" opacity=".4"/>
+      <circle cx="50" cy="50" r="30" stroke="#E8762A" stroke-width="1.2" fill="none" opacity=".6"/>
+      <circle cx="50" cy="50" r="14" fill="rgba(232,118,42,.3)" stroke="#E8762A" stroke-width="1"/>
+      <g stroke="rgba(232,118,42,.5)" stroke-width="1">
+        <line x1="50" y1="36" x2="50" y2="5"/><line x1="50" y1="64" x2="50" y2="95"/>
+        <line x1="36" y1="50" x2="5" y2="50"/><line x1="64" y1="50" x2="95" y2="50"/>
+        <line x1="40" y1="40" x2="16" y2="16"/><line x1="60" y1="60" x2="84" y2="84"/>
+        <line x1="60" y1="40" x2="84" y2="16"/><line x1="40" y1="60" x2="16" y2="84"/>
+      </g>
+    </svg>
+    <h2 style="font-size:20px;letter-spacing:5px">ASTRO TALK</h2>
+    <p style="color:var(--sec);font-size:11px;letter-spacing:3px">Your cosmic guide</p>
+    <div class="splash-spinner"></div>
+  </div>
+</div></div>
+
+<!-- ONBOARDING 1 -->
+<div class="phone" id="screen-ob1"><div class="scr">
+  <div class="ob-screen" style="background:linear-gradient(180deg,#2D1B00 0%,#0D0D0D 100%)">
+    <div class="ob-symbols" id="ob-sym1"></div>
+    <div class="ob-skip">Skip</div>
+    <div class="ob-content">
+      <div class="ob-icon-wrap">
+        <div class="ob-ring" style="border-color:#E8762A"></div>
+        <div class="ob-ring" style="border-color:#E8762A"></div>
+        <div class="ob-icon-box" style="background:rgba(232,118,42,.12);border-color:rgba(232,118,42,.4);box-shadow:0 0 32px rgba(232,118,42,.25)">🔮</div>
+      </div>
+      <h2 class="ob-title">Discover Your<br>Cosmic Path</h2>
+      <p class="ob-sub">Get personalized horoscopes, birth chart readings, and daily predictions tailored to your unique celestial blueprint.</p>
+      <div class="ob-pills">
+        <div class="ob-pill" style="color:#E8762A;border-color:rgba(232,118,42,.3);background:rgba(232,118,42,.1)">Daily Horoscope</div>
+        <div class="ob-pill" style="color:#E8762A;border-color:rgba(232,118,42,.3);background:rgba(232,118,42,.1)">Birth Chart</div>
+        <div class="ob-pill" style="color:#E8762A;border-color:rgba(232,118,42,.3);background:rgba(232,118,42,.1)">Compatibility</div>
+      </div>
+    </div>
+    <div class="ob-bottom">
+      <div class="ob-dots">
+        <div class="ob-dot" style="width:24px;background:#E8762A"></div>
+        <div class="ob-dot" style="width:8px;background:rgba(255,255,255,.2)"></div>
+        <div class="ob-dot" style="width:8px;background:rgba(255,255,255,.2)"></div>
+      </div>
+      <button class="ob-cta" style="background:#E8762A;box-shadow:0 8px 20px rgba(232,118,42,.4)" onclick="document.querySelector('.tab[data-screen=ob2]').click()">Continue  →</button>
+      <div class="ob-signin">Already have an account? Sign in</div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ONBOARDING 2 -->
+<div class="phone" id="screen-ob2"><div class="scr">
+  <div class="ob-screen" style="background:linear-gradient(180deg,#0D1A2D 0%,#0D0D0D 100%)">
+    <div class="ob-symbols" id="ob-sym2"></div>
+    <div class="ob-skip">Skip</div>
+    <div class="ob-content">
+      <div class="ob-icon-wrap">
+        <div class="ob-ring" style="border-color:#4A9EFF"></div>
+        <div class="ob-ring" style="border-color:#4A9EFF"></div>
+        <div class="ob-icon-box" style="background:rgba(74,158,255,.12);border-color:rgba(74,158,255,.4);box-shadow:0 0 32px rgba(74,158,255,.25)">🌟</div>
+      </div>
+      <h2 class="ob-title">Talk to Expert<br>Astrologers</h2>
+      <p class="ob-sub">Connect instantly with 500+ verified astrologers via live chat, voice, or video call. First 3 minutes free!</p>
+      <div class="ob-pills">
+        <div class="ob-pill" style="color:#4A9EFF;border-color:rgba(74,158,255,.3);background:rgba(74,158,255,.1)">500+ Astrologers</div>
+        <div class="ob-pill" style="color:#4A9EFF;border-color:rgba(74,158,255,.3);background:rgba(74,158,255,.1)">Live Chat</div>
+        <div class="ob-pill" style="color:#4A9EFF;border-color:rgba(74,158,255,.3);background:rgba(74,158,255,.1)">Voice & Video</div>
+      </div>
+    </div>
+    <div class="ob-bottom">
+      <div class="ob-dots">
+        <div class="ob-dot" style="width:8px;background:rgba(255,255,255,.2)"></div>
+        <div class="ob-dot" style="width:24px;background:#4A9EFF"></div>
+        <div class="ob-dot" style="width:8px;background:rgba(255,255,255,.2)"></div>
+      </div>
+      <button class="ob-cta" style="background:#4A9EFF;box-shadow:0 8px 20px rgba(74,158,255,.4)" onclick="document.querySelector('.tab[data-screen=ob3]').click()">Continue  →</button>
+      <div class="ob-signin">Already have an account? Sign in</div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ONBOARDING 3 -->
+<div class="phone" id="screen-ob3"><div class="scr">
+  <div class="ob-screen" style="background:linear-gradient(180deg,#1A0D2D 0%,#0D0D0D 100%)">
+    <div class="ob-symbols" id="ob-sym3"></div>
+    <div class="ob-skip">Skip</div>
+    <div class="ob-content">
+      <div class="ob-icon-wrap">
+        <div class="ob-ring" style="border-color:#D4A843"></div>
+        <div class="ob-ring" style="border-color:#D4A843"></div>
+        <div class="ob-icon-box" style="background:rgba(212,168,67,.12);border-color:rgba(212,168,67,.4);box-shadow:0 0 32px rgba(212,168,67,.25)">💫</div>
+      </div>
+      <h2 class="ob-title">Live, Learn &<br>Grow Together</h2>
+      <p class="ob-sub">Join live astrology sessions, explore cosmic events, and become part of a thriving spiritual community.</p>
+      <div class="ob-pills">
+        <div class="ob-pill" style="color:#D4A843;border-color:rgba(212,168,67,.3);background:rgba(212,168,67,.1)">Live Sessions</div>
+        <div class="ob-pill" style="color:#D4A843;border-color:rgba(212,168,67,.3);background:rgba(212,168,67,.1)">Community</div>
+        <div class="ob-pill" style="color:#D4A843;border-color:rgba(212,168,67,.3);background:rgba(212,168,67,.1)">Cosmic Events</div>
+      </div>
+    </div>
+    <div class="ob-bottom">
+      <div class="ob-dots">
+        <div class="ob-dot" style="width:8px;background:rgba(255,255,255,.2)"></div>
+        <div class="ob-dot" style="width:8px;background:rgba(255,255,255,.2)"></div>
+        <div class="ob-dot" style="width:24px;background:#D4A843"></div>
+      </div>
+      <button class="ob-cta" style="background:#D4A843;box-shadow:0 8px 20px rgba(212,168,67,.4)" onclick="document.querySelector('.tab[data-screen=login]').click()">Get Started  →</button>
+    </div>
+  </div>
+</div></div>
+
+<!-- LOGIN -->
+<div class="phone" id="screen-login"><div class="scr">
+  <div style="background:radial-gradient(ellipse at top,#2A1500,#0D0D0D 60%);min-height:100%;padding:56px 22px 40px">
+    <div style="width:50px;height:50px;background:rgba(232,118,42,.15);border:1px solid rgba(232,118,42,.3);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px">✨</div>
+    <h2 style="font-size:24px;margin-bottom:6px">Welcome Back</h2>
+    <p style="color:var(--sec);font-size:13px;margin-bottom:28px">The stars are waiting for you</p>
+    <input class="inp" placeholder="Email address">
+    <input class="inp" type="password" placeholder="Password">
+    <button class="btn">Sign In</button>
+    <p style="text-align:center;margin-top:16px;color:var(--sec);font-size:12px">Don't have an account? <span style="color:var(--orange);font-weight:600;cursor:pointer">Sign Up</span></p>
+    <div style="margin-top:28px;text-align:center">
+      <p style="color:var(--muted);font-size:11px;margin-bottom:12px">Continue with</p>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <div style="padding:10px 18px;background:var(--card);border-radius:10px;border:1px solid var(--border);font-size:12px;cursor:pointer">🇬 Google</div>
+        <div style="padding:10px 18px;background:var(--card);border-radius:10px;border:1px solid var(--border);font-size:12px;cursor:pointer"> Apple</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- HOME -->
+<div class="phone" id="screen-home"><div class="scr">
+  <div style="padding-bottom:80px;position:relative">
+    <div class="stars" id="s-home"></div>
+    <div class="home-header">
+      <div class="av">S</div>
+      <h3>Hi Gm Shamim</h3>
+      <div class="wallet-btn">💰 ₹250</div>
+      <div style="font-size:16px;cursor:pointer;position:relative">🔔<div style="position:absolute;top:-2px;right:-2px;width:7px;height:7px;background:var(--red);border-radius:50%"></div></div>
+    </div>
+    <div class="period-tabs">
+      <div class="period-tab active">Today</div><div class="period-tab">This week</div><div class="period-tab">This year</div>
+    </div>
+    <!-- Horoscope card -->
+    <div class="horoscope-card">
+      <div class="tag">✨ Today's Scorpio Horoscope</div>
+      <p>Pluto's transformative energy runs deep today. Trust your powerful intuition — hidden truths come to light in the most profound ways.</p>
+      <p class="lucky">Lucky color: Crimson · Lucky number: 8</p>
+    </div>
+    <!-- Online Astrologers -->
+    <div class="section-row"><h4>Talk to Astrologers</h4><span>See all</span></div>
+    <div class="astrologer-scroll">
+      <div class="astro-mini"><div class="av-wrap"><div class="av" style="width:52px;height:52px;font-size:18px">R</div><div class="online-dot"></div></div><span>Raj Sharma</span><div style="font-size:9px;color:var(--muted)">Vedic</div><div class="rate">₹12/min</div></div>
+      <div class="astro-mini"><div class="av-wrap"><div class="av" style="width:52px;height:52px;font-size:18px">P</div><div class="online-dot"></div></div><span>Dr. Priya</span><div style="font-size:9px;color:var(--muted)">Tarot</div><div class="rate">₹15/min</div></div>
+      <div class="astro-mini"><div class="av-wrap"><div class="av" style="width:52px;height:52px;font-size:18px">V</div><div class="online-dot"></div></div><span>Acharya V.</span><div style="font-size:9px;color:var(--muted)">Vastu</div><div class="rate">₹10/min</div></div>
+      <div class="astro-mini"><div class="av-wrap"><div class="av" style="width:52px;height:52px;font-size:18px">M</div></div><span>Meera J.</span><div style="font-size:9px;color:var(--muted)">Western</div><div class="rate">₹20/min</div></div>
+    </div>
+    <!-- Scores -->
+    <div class="scores-row">
+      <div class="score-card"><div class="score-ring"><svg width="58" height="58"><circle cx="29" cy="29" r="25" fill="none" stroke="#2A2A2A" stroke-width="4"/><circle cx="29" cy="29" r="25" fill="none" stroke="#E8762A" stroke-width="4" stroke-dasharray="157" stroke-dashoffset="39" stroke-linecap="round"/></svg><span>75%</span></div><div class="score-label">Love</div></div>
+      <div class="score-card"><div class="score-ring"><svg width="58" height="58"><circle cx="29" cy="29" r="25" fill="none" stroke="#2A2A2A" stroke-width="4"/><circle cx="29" cy="29" r="25" fill="none" stroke="#E8762A" stroke-width="4" stroke-dasharray="157" stroke-dashoffset="63" stroke-linecap="round"/></svg><span>60%</span></div><div class="score-label">Friendship</div></div>
+      <div class="score-card"><div class="score-ring"><svg width="58" height="58"><circle cx="29" cy="29" r="25" fill="none" stroke="#2A2A2A" stroke-width="4"/><circle cx="29" cy="29" r="25" fill="none" stroke="#E8762A" stroke-width="4" stroke-dasharray="157" stroke-dashoffset="31" stroke-linecap="round"/></svg><span>80%</span></div><div class="score-label">Work</div></div>
+    </div>
+    <div class="action-btn">✨ Talk to an Astrologer Now</div>
+    <div class="section-row"><h4>Courses for you</h4><span>See all</span></div>
+    <div class="course-item"><div class="course-icon">🌙</div><div class="course-text"><h5>Become the transit moon suffer</h5><p>Astrology is the study of the influence</p></div><span style="color:var(--muted);font-size:13px">›</span></div>
+    <div class="course-item"><div class="course-icon">⭐</div><div class="course-text"><h5>Intro to Astrological rising signs</h5><p>I am searching for no bullish tarot card</p></div><span style="color:var(--muted);font-size:13px">›</span></div>
+    <div class="course-item"><div class="course-icon">🔥</div><div class="course-text"><h5>Intro to kundalini energy</h5><p>Hero scop is the study of the Astrology</p></div><span style="color:var(--muted);font-size:13px">›</span></div>
+  </div>
+  <div class="bnav"><div class="ni active">⌂<span>Home</span></div><div class="ni">👥<span>Astro</span></div><div class="ni">◎<span>Chart</span></div><div class="ni">🔴<span>Live</span></div><div class="ni">🎧<span>Listen</span></div></div>
+</div></div>
+
+<!-- MARKETPLACE -->
+<div class="phone" id="screen-marketplace"><div class="scr">
+  <div style="padding-bottom:80px">
+    <div class="mkt-header"><div><h3 style="font-size:18px;font-weight:700">Talk to Astrologers</h3><div class="online-count">3 online now</div></div><span style="font-size:18px;cursor:pointer">⚙</span></div>
+    <div class="search-bar">🔍 Search by name or specialization…</div>
+    <div class="spec-chips">
+      <div class="spec-chip active">All</div><div class="spec-chip">Vedic</div><div class="spec-chip">Tarot</div><div class="spec-chip">Numerology</div><div class="spec-chip">Vastu</div><div class="spec-chip">Western</div><div class="spec-chip">Palmistry</div>
+    </div>
+    <!-- Astrologer cards -->
+    <div class="astro-card">
+      <div class="astro-card-header">
+        <div class="av" style="width:52px;height:52px;font-size:18px;position:relative">R<div class="online-dot"></div></div>
+        <div style="flex:1">
+          <div class="astro-name">Pandit Raj Sharma ✓</div>
+          <div class="stars-row"><span class="s">★★★★★</span> 4.8 (2,340)</div>
+          <div class="astro-meta"><span>📅 20 yrs</span><span>👥 8.9K clients</span></div>
+        </div>
+        <div class="astro-status">
+          <div class="status-badge status-online">● Available</div>
+          <div class="rate-tag">₹12/min</div>
+        </div>
+      </div>
+      <div class="spec-wrap"><span class="chip orange">Vedic</span><span class="chip orange">KP System</span><span class="chip">Hindi</span><span class="chip">English</span></div>
+      <div class="consult-btns">
+        <div class="consult-btn cb-chat">💬 Chat</div>
+        <div class="consult-btn cb-call">📞 Call</div>
+        <div class="consult-btn cb-video">📹 Video</div>
+      </div>
+    </div>
+    <div class="astro-card">
+      <div class="astro-card-header">
+        <div class="av" style="width:52px;height:52px;font-size:18px;position:relative">P<div class="online-dot"></div></div>
+        <div style="flex:1">
+          <div class="astro-name">Dr. Priya Nair ✓</div>
+          <div class="stars-row"><span class="s">★★★★★</span> 4.9 (1,876)</div>
+          <div class="astro-meta"><span>📅 12 yrs</span><span>👥 5.6K clients</span></div>
+        </div>
+        <div class="astro-status">
+          <div class="status-badge status-online">● Available</div>
+          <div class="rate-tag">₹15/min</div>
+        </div>
+      </div>
+      <div class="spec-wrap"><span class="chip orange">Tarot</span><span class="chip orange">Numerology</span><span class="chip">English</span><span class="chip">Malayalam</span></div>
+      <div class="consult-btns">
+        <div class="consult-btn cb-chat">💬 Chat</div>
+        <div class="consult-btn cb-call">📞 Call</div>
+        <div class="consult-btn cb-video">📹 Video</div>
+      </div>
+    </div>
+    <div class="astro-card">
+      <div class="astro-card-header">
+        <div class="av" style="width:52px;height:52px;font-size:18px">V</div>
+        <div style="flex:1">
+          <div class="astro-name">Acharya Vikram ✓</div>
+          <div class="stars-row"><span class="s">★★★★</span>★ 4.7 (3,201)</div>
+          <div class="astro-meta"><span>📅 18 yrs</span><span>👥 12K clients</span></div>
+        </div>
+        <div class="astro-status">
+          <div class="status-badge status-offline">Offline</div>
+          <div class="rate-tag">₹10/min</div>
+        </div>
+      </div>
+      <div class="spec-wrap"><span class="chip orange">Vastu</span><span class="chip orange">Palmistry</span><span class="chip">Hindi</span></div>
+      <div class="consult-btns">
+        <div class="consult-btn cb-chat" style="opacity:.5">💬 Chat</div>
+        <div class="consult-btn cb-call" style="opacity:.5">📞 Call</div>
+        <div class="consult-btn cb-video" style="opacity:.5">📹 Video</div>
+      </div>
+    </div>
+  </div>
+  <div class="bnav"><div class="ni">⌂<span>Home</span></div><div class="ni active">👥<span>Astro</span></div><div class="ni">◎<span>Chart</span></div><div class="ni">🔴<span>Live</span></div><div class="ni">🎧<span>Listen</span></div></div>
+</div></div>
+
+<!-- ASTROLOGER PROFILE -->
+<div class="phone" id="screen-astro-profile"><div class="scr">
+  <div style="padding-bottom:80px">
+    <div style="height:220px;background:linear-gradient(180deg,#2A1500,var(--bg));position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:40px">
+      <div style="position:absolute;top:14px;left:14px;cursor:pointer;background:rgba(0,0,0,.3);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center">‹</div>
+      <div class="av" style="width:70px;height:70px;font-size:28px;position:relative;box-shadow:0 0 20px rgba(232,118,42,.3)">R<div class="online-dot" style="width:14px;height:14px;border-width:3px"></div></div>
+      <div style="margin-top:10px;text-align:center">
+        <div style="font-size:17px;font-weight:700">Pandit Raj Sharma <span style="color:var(--orange);font-size:13px">✓</span></div>
+        <div style="color:var(--gold);font-size:13px;margin:4px 0">★★★★★ 4.8 · 2,340 reviews</div>
+        <div style="display:flex;gap:20px;margin-top:6px;justify-content:center;font-size:11px">
+          <div style="text-align:center"><div style="color:var(--orange);font-weight:700">20+</div><div style="color:var(--muted)">Years</div></div>
+          <div style="text-align:center"><div style="color:var(--orange);font-weight:700">8.9K</div><div style="color:var(--muted)">Clients</div></div>
+          <div style="text-align:center"><div style="color:var(--orange);font-weight:700">₹12</div><div style="color:var(--muted)">/min</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;border-bottom:1px solid var(--border)">
+      <div style="flex:1;padding:10px;text-align:center;font-size:12px;color:var(--orange);border-bottom:2px solid var(--orange)">Overview</div>
+      <div style="flex:1;padding:10px;text-align:center;font-size:12px;color:var(--muted)">Reviews</div>
+      <div style="flex:1;padding:10px;text-align:center;font-size:12px;color:var(--muted)">Reports</div>
+    </div>
+    <div style="padding:14px">
+      <p style="font-size:12px;color:var(--sec);line-height:1.6;margin-bottom:14px">Expert in Vedic astrology with 20+ years of experience helping people navigate life's challenges through ancient wisdom and modern interpretation.</p>
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px">Specializations</div>
+      <div class="spec-wrap" style="margin-bottom:14px"><span class="chip orange">Vedic</span><span class="chip orange">KP System</span><span class="chip orange">Marriage</span><span class="chip orange">Career</span></div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px">Languages</div>
+      <div class="spec-wrap" style="margin-bottom:14px"><span class="chip">🌐 Hindi</span><span class="chip">🌐 English</span><span class="chip">🌐 Punjabi</span></div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px">Consultation Rates</div>
+      <div class="card" style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:12px">💬 Chat</div><div style="color:var(--orange);font-weight:700">₹12/min</div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:12px">📞 Voice Call</div><div style="color:var(--green);font-weight:700">₹18/min</div></div><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:12px">📹 Video Call</div><div style="color:var(--blue);font-weight:700">₹24/min</div></div></div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;background:var(--surface);padding:12px 14px 22px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px">
+    <div style="flex:1"><div style="color:var(--orange);font-size:16px;font-weight:700">₹12/min</div><div style="color:var(--muted);font-size:10px">Chat consultation</div></div>
+    <div style="width:36px;height:36px;background:rgba(76,175,80,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">📞</div>
+    <div style="width:36px;height:36px;background:rgba(33,150,243,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">📹</div>
+    <button class="btn" style="width:auto;padding:10px 18px;border-radius:12px">💬 Chat Now</button>
+  </div>
+</div></div>
+
+<!-- LIVE CHAT -->
+<div class="phone" id="screen-chat"><div class="scr" style="display:flex;flex-direction:column">
+  <div class="chat-appbar">
+    <span style="cursor:pointer;font-size:16px">‹</span>
+    <div class="av">R</div>
+    <div style="flex:1"><div style="font-size:13px;font-weight:600">Pandit Raj Sharma</div><div style="font-size:10px;color:var(--orange)">In session · 04:32</div></div>
+    <button class="btn" style="width:auto;padding:5px 12px;border-radius:10px;font-size:11px;background:var(--red)">End</button>
+  </div>
+  <div class="billing-bar">
+    <span>⏱</span><span style="color:var(--orange);font-weight:700">04:32</span>
+    <span style="flex:1"></span>
+    <span style="color:var(--sec)">₹54.40 charged</span>
+    <span style="margin-left:10px">💰</span><span style="color:var(--gold);font-weight:700">₹195</span>
+  </div>
+  <div class="msg-list" style="flex:1;padding:12px;overflow-y:auto;max-height:360px">
+    <div style="text-align:center;margin:8px 0"><span style="background:var(--sl);padding:4px 12px;border-radius:12px;font-size:10px;color:var(--muted)">Consultation started. ₹12/min</span></div>
+    <div class="msg-bubble"><div class="av" style="width:26px;height:26px;font-size:11px">R</div><div class="bubble astro">Namaste! How may I guide you on your cosmic journey today?</div></div>
+    <div class="msg-bubble user"><div class="bubble user">I'm worried about my career change next month. Is the timing right?</div></div>
+    <div class="msg-bubble"><div class="av" style="width:26px;height:26px;font-size:11px">R</div><div class="bubble astro">Let me check your chart… Jupiter is in your 10th house — very favorable for career moves! The timing looks excellent especially after the 15th.</div></div>
+    <div class="msg-bubble user"><div class="bubble user">That's reassuring! What about my relationships?</div></div>
+    <div class="msg-bubble"><div class="av" style="width:26px;height:26px;font-size:11px">R</div><div class="bubble astro">Venus in your 7th house suggests a deepening of existing bonds. If single, a meaningful connection may appear through work circles in Q2.</div></div>
+    <div style="text-align:center;margin:4px 0"><span style="background:var(--sl);padding:3px 10px;border-radius:10px;font-size:9px;color:var(--muted)">Pandit Raj is typing…</span></div>
+  </div>
+  <div class="chat-input">
+    <span style="font-size:18px;cursor:pointer;color:var(--muted)">＋</span>
+    <input placeholder="Type a message…" style="flex:1;background:var(--sl);border:none;border-radius:22px;padding:8px 14px;color:var(--text);font-size:12px;outline:none">
+    <div class="send-btn">➤</div>
+  </div>
+</div></div>
+
+<!-- VOICE CALL -->
+<div class="phone" id="screen-call"><div class="scr">
+  <div class="call-screen">
+    <div class="stars" id="s-call"></div>
+    <div class="call-top">
+      <div style="background:rgba(0,0,0,.3);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px">‹</div>
+      <div style="background:rgba(0,0,0,.3);border-radius:20px;padding:5px 12px;display:flex;align-items:center;gap:5px">
+        <span style="color:var(--orange)">⏱</span><span style="font-weight:700;font-size:13px">08:47</span>
+      </div>
+    </div>
+    <div class="call-center">
+      <div class="call-av">R</div>
+      <div style="font-size:18px;font-weight:700">Pandit Raj Sharma</div>
+      <div style="color:var(--sec);font-size:13px">Voice Consultation</div>
+      <div style="color:var(--orange);font-size:12px;margin-top:4px">₹105.64 charged · ₹18/min</div>
+      <!-- Sound waves animation -->
+      <div style="display:flex;align-items:center;gap:3px;margin-top:16px">
+        <div style="width:3px;background:var(--orange);border-radius:3px;animation:wave .8s infinite alternate" class="w1"></div>
+        <div style="width:3px;background:var(--orange);border-radius:3px;animation:wave .9s .1s infinite alternate" class="w2"></div>
+        <div style="width:3px;background:var(--orange);border-radius:3px;animation:wave .7s .2s infinite alternate" class="w3"></div>
+        <div style="width:3px;background:var(--orange);border-radius:3px;animation:wave 1s .3s infinite alternate" class="w4"></div>
+        <div style="width:3px;background:var(--orange);border-radius:3px;animation:wave .85s .1s infinite alternate" class="w5"></div>
+      </div>
+    </div>
+    <div class="call-controls">
+      <div class="ctrl-btn"><div class="ctrl-circle">🔇</div><span class="ctrl-label">Mute</span></div>
+      <div class="ctrl-btn"><div class="ctrl-circle">🔊</div><span class="ctrl-label">Speaker</span></div>
+      <div class="ctrl-btn"><div class="ctrl-circle red" style="width:60px;height:60px;font-size:22px">📵</div><span class="ctrl-label">End</span></div>
+      <div class="ctrl-btn"><div class="ctrl-circle">⌨️</div><span class="ctrl-label">Keypad</span></div>
+      <div class="ctrl-btn"><div class="ctrl-circle">💬</div><span class="ctrl-label">Chat</span></div>
+    </div>
+  </div>
+  <style>
+    .w1,.w2,.w3,.w4,.w5{height:20px}
+    @keyframes wave{from{height:8px}to{height:28px}}
+    .call-center{flex:1}
+  </style>
+</div></div>
+
+<!-- BIRTH CHART -->
+<div class="phone" id="screen-birthchart"><div class="scr">
+  <div style="padding-bottom:80px;position:relative">
+    <div class="stars" id="s-chart"></div>
+    <div class="appbar"><span class="back">‹</span><h3>Your Birth Chart</h3><span style="font-size:16px;color:var(--sec)">☰</span></div>
+    <div style="display:flex;justify-content:center;padding:10px 16px 14px"><canvas id="zodiacCanvas" width="220" height="220"></canvas></div>
+    <div style="padding:0 16px 12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;font-weight:500">Inspiration</span><span style="color:var(--sec);font-size:12px">60%</span></div><div style="height:5px;background:var(--border);border-radius:3px"><div style="height:100%;width:60%;background:var(--orange);border-radius:3px"></div></div></div>
+    <div style="padding:0 16px;margin-bottom:12px">
+      <div style="font-size:14px;font-weight:500;margin-bottom:8px">Inspiration</div>
+      <div style="display:flex;gap:8px"><div style="flex:1;padding:9px;border-radius:10px;background:var(--orange);color:#fff;text-align:center;font-size:11px;font-weight:600">Plants in signs</div><div style="flex:1;padding:9px;border-radius:10px;background:var(--card);text-align:center;font-size:11px;color:var(--sec)">Plants in houses</div></div>
+    </div>
+    <div style="padding:0 16px;margin-bottom:14px;color:var(--sec);font-size:12px;line-height:1.6">Transits in astrology are one of the most powerful tools for understanding the evolving themes of your life.</div>
+    <div style="padding:0 16px">
+      <div class="card" style="display:flex;gap:10px;margin-bottom:10px"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#2A1A0A,#1A0D00);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">☿</div><div style="flex:1"><div style="font-size:13px;font-weight:600;margin-bottom:3px">Gemini rising</div><div style="font-size:11px;color:var(--muted)">Mercury-ruled, curious and communicative nature</div></div></div>
+      <div class="card" style="display:flex;gap:10px;margin-bottom:10px;align-items:center"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#2A1A0A,#1A0D00);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">☀</div><div style="flex:1"><div style="font-size:13px;font-weight:600;margin-bottom:3px">Sun in Aries 5°</div><div style="font-size:11px;color:var(--muted)">Bold, pioneering energy drives your identity</div></div><div style="background:rgba(232,118,42,.2);color:var(--orange);font-size:10px;padding:2px 7px;border-radius:6px">Rx</div></div>
+      <div class="card" style="display:flex;gap:10px"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#1A1A2A,#0D0D1A);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🌙</div><div><div style="font-size:13px;font-weight:600;margin-bottom:3px">Moon in Cancer 18°</div><div style="font-size:11px;color:var(--muted)">Deep emotional intuition and nurturing instincts</div></div></div>
+    </div>
+  </div>
+  <div class="bnav"><div class="ni">⌂</div><div class="ni">👥</div><div class="ni active">◎</div><div class="ni">🔴</div><div class="ni">🎧</div></div>
+</div></div>
+
+<!-- TRANSITS -->
+<div class="phone" id="screen-transits"><div class="scr">
+  <div style="padding-bottom:80px;position:relative">
+    <div class="stars" id="s-transits"></div>
+    <div class="appbar"><span class="back">‹</span><h3>Transits</h3><span style="color:var(--sec)">☰</span></div>
+    <div style="display:flex;justify-content:center;padding:6px 16px 10px"><canvas id="zodiacCanvas2" width="200" height="200"></canvas></div>
+    <div style="padding:0 16px 4px;font-size:16px;font-weight:700">Inspiration</div>
+    <div style="display:flex;gap:8px;padding:10px 16px">
+      <div style="flex:1;padding:9px;border-radius:10px;background:var(--orange);text-align:center;font-size:13px;font-weight:600;color:#fff">Love</div>
+      <div style="flex:1;padding:9px;border-radius:10px;background:var(--card);text-align:center;font-size:13px;color:var(--sec)">Friendship</div>
+      <div style="flex:1;padding:9px;border-radius:10px;background:var(--card);text-align:center;font-size:13px;color:var(--sec)">Work</div>
+    </div>
+    <div style="padding:8px 16px;color:var(--sec);font-size:12px;line-height:1.6;margin-bottom:8px">Transits highlight the areas of life where growth, challenges, and opportunities are currently unfolding.</div>
+    <div style="padding:0 16px">
+      <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><div style="width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0"></div><div style="font-size:13px;font-weight:600">Venus opposite Neptune</div></div><div style="font-size:12px;color:var(--sec);line-height:1.5">Venus opposite Neptune heightens romantic idealism. Keep dreams grounded in reality for the most fulfilling connections.</div></div>
+      <div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><div style="width:8px;height:8px;border-radius:50%;background:var(--orange);flex-shrink:0"></div><div style="font-size:13px;font-weight:600">Mercury conjunct Venus</div></div><div style="font-size:12px;color:var(--sec);line-height:1.5">Mercury conjunct Venus in Libra brings harmony to communications and relationships. Express your feelings with grace.</div></div>
+      <div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><div style="width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0"></div><div style="font-size:13px;font-weight:600">Moon sextile Saturn</div></div><div style="font-size:12px;color:var(--sec);line-height:1.5">Moon sextile Saturn supports building stable, meaningful connections. Great time for deeper conversations.</div></div>
+    </div>
+  </div>
+  <div class="bnav"><div class="ni">⌂</div><div class="ni">👥</div><div class="ni active">◎</div><div class="ni">🔴</div><div class="ni">🎧</div></div>
+</div></div>
+
+<!-- WALLET -->
+<div class="phone" id="screen-wallet"><div class="scr">
+  <div style="padding-bottom:80px">
+    <div class="appbar"><span class="back">‹</span><h3>Wallet & Plans</h3><span style="color:var(--orange);font-size:12px;font-weight:600;cursor:pointer">+ Add</span></div>
+    <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:14px">
+      <div style="flex:1;padding:10px;text-align:center;font-size:12px;color:var(--orange);border-bottom:2px solid var(--orange)">Wallet</div>
+      <div style="flex:1;padding:10px;text-align:center;font-size:12px;color:var(--muted)">Transactions</div>
+      <div style="flex:1;padding:10px;text-align:center;font-size:12px;color:var(--muted)">Plans</div>
+    </div>
+    <div class="balance-card">
+      <div class="label">Available Balance</div>
+      <div class="amount">₹250.00</div>
+      <div class="balance-stats">
+        <div class="bstat"><span style="color:var(--green)">₹500</span><span>Total Added</span></div>
+        <div style="width:1px;background:var(--border)"></div>
+        <div class="bstat"><span style="color:var(--red)">₹250</span><span>Total Spent</span></div>
+      </div>
+    </div>
+    <div class="section-row" style="margin-top:0"><h4>Quick Add</h4></div>
+    <div class="quick-grid">
+      <div class="quick-btn">₹100</div><div class="quick-btn">₹200</div><div class="quick-btn">₹500</div>
+      <div class="quick-btn">₹1000</div><div class="quick-btn">₹2000</div><div class="quick-btn">₹5000</div>
+    </div>
+    <div style="padding:0 16px;margin-bottom:14px"><button class="btn" style="border-radius:14px">Add Custom Amount</button></div>
+    <div class="section-row"><h4>Recent Transactions</h4></div>
+    <div class="tx-item"><div class="tx-icon credit">⬇️</div><div class="tx-text"><h5>Wallet recharge via Razorpay</h5><p>2 days ago</p></div><div class="tx-amount credit">+₹500</div></div>
+    <div class="tx-item"><div class="tx-icon debit">⬆️</div><div class="tx-text"><h5>Consultation - Pandit Raj (12 min)</h5><p>Yesterday</p></div><div class="tx-amount debit">-₹144</div></div>
+    <div class="tx-item"><div class="tx-icon debit">⬆️</div><div class="tx-text"><h5>Consultation - Dr. Priya (3 min)</h5><p>Today</p></div><div class="tx-amount debit">-₹45</div></div>
+    <div class="tx-item"><div class="tx-icon credit">⬇️</div><div class="tx-text"><h5>Refund for cancelled session</h5><p>7 days ago</p></div><div class="tx-amount credit">+₹50</div></div>
+  </div>
+</div></div>
+
+<!-- LIVE & COMMUNITY -->
+<div class="phone" id="screen-live"><div class="scr">
+  <div style="padding-bottom:80px;position:relative">
+    <div class="stars" id="s-live"></div>
+    <div class="appbar"><span class="back">‹</span><h3>Live & Community</h3><span style="color:var(--orange);font-size:18px;cursor:pointer">✏️</span></div>
+    <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:12px">
+      <div style="flex:1;padding:10px;text-align:center;font-size:12px;color:var(--orange);border-bottom:2px solid var(--orange)">🔴 Live Sessions</div>
+      <div style="flex:1;padding:10px;text-align:center;font-size:12px;color:var(--muted)">💬 Community</div>
+    </div>
+    <div style="padding:0 14px;font-size:13px;font-weight:600;margin-bottom:10px;color:var(--text)">🔴 Live Now</div>
+    <div class="live-card">
+      <div class="live-thumb">
+        <div class="live-badge">● LIVE</div>
+        <div class="viewer-badge">👁 234</div>
+        <div style="display:flex;align-items:center;gap:8px"><div class="av" style="width:28px;height:28px;font-size:12px">R</div><span style="font-size:12px;font-weight:600;color:#fff">Pandit Raj Sharma</span></div>
+      </div>
+      <div class="live-info">
+        <h4>Mercury Retrograde Survival Guide</h4>
+        <p>Learn how to navigate this challenging period with clarity</p>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="color:var(--gold);font-size:11px">💎 ₹1,250 tips</div>
+          <button class="btn" style="width:auto;padding:7px 16px;font-size:11px;border-radius:10px">Join Live</button>
+        </div>
+      </div>
+    </div>
+    <div style="padding:0 14px;font-size:13px;font-weight:600;margin:8px 0;color:var(--text)">📅 Upcoming</div>
+    <div class="live-card">
+      <div class="live-thumb" style="background:linear-gradient(135deg,#1A1500,#0D0D0D)">
+        <div style="background:rgba(0,0,0,.5);border-radius:10px;padding:4px 10px;font-size:10px;color:var(--gold)">⏰ In 2h</div>
+        <div style="display:flex;align-items:center;gap:8px"><div class="av" style="width:28px;height:28px;font-size:12px">P</div><span style="font-size:12px;font-weight:600;color:#fff">Dr. Priya Nair</span></div>
+      </div>
+      <div class="live-info">
+        <h4>Full Moon Tarot Reading</h4>
+        <p>Special reading for all signs during full moon energy</p>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="color:var(--muted);font-size:11px">⏰ Today at 8:00 PM</div>
+          <button class="btn btn-outline" style="width:auto;padding:7px 16px;font-size:11px;border-radius:10px">Remind</button>
+        </div>
+      </div>
+    </div>
+    <div style="padding:0 14px;font-size:13px;font-weight:600;margin:8px 0;color:var(--text)">💬 Community</div>
+    <div class="community-post">
+      <div class="post-header"><div class="av" style="width:34px;height:34px;font-size:13px">R</div><div style="flex:1"><div style="font-size:13px;font-weight:600">Pandit Raj Sharma ✓<span style="color:var(--orange)"> ·</span></div><div style="font-size:10px;color:var(--muted)">2h ago</div></div></div>
+      <div class="post-content">Mercury retrograde ends this week! Time to move forward with clarity and confidence. The cosmic energy is shifting — embrace new beginnings. ✨🔮</div>
+      <div class="post-actions"><div class="post-action">❤️ 342</div><div class="post-action">💬 45</div><div class="post-action">↗️ Share</div></div>
+    </div>
+    <div class="community-post">
+      <div class="post-header"><div class="av" style="width:34px;height:34px;font-size:13px">S</div><div style="flex:1"><div style="font-size:13px;font-weight:600">Scorpio_Star</div><div style="font-size:10px;color:var(--muted)">5h ago · ♏ Scorpio</div></div></div>
+      <div class="post-content">My consultation with Pandit Raj was incredibly insightful. He predicted my job change 3 months in advance! Highly recommend 🌟</div>
+      <div class="post-actions"><div class="post-action liked">❤️ 128</div><div class="post-action">💬 23</div><div class="post-action">↗️ Share</div></div>
+    </div>
+  </div>
+  <div class="bnav"><div class="ni">⌂</div><div class="ni">👥</div><div class="ni">◎</div><div class="ni active">🔴<span>Live</span></div><div class="ni">🎧</div></div>
+</div></div>
+
+<!-- LISTEN -->
+<div class="phone" id="screen-listen"><div class="scr">
+  <div style="padding-bottom:80px">
+    <div class="appbar"><span class="back">‹</span><h3>Listen</h3><span style="color:var(--sec)">☰</span></div>
+    <div style="text-align:center;padding:8px 28px 20px"><h2 style="font-size:22px;font-weight:700;margin-bottom:8px">Sleep stories</h2><p style="color:var(--sec);font-size:12px;line-height:1.5">Transits explain the current themes of your life and where you are being asked to grow.</p></div>
+    <div style="margin:0 16px 12px;background:var(--card);border-radius:18px;border:1px solid var(--border);padding:14px;display:flex;gap:14px">
+      <div style="flex:1"><h4 style="font-size:15px;font-weight:700;margin-bottom:6px">Journey to moon</h4><p style="color:var(--sec);font-size:11px;line-height:1.4;margin-bottom:12px">A calming journey through lunar energy to help you sleep deeply</p><div style="width:36px;height:36px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px">▶</div></div>
+      <div style="width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#C0C8D8,#5A6070);display:flex;align-items:center;justify-content:center;font-size:38px;align-self:center;flex-shrink:0">🌙</div>
+    </div>
+    <div style="margin:0 16px 12px;background:var(--card);border-radius:18px;border:1px solid var(--border);padding:14px;display:flex;gap:14px">
+      <div style="flex:1"><h4 style="font-size:15px;font-weight:700;margin-bottom:6px">Journey to Jupiter</h4><p style="color:var(--sec);font-size:11px;line-height:1.4;margin-bottom:12px">Expand your consciousness with this Jupiter meditation journey</p><div style="width:36px;height:36px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px">▶</div></div>
+      <div style="width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#D4A84B,#8B6914);display:flex;align-items:center;justify-content:center;font-size:38px;align-self:center;flex-shrink:0">🪐</div>
+    </div>
+    <div style="margin:0 16px 12px;background:var(--card);border-radius:18px;border:1px solid var(--border);padding:14px;display:flex;gap:14px">
+      <div style="flex:1"><h4 style="font-size:15px;font-weight:700;margin-bottom:6px">Journey to mars</h4><p style="color:var(--sec);font-size:11px;line-height:1.4;margin-bottom:12px">Channel Mars energy for deep rejuvenating sleep and vitality</p><div style="width:36px;height:36px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px">▶</div></div>
+      <div style="width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#E87060,#7A2010);display:flex;align-items:center;justify-content:center;font-size:38px;align-self:center;flex-shrink:0">🔴</div>
+    </div>
+    <div style="margin:0 16px;background:var(--orange);border-radius:16px;padding:16px;text-align:center;font-size:14px;font-weight:600;cursor:pointer">What's my action →</div>
+  </div>
+  <div class="bnav"><div class="ni">⌂</div><div class="ni">👥</div><div class="ni">◎</div><div class="ni">🔴</div><div class="ni active">🎧<span>Listen</span></div></div>
+</div></div>
+
+<!-- NOTIFICATIONS -->
+<div class="phone" id="screen-notifications"><div class="scr">
+  <div style="padding-bottom:80px">
+    <div class="appbar"><span class="back">‹</span><h3>Notifications <span style="background:var(--orange);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700">3</span></h3><span style="color:var(--orange);font-size:11px;cursor:pointer">Mark all read</span></div>
+    <div class="notif-item unread"><div class="notif-icon" style="background:rgba(232,118,42,.15)">🔮</div><div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">Your daily Scorpio prediction is ready</div><div style="font-size:11px;color:var(--muted);margin-top:3px">The stars have a special message for you today.</div><div style="font-size:10px;color:var(--muted);margin-top:4px">1h ago</div></div><div class="notif-dot"></div></div>
+    <div class="notif-item unread"><div class="notif-icon" style="background:rgba(229,57,53,.15)">🔴</div><div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">Pandit Raj Sharma is Live!</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Mercury Retrograde Survival Guide — join now</div><div style="font-size:10px;color:var(--muted);margin-top:4px">2h ago</div></div><div class="notif-dot"></div></div>
+    <div class="notif-item unread"><div class="notif-icon" style="background:rgba(76,175,80,.15)">✅</div><div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">Consultation completed</div><div style="font-size:11px;color:var(--muted);margin-top:3px">12-min session with Dr. Priya Nair — ₹180 charged</div><div style="font-size:10px;color:var(--muted);margin-top:4px">Yesterday</div></div><div class="notif-dot"></div></div>
+    <div class="notif-item"><div class="notif-icon" style="background:rgba(212,168,67,.15)">💰</div><div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">Wallet credited</div><div style="font-size:11px;color:var(--muted);margin-top:3px">₹500 added to your wallet successfully</div><div style="font-size:10px;color:var(--muted);margin-top:4px">2 days ago</div></div></div>
+    <div class="notif-item"><div class="notif-icon" style="background:rgba(156,39,176,.12)">🌕</div><div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">Full Moon Alert</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Full Moon in Scorpio — powerful time for manifestation!</div><div style="font-size:10px;color:var(--muted);margin-top:4px">3 days ago</div></div></div>
+    <div class="notif-item"><div class="notif-icon" style="background:rgba(212,168,67,.15)">⭐</div><div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">New 5-star review received</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Rahul M. left you a glowing review</div><div style="font-size:10px;color:var(--muted);margin-top:4px">4 days ago</div></div></div>
+  </div>
+</div></div>
+
+</div><!-- /phones -->
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:24px">
+  <span style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-size:11px;color:var(--sec)">Flutter <span style="color:var(--orange)">+ Dart</span></span>
+  <span style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-size:11px;color:var(--sec)">Node.js <span style="color:var(--orange)">+ Socket.io</span></span>
+  <span style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-size:11px;color:var(--sec)">WebRTC <span style="color:var(--orange)">Voice/Video</span></span>
+  <span style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-size:11px;color:var(--sec)">Razorpay <span style="color:var(--orange)">Payments</span></span>
+  <span style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-size:11px;color:var(--sec)">PostgreSQL</span>
+  <span style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-size:11px;color:var(--sec)">FCM Push <span style="color:var(--orange)">Notifications</span></span>
+  <span style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-size:11px;color:var(--sec)">Hostinger <span style="color:var(--orange)">VPS</span></span>
+</div>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.phone').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('screen-' + tab.dataset.screen).classList.add('active');
+    const s = tab.dataset.screen;
+    if (s === 'birthchart') setTimeout(() => drawWheel('zodiacCanvas'), 50);
+    if (s === 'transits') setTimeout(() => drawWheel('zodiacCanvas2'), 50);
+  });
+});
+
+// Period tabs interaction
+document.querySelectorAll('.period-tab').forEach(t => t.addEventListener('click', function() {
+  document.querySelectorAll('.period-tab').forEach(x => x.classList.remove('active'));
+  this.classList.add('active');
+}));
+
+// Stars
+function addStars(id, count=40) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  for (let i=0;i<count;i++) {
+    const s = document.createElement('div');
+    s.className='star';
+    const sz = Math.random()*2+1;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s`;
+    el.appendChild(s);
+  }
+}
+['s-splash','s-home','s-chart','s-transits','s-call','s-live'].forEach(id => addStars(id, id==='s-splash'?60:30));
+
+// Onboarding floating symbols
+(function() {
+  const configs = [
+    { id:'ob-sym1', symbols:['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'], color:'rgba(232,118,42,' },
+    { id:'ob-sym2', symbols:['✨','⭐','🌙','☀️','💫','🌟','⚡','💎','🌈','✦','🪐','☄️'], color:'rgba(74,158,255,' },
+    { id:'ob-sym3', symbols:['🌕','🌗','🌑','🌓','☿','♀','♂','♃','♄','⛎','☽','🌙'], color:'rgba(212,168,67,' },
+  ];
+  configs.forEach(({id, symbols}) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const positions = Array.from({length:12}, (_, i) => {
+      const angle = (i / 12) * 2 * Math.PI;
+      return { x: 50 + Math.cos(angle) * 42, y: 50 + Math.sin(angle) * 38 };
+    });
+    positions.forEach((pos, i) => {
+      const s = document.createElement('div');
+      s.className = 'ob-symbol';
+      s.textContent = symbols[i % symbols.length];
+      const size = 11 + (i % 3) * 5;
+      s.style.cssText = `left:${pos.x}%;top:${pos.y}%;font-size:${size}px;animation-delay:${(i*0.6).toFixed(1)}s;animation-duration:${6+i%4}s`;
+      el.appendChild(s);
+    });
+  });
+})();
+
+// Zodiac wheel
+const SIGNS=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+let angle=0;
+function drawWheel(id) {
+  const canvas=document.getElementById(id);
+  if (!canvas) return;
+  const ctx=canvas.getContext('2d'), W=canvas.width, H=canvas.height, cx=W/2, cy=H/2, R=W/2-4;
+  ctx.clearRect(0,0,W,H);
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle); ctx.translate(-cx,-cy);
+  [.95,.75,.55,.30].forEach((r,i)=>{
+    ctx.beginPath(); ctx.arc(cx,cy,R*r,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(232,118,42,${.4-.08*i})`; ctx.lineWidth=1.2; ctx.stroke();
+  });
+  for (let i=0;i<12;i++) {
+    const a0=(i*30-90)*Math.PI/180, a1=((i+1)*30-90)*Math.PI/180;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,R*.95,a0,a1); ctx.closePath();
+    ctx.fillStyle=i%2?'rgba(232,118,42,.03)':'rgba(232,118,42,.07)'; ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(cx+R*.55*Math.cos(a0),cy+R*.55*Math.sin(a0));
+    ctx.lineTo(cx+R*.95*Math.cos(a0),cy+R*.95*Math.sin(a0));
+    ctx.strokeStyle='rgba(232,118,42,.25)'; ctx.lineWidth=.5; ctx.stroke();
+  }
+  ctx.restore();
+  ctx.font=`${W*.056}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  for (let i=0;i<12;i++) {
+    const a=(i*30-90+15)*Math.PI/180, sr=R*.65;
+    ctx.fillStyle='rgba(232,118,42,.85)';
+    ctx.fillText(SIGNS[i],cx+sr*Math.cos(a),cy+sr*Math.sin(a));
+  }
+  ctx.save(); ctx.translate(cx,cy);
+  for (let i=0;i<8;i++) { const a=i*Math.PI/4; ctx.beginPath(); ctx.moveTo(R*.14*Math.cos(a),R*.14*Math.sin(a)); ctx.lineTo(R*.22*Math.cos(a),R*.22*Math.sin(a)); ctx.strokeStyle='rgba(232,118,42,.5)'; ctx.lineWidth=1; ctx.stroke(); }
+  ctx.beginPath(); ctx.arc(0,0,R*.14,0,Math.PI*2); ctx.strokeStyle='rgba(232,118,42,.5)'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(0,0,R*.07,0,Math.PI*2); ctx.fillStyle='rgba(232,118,42,.25)'; ctx.fill();
+  ctx.restore();
+}
+function animate(){
+  angle+=0.003;
+  ['birthchart','transits'].forEach(s=>{
+    const p=document.getElementById('screen-'+s);
+    if (p && p.classList.contains('active')) {
+      drawWheel(s==='birthchart'?'zodiacCanvas':'zodiacCanvas2');
+    }
+  });
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>

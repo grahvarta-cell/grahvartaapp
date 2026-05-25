@@ -1,7 +1,7 @@
 -- Astrologer payout details
 CREATE TABLE IF NOT EXISTS astrologer_payout_details (
   id                        SERIAL PRIMARY KEY,
-  astrologer_id             INTEGER NOT NULL UNIQUE REFERENCES astrologers(id) ON DELETE CASCADE,
+  astrologer_id             UUID NOT NULL UNIQUE REFERENCES astrologers(id) ON DELETE CASCADE,
   method                    VARCHAR(20) NOT NULL CHECK (method IN ('upi','paytm','bank')),
   upi_id                    VARCHAR(100),
   paytm_number              VARCHAR(20),
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS astrologer_payout_details (
 -- Withdrawal requests
 CREATE TABLE IF NOT EXISTS withdrawal_requests (
   id                    SERIAL PRIMARY KEY,
-  astrologer_id         INTEGER NOT NULL REFERENCES astrologers(id) ON DELETE CASCADE,
+  astrologer_id         UUID NOT NULL REFERENCES astrologers(id) ON DELETE CASCADE,
   amount                NUMERIC(12,2) NOT NULL,
   method                VARCHAR(20) NOT NULL,
   status                VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','processing','completed','rejected')),
@@ -35,16 +35,12 @@ CREATE INDEX IF NOT EXISTS idx_withdrawal_requests_status_process ON withdrawal_
 -- Consultation complaints
 CREATE TABLE IF NOT EXISTS consultation_complaints (
   id                SERIAL PRIMARY KEY,
-  consultation_id   INTEGER NOT NULL REFERENCES consultations(id) ON DELETE CASCADE,
-  user_id           INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  consultation_id   UUID NOT NULL REFERENCES consultations(id) ON DELETE CASCADE,
+  user_id           UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   reason            TEXT NOT NULL,
   created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Add missing columns to astrologers (safe, ignored if already exist)
-ALTER TABLE astrologers ADD COLUMN IF NOT EXISTS wallet_balance   NUMERIC(12,2) NOT NULL DEFAULT 0;
-ALTER TABLE astrologers ADD COLUMN IF NOT EXISTS on_hold_amount   NUMERIC(12,2) NOT NULL DEFAULT 0;
+ALTER TABLE astrologers ADD COLUMN IF NOT EXISTS on_hold_amount     NUMERIC(12,2) NOT NULL DEFAULT 0;
 ALTER TABLE astrologers ADD COLUMN IF NOT EXISTS last_withdrawal_at TIMESTAMPTZ;
-
--- Add astrologer_earning to consultations if missing
-ALTER TABLE consultations ADD COLUMN IF NOT EXISTS astrologer_earning NUMERIC(12,2) DEFAULT 0;

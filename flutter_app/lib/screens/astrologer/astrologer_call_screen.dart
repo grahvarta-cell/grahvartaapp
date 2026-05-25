@@ -59,38 +59,63 @@ class _AstrologerCallScreenState extends State<AstrologerCallScreen> {
   }
 
   Future<void> _initAgora() async {
+    debugPrint('[AGORA_ASTRO] initAgora channel=${widget.consultationId} isVideo=$_isVideo');
+
     final perms = _isVideo
         ? [Permission.microphone, Permission.camera]
         : [Permission.microphone];
     final results = await perms.request();
-    if (results.values.any((s) => s.isDenied || s.isPermanentlyDenied)) return;
+    results.forEach((perm, status) => debugPrint('[AGORA_ASTRO] permission $perm => $status'));
+    if (results.values.any((s) => s.isDenied || s.isPermanentlyDenied)) {
+      debugPrint('[AGORA_ASTRO] PERMISSION DENIED — aborting Agora init');
+      return;
+    }
 
     try {
-      // Astrologer uses uid: 1
+      debugPrint('[AGORA_ASTRO] fetching token uid=1 channel=${widget.consultationId}');
       final tokenData = await ApiService.getAgoraToken(widget.consultationId, uid: 1);
       final token = tokenData['data']?['token'] ?? tokenData['token'];
+      debugPrint('[AGORA_ASTRO] token fetched token=${token != null ? "${token.toString().substring(0, 20)}..." : "NULL"}');
 
       _engine = createAgoraRtcEngine();
       await _engine!.initialize(const RtcEngineContext(appId: _agoraAppId));
+      debugPrint('[AGORA_ASTRO] engine initialized');
 
       _engine!.registerEventHandler(RtcEngineEventHandler(
+        onError: (err, msg) => debugPrint('[AGORA_ASTRO] ERROR code=$err msg=$msg'),
+        onJoinChannelSuccess: (connection, elapsed) {
+          debugPrint('[AGORA_ASTRO] joinChannelSuccess channel=${connection.channelId} uid=${connection.localUid} elapsed=${elapsed}ms');
+        },
         onUserJoined: (_, uid, __) {
+          debugPrint('[AGORA_ASTRO] remoteUserJoined uid=$uid');
           if (mounted) setState(() { _remoteUid = uid; _remoteJoined = true; });
         },
         onUserOffline: (_, uid, __) {
+          debugPrint('[AGORA_ASTRO] remoteUserOffline uid=$uid');
           if (mounted) setState(() => _remoteJoined = false);
+        },
+        onRemoteVideoStateChanged: (connection, remoteUid, state, reason, elapsed) {
+          debugPrint('[AGORA_ASTRO] remoteVideoState uid=$remoteUid state=$state reason=$reason');
+        },
+        onLocalVideoStateChanged: (source, state, reason) {
+          debugPrint('[AGORA_ASTRO] localVideoState source=$source state=$state reason=$reason');
+        },
+        onConnectionStateChanged: (connection, state, reason) {
+          debugPrint('[AGORA_ASTRO] connectionState state=$state reason=$reason');
         },
       ));
 
+      debugPrint('[AGORA_ASTRO] enableAudio');
+      await _engine!.enableAudio();
+      await _engine!.setEnableSpeakerphone(true);
       if (_isVideo) {
+        debugPrint('[AGORA_ASTRO] enableVideo + startPreview');
         await _engine!.enableVideo();
         await _engine!.startPreview();
-      } else {
-        await _engine!.enableAudio();
-        await _engine!.setEnableSpeakerphone(true);
       }
 
       await _engine!.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
+      debugPrint('[AGORA_ASTRO] joining channel=${widget.consultationId} uid=1 publishCamera=$_isVideo');
       await _engine!.joinChannel(
         token: token ?? '',
         channelId: widget.consultationId,
@@ -100,10 +125,13 @@ class _AstrologerCallScreenState extends State<AstrologerCallScreen> {
           clientRoleType: ClientRoleType.clientRoleBroadcaster,
           publishMicrophoneTrack: true,
           publishCameraTrack: _isVideo,
+          autoSubscribeAudio: true,
+          autoSubscribeVideo: _isVideo,
         ),
       );
-    } catch (e) {
-      debugPrint('Agora init error (astrologer call): $e');
+      debugPrint('[AGORA_ASTRO] joinChannel called — waiting for onJoinChannelSuccess');
+    } catch (e, st) {
+      debugPrint('[AGORA_ASTRO] EXCEPTION: $e\n$st');
     }
   }
 

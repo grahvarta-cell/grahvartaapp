@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { authenticate } = require('../middleware/auth');
 
-const APP_ID = process.env.AGORA_APP_ID || 'e2e9d562aa754dcca16a5219e557b133';
+const APP_ID = process.env.AGORA_APP_ID || 'cfc5ddec9cdd48f09a301aba96991a25';
 const APP_CERT = process.env.AGORA_APP_CERTIFICATE || '';
 
 router.get('/token', authenticate, (req, res) => {

@@ -48,13 +48,16 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   Future<void> _initAgora(String channelName) async {
-    // Request permissions before initializing
+    debugPrint('[AGORA_USER] initAgora channel=$channelName isVideo=$_isVideo');
+
     final perms = _isVideo
         ? [Permission.microphone, Permission.camera]
         : [Permission.microphone];
     final results = await perms.request();
+    results.forEach((perm, status) => debugPrint('[AGORA_USER] permission $perm => $status'));
     final denied = results.values.any((s) => s.isDenied || s.isPermanentlyDenied);
     if (denied) {
+      debugPrint('[AGORA_USER] PERMISSION DENIED — aborting Agora init');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Microphone/Camera permission required for calls'), backgroundColor: AppColors.error),
@@ -64,38 +67,65 @@ class _CallScreenState extends State<CallScreen> {
     }
 
     try {
+      debugPrint('[AGORA_USER] fetching token uid=2 channel=$channelName');
       final tokenData = await ApiService.getAgoraToken(channelName, uid: 2);
       final token = tokenData['data']?['token'] ?? tokenData['token'];
+      debugPrint('[AGORA_USER] token fetched token=${token != null ? "${token.toString().substring(0, 20)}..." : "NULL"}');
       const appId = _agoraAppId;
 
       _engine = createAgoraRtcEngine();
       await _engine!.initialize(RtcEngineContext(appId: appId));
+      debugPrint('[AGORA_USER] engine initialized appId=$appId');
 
-      // Event handlers
       _engine!.registerEventHandler(RtcEngineEventHandler(
+        onError: (err, msg) => debugPrint('[AGORA_USER] ERROR code=$err msg=$msg'),
         onJoinChannelSuccess: (connection, elapsed) {
+          debugPrint('[AGORA_USER] joinChannelSuccess channel=${connection.channelId} uid=${connection.localUid} elapsed=${elapsed}ms');
           if (mounted) setState(() => _isConnected = true);
-          // Force speakerphone — default for audio calls is earpiece
           _engine?.setEnableSpeakerphone(_isSpeakerOn);
         },
         onUserJoined: (connection, remoteUid, elapsed) {
+          debugPrint('[AGORA_USER] remoteUserJoined uid=$remoteUid elapsed=${elapsed}ms');
           if (mounted) setState(() { _remoteUid = remoteUid; _remoteJoined = true; });
         },
         onUserOffline: (connection, remoteUid, reason) {
+          debugPrint('[AGORA_USER] remoteUserOffline uid=$remoteUid reason=$reason');
           if (!mounted) return;
           setState(() { _remoteJoined = false; _isEnded = true; });
           if (!_dialogShown) _cleanup().then((_) => _showEndDialog({}));
         },
-        onLeaveChannel: (connection, stats) {},
+        onRemoteVideoStateChanged: (connection, remoteUid, state, reason, elapsed) {
+          debugPrint('[AGORA_USER] remoteVideoState uid=$remoteUid state=$state reason=$reason');
+        },
+        onLocalVideoStateChanged: (source, state, reason) {
+          debugPrint('[AGORA_USER] localVideoState source=$source state=$state reason=$reason');
+          if (state == LocalVideoStreamState.localVideoStreamStateFailed &&
+              reason == LocalVideoStreamReason.localVideoStreamReasonDeviceInterrupt) {
+            debugPrint('[AGORA_USER] camera interrupted — retrying in 1.5s');
+            Future.delayed(const Duration(milliseconds: 1500), () async {
+              if (_engine == null || _isEnded) return;
+              debugPrint('[AGORA_USER] camera retry: enableLocalVideo');
+              await _engine!.enableLocalVideo(false);
+              await _engine!.enableLocalVideo(true);
+            });
+          }
+        },
+        onConnectionStateChanged: (connection, state, reason) {
+          debugPrint('[AGORA_USER] connectionState state=$state reason=$reason');
+        },
+        onLeaveChannel: (connection, stats) => debugPrint('[AGORA_USER] leaveChannel'),
       ));
 
+      debugPrint('[AGORA_USER] enableAudio');
       await _engine!.enableAudio();
       if (_isVideo) {
+        debugPrint('[AGORA_USER] enableVideo + startPreview');
         await _engine!.enableVideo();
         await _engine!.startPreview();
       }
 
       await _engine!.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
+      debugPrint('[AGORA_USER] joining channel=$channelName uid=2 publishCamera=$_isVideo');
       await _engine!.joinChannel(
         token: token ?? '',
         channelId: channelName,
@@ -109,8 +139,9 @@ class _CallScreenState extends State<CallScreen> {
           autoSubscribeVideo: _isVideo,
         ),
       );
-    } catch (e) {
-      debugPrint('Agora init error: $e');
+      debugPrint('[AGORA_USER] joinChannel called — waiting for onJoinChannelSuccess');
+    } catch (e, st) {
+      debugPrint('[AGORA_USER] EXCEPTION: $e\n$st');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Call connection failed: $e'), backgroundColor: AppColors.error),
@@ -135,10 +166,12 @@ class _CallScreenState extends State<CallScreen> {
     });
 
     _socket.on('billing_tick', (data) {
-      if (mounted) setState(() {
-        _timerSeconds = data['seconds'];
-        _totalCharged = (data['amount_charged'] as num?)?.toDouble() ?? _totalCharged;
-      });
+      if (mounted) {
+        setState(() {
+          _timerSeconds = data['seconds'];
+          _totalCharged = (data['amount_charged'] as num?)?.toDouble() ?? _totalCharged;
+        });
+      }
     });
 
     _socket.on('consultation_ended', (data) {
@@ -252,7 +285,7 @@ class _CallScreenState extends State<CallScreen> {
         if (_isVideo && _engine != null && !_isEnded)
           Positioned(top: 60, right: 16, child: Container(
             width: 100, height: 140,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.orange.withOpacity(0.5))),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.orange.withValues(alpha: 0.5))),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: _isCameraOff
@@ -284,7 +317,7 @@ class _CallScreenState extends State<CallScreen> {
         CircleAvatar(
           radius: 70,
           backgroundImage: widget.astrologer.avatarUrl != null ? NetworkImage(widget.astrologer.avatarUrl!) : null,
-          backgroundColor: AppColors.orange.withOpacity(0.2),
+          backgroundColor: AppColors.orange.withValues(alpha: 0.2),
           child: widget.astrologer.avatarUrl == null
               ? Text(widget.astrologer.displayName[0], style: const TextStyle(fontSize: 56, color: AppColors.orange, fontWeight: FontWeight.bold))
               : null,
@@ -369,7 +402,7 @@ class _CallScreenState extends State<CallScreen> {
       child: Column(children: [
         Container(
           width: 56, height: 56,
-          decoration: BoxDecoration(color: isActive ? AppColors.orange.withOpacity(0.8) : Colors.white12, shape: BoxShape.circle),
+          decoration: BoxDecoration(color: isActive ? AppColors.orange.withValues(alpha: 0.8) : Colors.white12, shape: BoxShape.circle),
           child: Icon(icon, color: Colors.white, size: 24),
         ),
         const SizedBox(height: 6),

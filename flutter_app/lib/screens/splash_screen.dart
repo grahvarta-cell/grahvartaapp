@@ -182,7 +182,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                     child: SlideTransition(
                       position: _textSlide,
                       child: const Text(
-                        'AstroVaak',
+                        'Grahvarta',
                         style: TextStyle(
                           fontFamily: 'CinzelDecorative',
                           fontSize: 30,

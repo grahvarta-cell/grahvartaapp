@@ -17,7 +17,8 @@
     "recharts": "^2.12.7",
     "lucide-react": "^0.439.0",
     "react-hot-toast": "^2.4.1",
-    "date-fns": "^3.6.0"
+    "date-fns": "^3.6.0",
+    "agora-rtc-sdk-ng": "^4.20.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

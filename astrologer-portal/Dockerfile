@@ -2,7 +2,7 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --silent
+RUN npm install
 COPY . .
 ARG VITE_API_URL=https://api.grahvarta.com
 RUN VITE_API_URL=$VITE_API_URL npm run build

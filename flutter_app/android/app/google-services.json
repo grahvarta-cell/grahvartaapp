@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "719077525111",
-    "project_id": "astrovaak-432de",
-    "storage_bucket": "astrovaak-432de.firebasestorage.app"
+    "project_number": "857880272044",
+    "project_id": "grahvarta-6bceb",
+    "storage_bucket": "grahvarta-6bceb.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:719077525111:android:9f53053a99dbeb2e1a6872",
+        "mobilesdk_app_id": "1:857880272044:android:5213ca91960c36a02c9309",
         "android_client_info": {
-          "package_name": "com.astrovaak.app"
+          "package_name": "com.grahvarta.app"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC5Tbp6yFnmQI9jXcB939gWTeyyNDQnXIQ"
+          "current_key": "AIzaSyBU1dhqQ38u0sJc_8_fRdCO65V6s3akMM8"
         }
       ],
       "services": {

@@ -8,7 +8,13 @@
       "Bash(Select-Object FullName)",
       "Bash(Head -30)",
       "Bash(find /mnt/d/grahvartaapp -maxdepth 3 \\\\\\( -name \"Dockerfile\" -o -name \"docker-compose.yml\" -o -name \".dockerignore\" -o -name \"docker-entrypoint.sh\" -o -name \"deploy.sh\" -o -name \"nginx.conf\" -o -name \"nginx-init.conf\" -o -name \".env.example\" \\\\\\) | sort)",
-      "Read(//mnt/d/**)"
+      "Read(//mnt/d/**)",
+      "WebFetch(domain:grahvarta.com)",
+      "WebFetch(domain:api.grahvarta.com)",
+      "PowerShell(Get-ChildItem -Path \"d:\\\\grahvartaapp\\\\flutter_app\" -Recurse | Select-Object -First 30 | ForEach-Object { $_.FullName })",
+      "PowerShell(New-Item -ItemType Directory -Force \"d:\\\\grahvartaapp\\\\flutter_app\\\\android\\\\app\\\\src\\\\main\\\\kotlin\\\\com\\\\grahvarta\\\\app\")",
+      "Bash(flutter --version)",
+      "PowerShell(flutter --version 2>&1)"
     ]
   }
 }

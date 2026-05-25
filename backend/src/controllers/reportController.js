@@ -2,7 +2,7 @@ const db = require('../config/database');
 const axios = require('axios');
 const { sendPushNotification } = require('./liveController');
 
-const GEMINI_API_KEY = 'AIzaSyBk9pKiSizjVCGWQ4AGAhDdd0VHnSA3aQM';
+const GEMINI_API_KEY = 'AIzaSyDEttTAsBBMvNivPbs8YPOCo-rInvQ5oyU';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 const REPORT_PLANS = [

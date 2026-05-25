@@ -12,6 +12,7 @@ const migrations = [
   '005_admin.sql',
   '006_community_moderation.sql',
   '003_chat_threads.sql',
+  '007_withdrawals.sql',
 ];
 
 async function runAll() {

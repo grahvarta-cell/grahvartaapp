@@ -25,7 +25,7 @@ export default function AboutPage() {
             <div className="w-8 h-8 rounded-xl bg-orange/20 flex items-center justify-center">
               <Star className="w-4 h-4 text-orange fill-orange" />
             </div>
-            <span className="font-bold text-lg">AstroVaak</span>
+            <span className="font-bold text-lg">Grahvarta</span>
           </button>
           <div className="flex items-center gap-6">
             <button onClick={() => navigate('/about')} className="text-orange text-sm font-medium">About</button>
@@ -46,7 +46,7 @@ export default function AboutPage() {
             </span>
           </h1>
           <p className="text-text-secondary text-lg leading-relaxed">
-            AstroVaak was born from a simple belief — that ancient astrological wisdom should be
+            Grahvarta was born from a simple belief — that ancient astrological wisdom should be
             accessible to everyone, and that talented astrologers deserve a modern platform to
             share their gifts and build sustainable livelihoods.
           </p>
@@ -136,9 +136,9 @@ export default function AboutPage() {
             <div className="w-6 h-6 rounded-lg bg-orange/20 flex items-center justify-center">
               <Star className="w-3 h-3 text-orange fill-orange" />
             </div>
-            <span className="font-semibold text-sm">AstroVaak</span>
+            <span className="font-semibold text-sm">Grahvarta</span>
           </div>
-          <p className="text-text-muted text-sm">© 2026 AstroVaak. All rights reserved.</p>
+          <p className="text-text-muted text-sm">© 2026 Grahvarta. All rights reserved.</p>
           <div className="flex gap-4 text-sm text-text-muted">
             <button onClick={() => navigate('/about')} className="hover:text-text-secondary">About</button>
             <button onClick={() => navigate('/contact')} className="hover:text-text-secondary">Contact</button>

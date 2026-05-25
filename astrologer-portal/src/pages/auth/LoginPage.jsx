@@ -33,7 +33,7 @@ export default function LoginPage() {
           <div className="w-16 h-16 rounded-2xl bg-orange/20 flex items-center justify-center mb-4">
             <Star className="w-8 h-8 text-orange fill-orange" />
           </div>
-          <h1 className="text-2xl font-bold text-text-primary">AstroVaak</h1>
+          <h1 className="text-2xl font-bold text-text-primary">Grahvarta</h1>
           <p className="text-text-secondary text-sm mt-1">Astrologer Portal</p>
         </div>
 

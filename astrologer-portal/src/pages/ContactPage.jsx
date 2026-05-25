@@ -6,7 +6,7 @@ import toast from 'react-hot-toast'
 const FAQS = [
   { q: 'How do I join as an astrologer?', a: 'Click "Join as Astrologer", create your account, then complete your astrologer profile with your specializations and rates. You can start accepting consultations immediately.' },
   { q: 'When do I get paid?', a: 'Earnings are credited to your wallet in real-time after each consultation. You can request a withdrawal anytime.' },
-  { q: 'Is there a fee to join?', a: 'No. Joining AstroVaak is completely free. We only take a small platform fee from each consultation.' },
+  { q: 'Is there a fee to join?', a: 'No. Joining Grahvarta is completely free. We only take a small platform fee from each consultation.' },
   { q: 'Can I set my own rates?', a: 'Yes. You set your own per-minute rates for chat, call, and video consultations independently.' },
   { q: 'How are users matched to me?', a: 'Users browse astrologers by specialization, language, and rating. They can initiate a consultation directly from your profile.' },
 ]
@@ -31,7 +31,7 @@ export default function ContactPage() {
             <div className="w-8 h-8 rounded-xl bg-orange/20 flex items-center justify-center">
               <Star className="w-4 h-4 text-orange fill-orange" />
             </div>
-            <span className="font-bold text-lg">AstroVaak</span>
+            <span className="font-bold text-lg">Grahvarta</span>
           </button>
           <div className="flex items-center gap-6">
             <button onClick={() => navigate('/about')} className="text-text-secondary hover:text-text-primary text-sm">About</button>
@@ -68,7 +68,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm text-text-secondary">Email</p>
-                  <p className="font-medium">support@astrovaak.online</p>
+                  <p className="font-medium">support@grahvarta.com</p>
                 </div>
               </div>
 
@@ -155,9 +155,9 @@ export default function ContactPage() {
             <div className="w-6 h-6 rounded-lg bg-orange/20 flex items-center justify-center">
               <Star className="w-3 h-3 text-orange fill-orange" />
             </div>
-            <span className="font-semibold text-sm">AstroVaak</span>
+            <span className="font-semibold text-sm">Grahvarta</span>
           </div>
-          <p className="text-text-muted text-sm">© 2026 AstroVaak. All rights reserved.</p>
+          <p className="text-text-muted text-sm">© 2026 Grahvarta. All rights reserved.</p>
           <div className="flex gap-4 text-sm text-text-muted">
             <button onClick={() => navigate('/about')} className="hover:text-text-secondary">About</button>
             <button onClick={() => navigate('/contact')} className="hover:text-text-secondary">Contact</button>

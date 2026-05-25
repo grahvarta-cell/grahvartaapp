@@ -31,7 +31,7 @@ export default function Sidebar() {
           <Star className="w-5 h-5 text-orange fill-orange" />
         </div>
         <div>
-          <p className="font-bold text-text-primary leading-none">AstroVaak</p>
+          <p className="font-bold text-text-primary leading-none">Grahvarta</p>
           <p className="text-text-muted text-xs mt-0.5">Astrologer Portal</p>
         </div>
       </div>

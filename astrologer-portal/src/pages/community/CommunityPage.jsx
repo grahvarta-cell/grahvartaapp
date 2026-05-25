@@ -112,7 +112,7 @@ export default function CommunityPage() {
   function sharePost(post) {
     const text = `${post.content.slice(0, 100)}…`
     if (navigator.share) {
-      navigator.share({ title: 'AstroVaak Community', text })
+      navigator.share({ title: 'Grahvarta Community', text })
     } else {
       navigator.clipboard.writeText(text)
       toast.success('Copied to clipboard')

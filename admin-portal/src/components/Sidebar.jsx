@@ -28,7 +28,7 @@ export default function Sidebar() {
   return (
     <aside className="w-60 min-h-screen bg-surface border-r border-border flex flex-col shrink-0">
       <div className="px-6 py-5 border-b border-border">
-        <span className="text-lg font-bold text-white">🔮 AstroVaak</span>
+        <span className="text-lg font-bold text-white">🔮 Grahvarta</span>
         <p className="text-xs text-text-muted mt-0.5">Admin Panel</p>
       </div>
 

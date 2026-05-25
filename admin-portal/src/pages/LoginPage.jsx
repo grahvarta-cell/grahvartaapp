@@ -28,7 +28,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="text-4xl mb-3">🔮</div>
-          <h1 className="text-2xl font-bold text-white">AstroVaak Admin</h1>
+          <h1 className="text-2xl font-bold text-white">Grahvarta Admin</h1>
           <p className="text-text-secondary text-sm mt-1">Sign in to your admin account</p>
         </div>
 
@@ -38,7 +38,7 @@ export default function LoginPage() {
             <input
               type="email"
               className="input"
-              placeholder="admin@astrovaak.com"
+              placeholder="admin@grahvarta.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

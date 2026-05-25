@@ -66,7 +66,7 @@ export default function LandingPage() {
             <div className="w-8 h-8 rounded-xl bg-orange/20 flex items-center justify-center">
               <Star className="w-4 h-4 text-orange fill-orange" />
             </div>
-            <span className="font-bold text-lg">AstroVaak</span>
+            <span className="font-bold text-lg">Grahvarta</span>
           </div>
           <div className="flex items-center gap-6">
             <button onClick={() => navigate('/about')} className="text-text-secondary hover:text-text-primary text-sm hidden md:block">About</button>
@@ -98,7 +98,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-text-secondary text-lg md:text-xl max-w-2xl mx-auto mb-10">
-            Join thousands of astrologers on AstroVaak. Connect with users seeking guidance,
+            Join thousands of astrologers on Grahvarta. Connect with users seeking guidance,
             host live sessions, and build a thriving practice — all from one powerful portal.
           </p>
 
@@ -229,7 +229,7 @@ export default function LandingPage() {
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-text-secondary text-lg mb-8">
-            Join the AstroVaak family and start your journey today.
+            Join the Grahvarta family and start your journey today.
           </p>
           <button onClick={() => navigate('/register')} className="btn-primary w-auto px-10 py-4 text-base flex items-center gap-2 mx-auto">
             Create Astrologer Account <ChevronRight size={18} />
@@ -248,9 +248,9 @@ export default function LandingPage() {
             <div className="w-6 h-6 rounded-lg bg-orange/20 flex items-center justify-center">
               <Star className="w-3 h-3 text-orange fill-orange" />
             </div>
-            <span className="font-semibold text-sm">AstroVaak</span>
+            <span className="font-semibold text-sm">Grahvarta</span>
           </div>
-          <p className="text-text-muted text-sm">© 2026 AstroVaak. All rights reserved.</p>
+          <p className="text-text-muted text-sm">© 2026 Grahvarta. All rights reserved.</p>
           <div className="flex gap-4 text-sm text-text-muted">
             <button onClick={() => navigate('/about')} className="hover:text-text-secondary">About</button>
             <button onClick={() => navigate('/contact')} className="hover:text-text-secondary">Contact</button>

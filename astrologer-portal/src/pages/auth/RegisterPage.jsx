@@ -19,7 +19,7 @@ export default function RegisterPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      await register({ ...form, email: `${form.emailUser}@astrovaak.online` })
+      await register({ ...form, email: `${form.emailUser}@grahvarta.com` })
       toast.success('Account created!')
       navigate('/setup-profile')
     } catch (err) {
@@ -36,13 +36,13 @@ export default function RegisterPage() {
           <div className="w-16 h-16 rounded-2xl bg-orange/20 flex items-center justify-center mb-4">
             <Star className="w-8 h-8 text-orange fill-orange" />
           </div>
-          <h1 className="text-2xl font-bold text-text-primary">AstroVaak</h1>
+          <h1 className="text-2xl font-bold text-text-primary">Grahvarta</h1>
           <p className="text-text-secondary text-sm mt-1">Astrologer Portal</p>
         </div>
 
         <div className="card">
           <h2 className="text-xl font-semibold mb-1">Create Account</h2>
-          <p className="text-text-secondary text-sm mb-6">Join as an astrologer on AstroVaak</p>
+          <p className="text-text-secondary text-sm mb-6">Join as an astrologer on Grahvarta</p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
@@ -62,7 +62,7 @@ export default function RegisterPage() {
                   required
                 />
                 <span className="px-3 py-2.5 text-sm text-text-muted bg-surface-light border-l border-border select-none whitespace-nowrap">
-                  @astrovaak.online
+                  @grahvarta.com
                 </span>
               </div>
             </div>

@@ -302,14 +302,19 @@ exports.markAllRead = async (req, res) => {
 exports.registerPushToken = async (req, res) => {
   try {
     const { token, platform, app_type = 'user_app' } = req.body;
-    await db.query(
+    console.log(`[PUSH TOKEN] user=${req.user.id} platform=${platform} app_type=${app_type} token=${token ? token.substring(0, 20) : 'null'}...`);
+    const result = await db.query(
       `INSERT INTO push_tokens (user_id, token, platform, app_type)
        VALUES ($1, $2, $3, $4)
-       ON CONFLICT DO NOTHING`,
+       ON CONFLICT DO NOTHING
+       RETURNING id`,
       [req.user.id, token, platform, app_type]
     );
-    res.json({ success: true });
+    const inserted = result.rows.length > 0;
+    console.log(`[PUSH TOKEN] inserted=${inserted} (conflict/dup if false)`);
+    res.json({ success: true, inserted });
   } catch (err) {
+    console.error('[PUSH TOKEN] DB error:', err.message);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };

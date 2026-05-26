@@ -112,7 +112,10 @@ AGORA_APP_ID=your_agora_app_id
 AGORA_APP_CERTIFICATE=your_agora_certificate
 
 # Firebase Admin (FCM) — paste full service account JSON as one line
+# User app (com.grahvarta.user) service account key
 FIREBASE_SERVICE_ACCOUNT={"type":"service_account","project_id":"..."}
+# Astrologer app (com.grahvartaastrology.app) service account key
+FIREBASE_SERVICE_ACCOUNT_ASTROLOGER={"type":"service_account","project_id":"..."}
 
 # Uploads
 UPLOAD_DIR=./uploads

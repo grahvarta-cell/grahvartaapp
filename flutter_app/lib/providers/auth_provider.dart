@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../models/user.dart';
-import '../models/astrologer.dart';
 import '../services/api_service.dart';
 
 class AstrologerProfile {
@@ -102,21 +101,13 @@ class AstrologerProfile {
 
 class AuthProvider extends ChangeNotifier {
   User? _user;
-  AstrologerProfile? _astrologerProfile;
   bool _isLoading = false;
   String? _error;
 
   User? get user => _user;
-  AstrologerProfile? get astrologerProfile => _astrologerProfile;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isLoggedIn => _user != null;
-  bool get isAstrologer => _astrologerProfile != null;
-
-  void setAstrologerProfile(AstrologerProfile? profile) {
-    _astrologerProfile = profile;
-    notifyListeners();
-  }
 
   Future<bool> tryAutoLogin() async {
     try {
@@ -125,7 +116,6 @@ class AuthProvider extends ChangeNotifier {
       _user = await ApiService.getProfile();
       notifyListeners();
       _registerFcmToken();
-      await _fetchAstrologerProfile();
       return true;
     } catch (_) {
       await ApiService.clearToken();
@@ -133,19 +123,18 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> login(String email, String password, {String loginAs = 'user'}) async {
+  Future<bool> login(String email, String password) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final data = await ApiService.login(email, password, loginAs: loginAs);
+      final data = await ApiService.login(email, password);
       await ApiService.saveToken(data['data']['token']);
       _user = User.fromJson(data['data']['user']);
       _isLoading = false;
       notifyListeners();
       _registerFcmToken();
-      await _fetchAstrologerProfile();
       return true;
     } catch (e) {
       _error = e.toString();
@@ -189,7 +178,6 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     await ApiService.clearToken();
     _user = null;
-    _astrologerProfile = null;
     notifyListeners();
   }
 
@@ -200,30 +188,9 @@ class AuthProvider extends ChangeNotifier {
     } catch (_) {}
   }
 
-  Future<void> refreshAstrologerProfile() async {
-    await _fetchAstrologerProfile();
-  }
-
   void clearError() {
     _error = null;
     notifyListeners();
-  }
-
-  Future<void> _fetchAstrologerProfile() async {
-    try {
-      final data = await ApiService.getAstrologerDashboard();
-      // backend may nest under data.astrologer or return the row directly under data
-      final inner = data['data'];
-      final astrologerJson = (inner is Map && inner.containsKey('astrologer'))
-          ? inner['astrologer'] as Map<String, dynamic>?
-          : (inner is Map<String, dynamic> && inner.containsKey('id') ? inner : null);
-      if (astrologerJson != null) {
-        _astrologerProfile = AstrologerProfile.fromJson(astrologerJson);
-        notifyListeners();
-      }
-    } catch (_) {
-      // Not registered as astrologer yet — fine
-    }
   }
 
   Future<void> _registerFcmToken() async {

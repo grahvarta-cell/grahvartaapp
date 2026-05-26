@@ -1,0 +1,12 @@
+# Environment files — never commit secrets
+backend/.env
+backend/- Copy.env
+.env.local
+
+# Dependencies
+node_modules/
+
+# Build outputs
+build/
+dist/
+.dart_tool/

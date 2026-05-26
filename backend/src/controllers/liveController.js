@@ -1,16 +1,48 @@
 const db = require('../config/database');
 const admin = require('firebase-admin');
 
-// Init Firebase Admin if credentials exist
-let fcmEnabled = false;
+// Two Firebase apps: one for the user app, one for the astrologer app.
+// Set FIREBASE_SERVICE_ACCOUNT for the user app (com.grahvarta.app).
+// Set FIREBASE_SERVICE_ACCOUNT_ASTROLOGER for the astrologer app (com.grahvartaastrology.app).
+let userAppFcm = null;
+let astrologerAppFcm = null;
+
 if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   try {
-    admin.initializeApp({
-      credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)),
-    });
-    fcmEnabled = true;
+    const userApp = admin.initializeApp(
+      { credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)) },
+      'user_app'
+    );
+    userAppFcm = userApp.messaging();
   } catch (e) {
-    console.warn('Firebase not configured — push notifications disabled');
+    console.warn('Firebase user app not configured — user push notifications disabled');
+  }
+}
+
+if (process.env.FIREBASE_SERVICE_ACCOUNT_ASTROLOGER) {
+  try {
+    const astrologerApp = admin.initializeApp(
+      { credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_ASTROLOGER)) },
+      'astrologer_app'
+    );
+    astrologerAppFcm = astrologerApp.messaging();
+  } catch (e) {
+    console.warn('Firebase astrologer app not configured — astrologer push notifications disabled');
+  }
+}
+
+async function _sendToTokens(messagingInstance, tokenList, title, body, data) {
+  if (!messagingInstance || !tokenList.length) return;
+  try {
+    await messagingInstance.sendEachForMulticast({
+      tokens: tokenList,
+      notification: { title, body },
+      data: { ...data, click_action: 'FLUTTER_NOTIFICATION_CLICK' },
+      android: { priority: 'high' },
+      apns: { payload: { aps: { sound: 'default' } } },
+    });
+  } catch (err) {
+    console.error('FCM send error:', err);
   }
 }
 
@@ -29,19 +61,22 @@ async function sendPushNotification(userIds, title, body, data = {}) {
     console.error('Notification DB insert error:', err);
   }
 
-  if (!fcmEnabled) return;
+  if (!userAppFcm && !astrologerAppFcm) return;
+
   try {
-    const tokens = await db.query('SELECT token FROM push_tokens WHERE user_id = ANY($1)', [userIds]);
+    const tokens = await db.query(
+      'SELECT token, app_type FROM push_tokens WHERE user_id = ANY($1)',
+      [userIds]
+    );
     if (!tokens.rows.length) return;
 
-    const tokenList = tokens.rows.map(r => r.token);
-    await admin.messaging().sendEachForMulticast({
-      tokens: tokenList,
-      notification: { title, body },
-      data: { ...data, click_action: 'FLUTTER_NOTIFICATION_CLICK' },
-      android: { priority: 'high' },
-      apns: { payload: { aps: { sound: 'default' } } },
-    });
+    const userTokens = tokens.rows.filter(r => r.app_type === 'user_app').map(r => r.token);
+    const astrologerTokens = tokens.rows.filter(r => r.app_type === 'astrologer_app').map(r => r.token);
+
+    await Promise.all([
+      _sendToTokens(userAppFcm, userTokens, title, body, data),
+      _sendToTokens(astrologerAppFcm, astrologerTokens, title, body, data),
+    ]);
   } catch (err) {
     console.error('FCM error:', err);
   }
@@ -261,10 +296,12 @@ exports.markAllRead = async (req, res) => {
 
 exports.registerPushToken = async (req, res) => {
   try {
-    const { token, platform } = req.body;
+    const { token, platform, app_type = 'user_app' } = req.body;
     await db.query(
-      'INSERT INTO push_tokens (user_id, token, platform) VALUES ($1, $2, $3) ON CONFLICT (user_id, token) DO NOTHING',
-      [req.user.id, token, platform]
+      `INSERT INTO push_tokens (user_id, token, platform, app_type)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id, token, app_type) DO NOTHING`,
+      [req.user.id, token, platform, app_type]
     );
     res.json({ success: true });
   } catch (err) {
@@ -275,8 +312,14 @@ exports.registerPushToken = async (req, res) => {
 // Daily horoscope push — called by cron
 exports.sendDailyHoroscopePush = async () => {
   if (!fcmEnabled) return;
+  if (!userAppFcm) return;
   try {
-    const users = await db.query('SELECT u.id, u.sun_sign, pt.token FROM users u JOIN push_tokens pt ON u.id = pt.user_id WHERE u.sun_sign IS NOT NULL');
+    const users = await db.query(
+      `SELECT u.id, u.sun_sign, pt.token
+       FROM users u
+       JOIN push_tokens pt ON u.id = pt.user_id
+       WHERE u.sun_sign IS NOT NULL AND pt.app_type = 'user_app'`
+    );
 
     const bySign = {};
     users.rows.forEach(u => {
@@ -285,7 +328,7 @@ exports.sendDailyHoroscopePush = async () => {
     });
 
     for (const [sign, tokens] of Object.entries(bySign)) {
-      await admin.messaging().sendEachForMulticast({
+      await userAppFcm.sendEachForMulticast({
         tokens,
         notification: { title: `🔮 Your ${sign} daily prediction is ready`, body: 'Tap to see what the stars say today.' },
         data: { type: 'daily_horoscope', sign },

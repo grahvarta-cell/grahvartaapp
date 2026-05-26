@@ -41,12 +41,11 @@ class RoleSelectionScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'How would you like to continue?',
+                  'Sign in to explore your cosmic journey',
                   style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
                 const Spacer(),
-                // User card
                 _RoleCard(
                   icon: Icons.person_rounded,
                   title: 'Continue as User',
@@ -54,19 +53,7 @@ class RoleSelectionScreen extends StatelessWidget {
                   color: AppColors.orange,
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen(isAstrologerMode: false)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Astrologer card
-                _RoleCard(
-                  icon: Icons.star_rounded,
-                  title: 'Join as Astrologer',
-                  subtitle: 'Accept consultations, go live,\nearn per minute & grow your brand',
-                  color: const Color(0xFFFFD700),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen(isAstrologerMode: true)),
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
                   ),
                 ),
                 const Spacer(),

@@ -5,11 +5,9 @@ import '../../l10n/app_strings.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import '../home/main_screen.dart';
-import '../astrologer/astrologer_setup_profile_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
-  final bool isAstrologerMode;
-  const RegisterScreen({super.key, this.isAstrologerMode = false});
+  const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -76,20 +74,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       birthPlace: _birthPlaceCtrl.text.isEmpty ? null : _birthPlaceCtrl.text.trim(),
     );
     if (!success || !mounted) return;
-    if (widget.isAstrologerMode) {
-      // After account creation, go straight to astrologer profile setup
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const AstrologerSetupProfileScreen()),
-        (_) => false,
-      );
-    } else {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const MainScreen()),
-        (_) => false,
-      );
-    }
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const MainScreen()),
+      (_) => false,
+    );
   }
 
   @override
@@ -125,8 +114,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildAppBar(AppStrings s) {
-    final isAstro = widget.isAstrologerMode;
-    final accentColor = isAstro ? const Color(0xFFFFD700) : AppColors.orange;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -138,26 +125,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Expanded(
             child: Column(
               children: [
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  if (isAstro) ...[
-                    const Icon(Icons.star_rounded, color: Color(0xFFFFD700), size: 14),
-                    const SizedBox(width: 4),
-                  ],
-                  Text(
-                    _currentStep == 0
-                        ? (isAstro ? 'Astrologer Account' : s.createAccount)
-                        : s.birthDetails,
-                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                  ),
-                ]),
+                Text(
+                  _currentStep == 0 ? s.createAccount : s.birthDetails,
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                ),
                 const SizedBox(height: 6),
-                if (!widget.isAstrologerMode)
-                  LinearProgressIndicator(
-                    value: _currentStep == 0 ? 0.5 : 1.0,
-                    backgroundColor: AppColors.border,
-                    color: accentColor,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+                LinearProgressIndicator(
+                  value: _currentStep == 0 ? 0.5 : 1.0,
+                  backgroundColor: AppColors.border,
+                  color: AppColors.orange,
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ],
             ),
           ),
@@ -208,13 +186,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ElevatedButton(
           onPressed: () {
             if (!_formKey.currentState!.validate()) return;
-            if (widget.isAstrologerMode) {
-              _register(); // skip birth details for astrologers
-            } else {
-              setState(() => _currentStep = 1);
-            }
+            setState(() => _currentStep = 1);
           },
-          child: Text(widget.isAstrologerMode ? 'Create Account' : s.continueText),
+          child: Text(s.continueText),
         ),
         const SizedBox(height: 16),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [

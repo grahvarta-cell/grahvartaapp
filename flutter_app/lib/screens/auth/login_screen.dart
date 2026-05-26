@@ -5,12 +5,9 @@ import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import 'register_screen.dart';
 import '../home/main_screen.dart';
-import '../astrologer/astrologer_main_screen.dart';
-import '../astrologer/astrologer_setup_profile_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  final bool isAstrologerMode;
-  const LoginScreen({super.key, this.isAstrologerMode = false});
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -32,36 +29,26 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
     final auth = context.read<AuthProvider>();
-    final success = await auth.login(_emailCtrl.text.trim(), _passCtrl.text,
-        loginAs: widget.isAstrologerMode ? 'astrologer' : 'user');
+    final success = await auth.login(_emailCtrl.text.trim(), _passCtrl.text);
     if (!success || !mounted) return;
-
-    if (widget.isAstrologerMode) {
-      // Astrologer mode: if they have a profile go to dashboard, otherwise setup
-      if (auth.isAstrologer) {
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const AstrologerMainScreen()), (_) => false);
-      } else {
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const AstrologerSetupProfileScreen()), (_) => false);
-      }
-    } else {
-      // User mode: if somehow they're an astrologer account, still go to user home
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const MainScreen()), (_) => false);
-    }
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const MainScreen()),
+      (_) => false,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final s = context.s;
-    final isAstro = widget.isAstrologerMode;
-    final accentColor = isAstro ? const Color(0xFFFFD700) : AppColors.orange;
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: RadialGradient(
             center: Alignment.topCenter,
             radius: 1.5,
-            colors: [isAstro ? const Color(0xFF1A1500) : const Color(0xFF2A1500), AppColors.background],
+            colors: [Color(0xFF2A1500), AppColors.background],
           ),
         ),
         child: SafeArea(
@@ -70,20 +57,19 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Back button
                 IconButton(
                   icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
                   onPressed: () => Navigator.pop(context),
                   padding: EdgeInsets.zero,
                 ),
                 const SizedBox(height: 24),
-                _buildHeader(s, isAstro, accentColor),
+                _buildHeader(s),
                 const SizedBox(height: 40),
                 _buildForm(s),
                 const SizedBox(height: 24),
-                _buildLoginButton(s, accentColor),
+                _buildLoginButton(s),
                 const SizedBox(height: 20),
-                _buildRegisterLink(s, isAstro, accentColor),
+                _buildRegisterLink(s),
               ],
             ),
           ),
@@ -92,27 +78,27 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildHeader(AppStrings s, bool isAstro, Color accentColor) {
+  Widget _buildHeader(AppStrings s) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           width: 56, height: 56,
           decoration: BoxDecoration(
-            color: accentColor.withOpacity(0.15),
+            color: AppColors.orange.withOpacity(0.15),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: accentColor.withOpacity(0.3)),
+            border: Border.all(color: AppColors.orange.withOpacity(0.3)),
           ),
-          child: Icon(isAstro ? Icons.star_rounded : Icons.auto_awesome, color: accentColor, size: 28),
+          child: const Icon(Icons.auto_awesome, color: AppColors.orange, size: 28),
         ),
         const SizedBox(height: 24),
         Text(
-          isAstro ? 'Astrologer Sign In' : s.welcomeBack,
+          s.welcomeBack,
           style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
         ),
         const SizedBox(height: 8),
         Text(
-          isAstro ? 'Sign in to your astrologer account' : s.starsWaiting,
+          s.starsWaiting,
           style: const TextStyle(fontSize: 15, color: AppColors.textSecondary),
         ),
       ],
@@ -168,13 +154,13 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildLoginButton(AppStrings s, Color accentColor) {
+  Widget _buildLoginButton(AppStrings s) {
     return Consumer<AuthProvider>(
       builder: (context, auth, _) => SizedBox(
         width: double.infinity,
         child: ElevatedButton(
           onPressed: auth.isLoading ? null : _login,
-          style: ElevatedButton.styleFrom(backgroundColor: accentColor, foregroundColor: Colors.white),
+          style: ElevatedButton.styleFrom(backgroundColor: AppColors.orange, foregroundColor: Colors.white),
           child: auth.isLoading
               ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
               : Text(s.signIn),
@@ -183,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildRegisterLink(AppStrings s, bool isAstro, Color accentColor) {
+  Widget _buildRegisterLink(AppStrings s) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -191,9 +177,9 @@ class _LoginScreenState extends State<LoginScreen> {
         GestureDetector(
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => RegisterScreen(isAstrologerMode: isAstro)),
+            MaterialPageRoute(builder: (_) => const RegisterScreen()),
           ),
-          child: Text(s.signUp, style: TextStyle(color: accentColor, fontWeight: FontWeight.w600)),
+          child: Text(s.signUp, style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.w600)),
         ),
       ],
     );

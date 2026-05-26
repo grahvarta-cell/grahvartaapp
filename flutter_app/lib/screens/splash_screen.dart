@@ -7,7 +7,6 @@ import '../theme/app_theme.dart';
 import 'auth/role_selection_screen.dart';
 import 'home/main_screen.dart';
 import 'onboarding/onboarding_screen.dart';
-import 'astrologer/astrologer_main_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -91,11 +90,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       final auth = context.read<AuthProvider>();
       final isLoggedIn = await auth.tryAutoLogin();
       if (!mounted) return;
-      dest = !isLoggedIn
-          ? const RoleSelectionScreen()
-          : auth.isAstrologer
-              ? const AstrologerMainScreen()
-              : const MainScreen();
+      dest = !isLoggedIn ? const RoleSelectionScreen() : const MainScreen();
     }
 
     // Always show splash for at least 3s total
@@ -104,7 +99,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     if (remaining > 0) await Future.delayed(Duration(milliseconds: remaining));
 
     if (!mounted) return;
-    Navigator.pushReplacement(context, _fadeRoute(dest!));
+    Navigator.pushReplacement(context, _fadeRoute(dest));
   }
 
   PageRoute _fadeRoute(Widget page) => PageRouteBuilder(

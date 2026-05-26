@@ -38,66 +38,9 @@ Future<void> _initLocalNotifications() async {
       ?.createNotificationChannel(_channel);
 }
 
-void _handleAstrologerStatusNotification(String type, String? reason, BuildContext? context) {
-  final ctx = context ?? navigatorKey.currentContext;
-  if (ctx == null) return;
-
-  final isApproved = type == 'astrologer_approved';
-
-  // Refresh the auth provider so the pending screen disappears
-  ctx.read<AuthProvider>().refreshAstrologerProfile();
-
-  // Show dialog
-  showDialog(
-    context: ctx,
-    barrierDismissible: false,
-    builder: (_) => AlertDialog(
-      backgroundColor: AppColors.card,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: Row(children: [
-        Icon(
-          isApproved ? Icons.check_circle : Icons.cancel,
-          color: isApproved ? AppColors.success : AppColors.error,
-          size: 28,
-        ),
-        const SizedBox(width: 10),
-        Text(
-          isApproved ? 'Profile Approved!' : 'Profile Not Approved',
-          style: const TextStyle(color: AppColors.textPrimary, fontSize: 18),
-        ),
-      ]),
-      content: Text(
-        isApproved
-            ? 'Congratulations! Your astrologer profile has been approved. You can now go online and start accepting consultations.'
-            : (reason != null && reason.isNotEmpty
-                ? 'Your profile was not approved.\n\nReason: $reason'
-                : 'Your astrologer profile was not approved. Please contact support for more information.'),
-        style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
-      ),
-      actions: [
-        ElevatedButton(
-          onPressed: () => Navigator.pop(_),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: isApproved ? AppColors.success : AppColors.orange,
-          ),
-          child: Text(isApproved ? 'Go to Dashboard' : 'OK'),
-        ),
-      ],
-    ),
-  );
-}
-
 void _listenForegroundMessages(BuildContext context) {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     final notification = message.notification;
-    final type = message.data['type'] as String?;
-
-    // Handle astrologer approval/rejection silently (show dialog instead of banner)
-    if (type == 'astrologer_approved' || type == 'astrologer_rejected') {
-      _handleAstrologerStatusNotification(type!, message.data['reason'], context);
-      return;
-    }
-
     if (notification == null) return;
     localNotifs.show(
       notification.hashCode,
@@ -113,14 +56,6 @@ void _listenForegroundMessages(BuildContext context) {
         ),
       ),
     );
-  });
-
-  // App opened from a tapped notification (background → foreground)
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    final type = message.data['type'] as String?;
-    if (type == 'astrologer_approved' || type == 'astrologer_rejected') {
-      _handleAstrologerStatusNotification(type!, message.data['reason'], null);
-    }
   });
 }
 

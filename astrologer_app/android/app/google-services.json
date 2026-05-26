@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "84896359635",
+    "project_id": "grahvarta-astrology",
+    "storage_bucket": "grahvarta-astrology.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:84896359635:android:18b3ac0cd449a3efdb6026",
+        "android_client_info": {
+          "package_name": "com.grahvarta.user"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXPmPRjfsrO8myyLgcaPRmernS5pQAqTU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:84896359635:android:f6ac3bdf5d43a644db6026",
+        "android_client_info": {
+          "package_name": "com.grahvartaastrology.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXPmPRjfsrO8myyLgcaPRmernS5pQAqTU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -51,8 +51,8 @@ class ApiService {
     return _handle(r);
   }
 
-  static Future<Map<String, dynamic>> login(String email, String password, {String loginAs = 'user'}) async {
-    final r = await http.post(Uri.parse('$baseUrl/auth/login'), headers: await _headers(), body: jsonEncode({'email': email, 'password': password, 'login_as': loginAs}));
+  static Future<Map<String, dynamic>> login(String email, String password) async {
+    final r = await http.post(Uri.parse('$baseUrl/auth/login'), headers: await _headers(), body: jsonEncode({'email': email, 'password': password, 'login_as': 'user'}));
     return _handle(r);
   }
 
@@ -241,7 +241,7 @@ class ApiService {
   }
 
   static Future<void> registerPushToken(String token, String platform) async {
-    final r = await http.post(Uri.parse('$baseUrl/live/push-token'), headers: await _headers(auth: true), body: jsonEncode({'token': token, 'platform': platform}));
+    final r = await http.post(Uri.parse('$baseUrl/live/push-token'), headers: await _headers(auth: true), body: jsonEncode({'token': token, 'platform': platform, 'app_type': 'user_app'}));
     await _handle(r);
   }
 

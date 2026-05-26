@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
-import 'auth/role_selection_screen.dart';
+import 'auth/login_screen.dart';
 import 'onboarding/onboarding_screen.dart';
 import 'astrologer/astrologer_main_screen.dart';
 
@@ -91,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       final isLoggedIn = await auth.tryAutoLogin();
       if (!mounted) return;
       dest = !isLoggedIn
-          ? const RoleSelectionScreen()
+          ? const LoginScreen(isAstrologerMode: true)
           : const AstrologerMainScreen();
     }
 

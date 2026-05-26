@@ -201,7 +201,7 @@ _buildTile(context, Icons.chat_bubble_outline_rounded, 'Chat History', 'All astr
                 ),
                 _PolicySection(
                   title: '9. Contact Us',
-                  body: 'If you have any questions about this Privacy Policy or how we handle your data, please contact us at privacy@astrowaak.com or through the Help & Support section in the app.',
+                  body: 'If you have any questions about this Privacy Policy or how we handle your data, please contact us at privacy@astrowaak.com or through the Help & Support section in the user.',
                 ),
                 SizedBox(height: 8),
                 Text('Last updated: January 2025', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),

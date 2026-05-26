@@ -62,7 +62,7 @@ void _listenForegroundMessages(BuildContext context) {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Firebase init is crash-guarded — app works without it (push notifications just won't fire)
+  // Firebase init is crash-guarded — user works without it (push notifications just won't fire)
   try {
     await Firebase.initializeApp();
     FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundHandler);

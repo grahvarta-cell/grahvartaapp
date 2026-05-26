@@ -70,12 +70,12 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Back button
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
-                  onPressed: () => Navigator.pop(context),
-                  padding: EdgeInsets.zero,
-                ),
+                if (Navigator.canPop(context))
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
+                    onPressed: () => Navigator.pop(context),
+                    padding: EdgeInsets.zero,
+                  ),
                 const SizedBox(height: 24),
                 _buildHeader(s, isAstro, accentColor),
                 const SizedBox(height: 40),

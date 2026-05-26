@@ -1,5 +1,5 @@
 -- Add app_type to push_tokens to distinguish user app vs astrologer app tokens.
--- Tokens from flutter_app (com.grahvarta.app) get 'user_app'.
+-- Tokens from flutter_app (com.grahvarta.user) get 'user_app'.
 -- Tokens from astrologer_app (com.grahvartaastrology.app) get 'astrologer_app'.
 
 ALTER TABLE push_tokens

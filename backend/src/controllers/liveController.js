@@ -1,9 +1,10 @@
 const db = require('../config/database');
 const admin = require('firebase-admin');
 
-// Two Firebase apps: one for the user app, one for the astrologer app.
-// Set FIREBASE_SERVICE_ACCOUNT for the user app (com.grahvarta.app).
-// Set FIREBASE_SERVICE_ACCOUNT_ASTROLOGER for the astrologer app (com.grahvartaastrology.app).
+// Both apps (com.grahvarta.user and com.grahvartaastrology.app) are in the same
+// Firebase project, so a single Admin SDK instance handles FCM for both.
+// Set FIREBASE_SERVICE_ACCOUNT to the service account JSON for the grahvarta-astrology project.
+// FIREBASE_SERVICE_ACCOUNT_ASTROLOGER is kept as a fallback for the astrologer tokens.
 let userAppFcm = null;
 let astrologerAppFcm = null;
 
@@ -14,8 +15,12 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT) {
       'user_app'
     );
     userAppFcm = userApp.messaging();
+    // If no separate astrologer key, reuse the same FCM instance (same Firebase project)
+    if (!process.env.FIREBASE_SERVICE_ACCOUNT_ASTROLOGER) {
+      astrologerAppFcm = userAppFcm;
+    }
   } catch (e) {
-    console.warn('Firebase user app not configured — user push notifications disabled');
+    console.warn('Firebase user app not configured — push notifications disabled:', e.message);
   }
 }
 
@@ -27,7 +32,7 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT_ASTROLOGER) {
     );
     astrologerAppFcm = astrologerApp.messaging();
   } catch (e) {
-    console.warn('Firebase astrologer app not configured — astrologer push notifications disabled');
+    console.warn('Firebase astrologer app not configured — astrologer push notifications disabled:', e.message);
   }
 }
 
@@ -300,7 +305,7 @@ exports.registerPushToken = async (req, res) => {
     await db.query(
       `INSERT INTO push_tokens (user_id, token, platform, app_type)
        VALUES ($1, $2, $3, $4)
-       ON CONFLICT (user_id, token, app_type) DO NOTHING`,
+       ON CONFLICT DO NOTHING`,
       [req.user.id, token, platform, app_type]
     );
     res.json({ success: true });
@@ -311,7 +316,6 @@ exports.registerPushToken = async (req, res) => {
 
 // Daily horoscope push — called by cron
 exports.sendDailyHoroscopePush = async () => {
-  if (!fcmEnabled) return;
   if (!userAppFcm) return;
   try {
     const users = await db.query(

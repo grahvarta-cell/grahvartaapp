@@ -16,7 +16,9 @@
       "Bash(flutter --version)",
       "PowerShell(flutter --version 2>&1)",
       "Bash(grep -E \"\\\\.js$|\\\\.dart$\")",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(flutter build *)",
+      "Bash(flutter devices *)"
     ]
   }
 }

@@ -1,4 +1,4 @@
-package com.grahvarta.app
+package com.grahvarta.user
 
 import io.flutter.embedding.android.FlutterActivity
 

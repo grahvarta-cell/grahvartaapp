@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.grahvarta.user"
     compileSdk = 36
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -23,6 +23,7 @@ android {
     defaultConfig {
         applicationId = "com.grahvarta.user"
         minSdk = 24
+        
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

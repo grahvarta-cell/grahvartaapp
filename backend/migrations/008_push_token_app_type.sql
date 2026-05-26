@@ -13,6 +13,14 @@ UPDATE push_tokens SET app_type = 'user_app' WHERE app_type IS NULL;
 -- The unique constraint must now include app_type so the same device token
 -- can appear once per app (an astrologer could install both apps).
 ALTER TABLE push_tokens DROP CONSTRAINT IF EXISTS push_tokens_user_id_token_key;
-ALTER TABLE push_tokens ADD CONSTRAINT push_tokens_user_id_token_app_key UNIQUE (user_id, token, app_type);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'push_tokens_user_id_token_app_key'
+  ) THEN
+    ALTER TABLE push_tokens ADD CONSTRAINT push_tokens_user_id_token_app_key UNIQUE (user_id, token, app_type);
+  END IF;
+END;
+$$;
 
 CREATE INDEX IF NOT EXISTS idx_push_tokens_app_type ON push_tokens(app_type);

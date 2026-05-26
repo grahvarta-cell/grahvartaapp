@@ -1,5 +1,5 @@
 # Environment files — never commit secrets
-backend/.env
+
 backend/- Copy.env
 .env.local
 

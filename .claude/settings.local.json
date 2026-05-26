@@ -15,7 +15,8 @@
       "PowerShell(New-Item -ItemType Directory -Force \"d:\\\\grahvartaapp\\\\flutter_app\\\\android\\\\app\\\\src\\\\main\\\\kotlin\\\\com\\\\grahvarta\\\\app\")",
       "Bash(flutter --version)",
       "PowerShell(flutter --version 2>&1)",
-      "Bash(grep -E \"\\\\.js$|\\\\.dart$\")"
+      "Bash(grep -E \"\\\\.js$|\\\\.dart$\")",
+      "Bash(git add *)"
     ]
   }
 }

@@ -14,6 +14,7 @@ const migrations = [
   '003_chat_threads.sql',
   '007_withdrawals.sql',
   '008_push_token_app_type.sql',
+  '009_clear_push_tokens.sql',
 ];
 
 async function runAll() {

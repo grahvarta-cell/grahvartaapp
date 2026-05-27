@@ -13,10 +13,21 @@ const storage = multer.diskStorage({
   destination: (_, __, cb) => cb(null, uploadDir),
   filename: (_, file, cb) => cb(null, `${uuidv4()}${path.extname(file.originalname)}`),
 });
-exports.upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 }, fileFilter: (_, f, cb) => cb(null, /image/.test(f.mimetype)) });
+exports.upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_, file, cb) => {
+    // Accept image/* plus application/octet-stream (some Android pickers send this)
+    if (/image/.test(file.mimetype) || file.mimetype === 'application/octet-stream') {
+      cb(null, true);
+    } else {
+      cb(new Error(`Unsupported file type: ${file.mimetype}`));
+    }
+  },
+});
 
 exports.uploadPhoto = async (req, res) => {
-  if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
+  if (!req.file) return res.status(400).json({ success: false, message: 'No file received. Ensure field name is "photo" and file is an image.' });
   res.json({ success: true, data: { url: `/uploads/hirings/${req.file.filename}` } });
 };
 

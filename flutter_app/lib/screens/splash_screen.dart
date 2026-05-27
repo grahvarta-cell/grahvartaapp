@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
-import 'auth/role_selection_screen.dart';
+import 'auth/login_screen.dart';
 import 'home/main_screen.dart';
 import 'onboarding/onboarding_screen.dart';
 
@@ -90,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       final auth = context.read<AuthProvider>();
       final isLoggedIn = await auth.tryAutoLogin();
       if (!mounted) return;
-      dest = !isLoggedIn ? const RoleSelectionScreen() : const MainScreen();
+      dest = !isLoggedIn ? const LoginScreen() : const MainScreen();
     }
 
     // Always show splash for at least 3s total

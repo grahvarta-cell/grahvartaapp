@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'theme.dart';
 import 'screens/phone_screen.dart';
@@ -8,11 +7,6 @@ import 'screens/dashboard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  try {
-    await Firebase.initializeApp();
-  } catch (e) {
-    debugPrint('Firebase init failed: $e');
-  }
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(const AgentOnboardingApp());
 }

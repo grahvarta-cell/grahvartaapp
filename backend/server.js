@@ -59,6 +59,7 @@ app.use('/api/consultations', require('./src/routes/consultations'));
 app.use('/api/family-members', require('./src/routes/familyMembers'));
 app.use('/api/reports', require('./src/routes/reports'));
 app.use('/api/admin', require('./src/routes/admin'));
+app.use('/api/hirings', require('./src/routes/hirings'));
 
 // Health
 app.get('/health', (_, res) => res.json({ success: true, message: 'Astro Talk API v2', ts: new Date() }));

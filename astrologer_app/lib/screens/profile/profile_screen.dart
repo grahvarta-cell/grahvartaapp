@@ -4,6 +4,7 @@ import '../../l10n/app_strings.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../theme/app_theme.dart';
+import '../admin/hirings_screen.dart';
 import '../auth/login_screen.dart';
 import '../family/family_members_screen.dart';
 import '../consultation/chat_history_screen.dart';
@@ -64,6 +65,8 @@ _buildTile(context, Icons.chat_bubble_outline_rounded, 'Chat History', 'All astr
             _buildSection(s.about, [
               _buildTile(context, Icons.help_outline, s.helpSupport, '', AppColors.textMuted),
               _buildTile(context, Icons.info_outline, s.appVersion, '1.0.0', AppColors.textMuted),
+              _buildTile(context, Icons.people_alt_outlined, 'Agent Hirings', 'Review applications', AppColors.orange,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminHiringsScreen()))),
             ]),
             const SizedBox(height: 100),
           ],

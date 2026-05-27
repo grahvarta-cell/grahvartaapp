@@ -70,4 +70,8 @@ router.post('/notifications/segment', [
   body('body').notEmpty(),
 ], ctrl.sendSegmentedNotification);
 
+const hiringCtrl = require('../controllers/hiringController');
+router.get('/hirings', hiringCtrl.listApplications);
+router.patch('/hirings/:id', hiringCtrl.updateStatus);
+
 module.exports = router;

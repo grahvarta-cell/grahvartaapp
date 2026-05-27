@@ -227,7 +227,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               duration: const Duration(milliseconds: 300),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isActive ? AppColors.primary.withValues(alpha:0.06) : isLocked ? Colors.grey.shade50 : AppColors.success.withValues(alpha:0.05),
+                color: isActive ? AppColors.primary.withValues(alpha:0.10) : isLocked ? AppColors.surface : AppColors.success.withValues(alpha:0.06),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: isActive ? AppColors.primary.withValues(alpha:0.3) : isDone ? AppColors.success.withValues(alpha:0.2) : AppColors.border),
               ),
@@ -281,7 +281,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (notes != null && notes.isNotEmpty) ...[
           const SizedBox(height: 12),
           Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(12)),
-            child: Text(notes, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13))),
+            child: Text(notes, style: const TextStyle(color: AppColors.textPrimary, fontSize: 13))),
         ],
       ]),
     );
@@ -325,7 +325,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildDrawer(String name, String tokenNo, String? photoUrl, String status) {
     return Drawer(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.card,
       child: Column(
         children: [
           Container(

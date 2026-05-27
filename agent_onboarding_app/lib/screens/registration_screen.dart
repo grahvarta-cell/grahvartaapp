@@ -170,13 +170,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             initialDate: DateTime(1995),
             firstDate: DateTime(1950),
             lastDate: DateTime.now().subtract(const Duration(days: 365 * 18)),
-            builder: (ctx, child) => Theme(data: Theme.of(ctx).copyWith(colorScheme: const ColorScheme.light(primary: AppColors.primary)), child: child!),
+            builder: (ctx, child) => Theme(data: Theme.of(ctx).copyWith(colorScheme: const ColorScheme.dark(primary: AppColors.primary)), child: child!),
           );
           if (d != null) setState(() => _dob = d);
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
+          decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
           child: Row(children: [
             const Icon(Icons.calendar_today, color: AppColors.textMuted, size: 20),
             const SizedBox(width: 12),
@@ -212,7 +212,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             selectedColor: AppColors.primary,
             checkmarkColor: Colors.white,
             labelStyle: TextStyle(color: sel ? Colors.white : AppColors.textPrimary, fontSize: 13),
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.surface,
             side: BorderSide(color: sel ? AppColors.primary : AppColors.border),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           );
@@ -236,7 +236,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             onTap: () => setState(() => sel ? _selectedSkills.remove(skill) : _selectedSkills.add(skill)),
             child: Container(
               decoration: BoxDecoration(
-                color: sel ? AppColors.primary.withValues(alpha: 0.08) : Colors.white,
+                color: sel ? AppColors.primary.withValues(alpha: 0.15) : AppColors.surface,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: sel ? AppColors.primary : AppColors.border, width: sel ? 1.5 : 1),
               ),
@@ -304,7 +304,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       // Works online
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
+        decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
         child: SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: const Text('Working from online platform?', style: TextStyle(fontSize: 14, color: AppColors.textPrimary)),
@@ -338,7 +338,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   Widget _buildNavButtons() => Container(
     padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-    decoration: const BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, -2))]),
+    decoration: BoxDecoration(color: AppColors.surface, border: Border(top: BorderSide(color: AppColors.border))),
     child: Row(children: [
       if (_currentStep > 0) ...[
         Expanded(
@@ -370,7 +370,7 @@ class _StepIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     const labels = ['Personal Info', 'Skills', 'Profile'];
     return Container(
-      color: Colors.white,
+      color: AppColors.surface,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(
         children: List.generate(3, (i) {
@@ -384,7 +384,7 @@ class _StepIndicator extends StatelessWidget {
                     duration: const Duration(milliseconds: 200),
                     width: 36, height: 36,
                     decoration: BoxDecoration(
-                      color: done || active ? AppColors.primary : Colors.white,
+                      color: done || active ? AppColors.primary : AppColors.surface,
                       shape: BoxShape.circle,
                       border: Border.all(color: done || active ? AppColors.primary : AppColors.border, width: 2),
                     ),
@@ -421,7 +421,7 @@ class _RadioChip extends StatelessWidget {
       margin: const EdgeInsets.only(right: 10),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
-        color: selected ? AppColors.primary : Colors.white,
+        color: selected ? AppColors.primary : AppColors.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: selected ? AppColors.primary : AppColors.border),
       ),
@@ -444,7 +444,7 @@ class _PhoneTypeCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: selected ? AppColors.primary.withValues(alpha: 0.08) : Colors.white,
+          color: selected ? AppColors.primary.withValues(alpha: 0.15) : AppColors.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: selected ? AppColors.primary : AppColors.border, width: selected ? 2 : 1),
         ),

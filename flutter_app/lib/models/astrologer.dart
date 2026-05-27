@@ -336,3 +336,22 @@ class SubscriptionPlan {
     features: json['features'] is List ? List<String>.from(json['features']) : [],
   );
 }
+
+class RechargeOffer {
+  final int id;
+  final double amount;
+  final int bonusPercent;
+  final String label;
+
+  RechargeOffer({required this.id, required this.amount, required this.bonusPercent, required this.label});
+
+  double get walletCredit => amount * (1 + bonusPercent / 100);
+  double get bonusAmount => walletCredit - amount;
+
+  factory RechargeOffer.fromJson(Map<String, dynamic> json) => RechargeOffer(
+    id: json['id'] ?? 0,
+    amount: double.tryParse(json['amount']?.toString() ?? '0') ?? 0,
+    bonusPercent: json['bonus_percent'] ?? 0,
+    label: json['label'] ?? '',
+  );
+}

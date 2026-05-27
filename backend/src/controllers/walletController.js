@@ -45,34 +45,116 @@ exports.getTransactions = async (req, res) => {
   }
 };
 
+exports.getRechargeOffers = async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM recharge_offers WHERE is_active = true ORDER BY sort_order ASC');
+    res.json({ success: true, data: result.rows });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// ── Admin: Recharge Offer CRUD ────────────────────────────────────────────────
+
+exports.adminListOffers = async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM recharge_offers ORDER BY sort_order ASC, id ASC');
+    res.json({ success: true, data: result.rows });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.adminCreateOffer = async (req, res) => {
+  try {
+    const { amount, bonus_percent, label, sort_order = 0 } = req.body;
+    if (!amount || bonus_percent == null) return res.status(400).json({ success: false, message: 'amount and bonus_percent are required' });
+    const result = await db.query(
+      'INSERT INTO recharge_offers (amount, bonus_percent, label, sort_order) VALUES ($1, $2, $3, $4) RETURNING *',
+      [amount, bonus_percent, label || null, sort_order]
+    );
+    res.status(201).json({ success: true, data: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.adminUpdateOffer = async (req, res) => {
+  try {
+    const { amount, bonus_percent, label, sort_order, is_active } = req.body;
+    const result = await db.query(
+      `UPDATE recharge_offers SET amount = COALESCE($1, amount), bonus_percent = COALESCE($2, bonus_percent),
+       label = COALESCE($3, label), sort_order = COALESCE($4, sort_order), is_active = COALESCE($5, is_active)
+       WHERE id = $6 RETURNING *`,
+      [amount, bonus_percent, label, sort_order, is_active, req.params.id]
+    );
+    if (!result.rows.length) return res.status(404).json({ success: false, message: 'Offer not found' });
+    res.json({ success: true, data: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.adminDeleteOffer = async (req, res) => {
+  try {
+    const result = await db.query('DELETE FROM recharge_offers WHERE id = $1 RETURNING id', [req.params.id]);
+    if (!result.rows.length) return res.status(404).json({ success: false, message: 'Offer not found' });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 // Create Razorpay order to add money
 exports.createAddMoneyOrder = async (req, res) => {
   try {
     const { amount } = req.body; // amount in INR
     if (amount < 50) return res.status(400).json({ success: false, message: 'Minimum recharge is ₹50' });
 
+    // Look up bonus for this amount
+    const offerResult = await db.query(
+      'SELECT bonus_percent FROM recharge_offers WHERE amount = $1 AND is_active = true LIMIT 1',
+      [amount]
+    );
+    const bonusPercent = offerResult.rows[0]?.bonus_percent || 0;
+    const bonusAmount = Math.round(amount * bonusPercent) / 100;
+    const walletCredit = amount + bonusAmount;
+
     if (!razorpay) {
       // Dev mode: simulate
+      const orderId = `order_demo_${Date.now()}`;
+      await db.query(
+        'INSERT INTO wallet_orders (order_id, user_id, amount_paid, wallet_credit, bonus_amount) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (order_id) DO NOTHING',
+        [orderId, req.user.id, amount, walletCredit, bonusAmount]
+      );
       return res.json({
         success: true,
         data: {
-          order_id: `order_demo_${Date.now()}`,
+          order_id: orderId,
           amount: amount * 100,
           currency: 'INR',
           key: 'rzp_test_demo',
+          wallet_credit: walletCredit,
+          bonus_amount: bonusAmount,
+          bonus_percent: bonusPercent,
         }
       });
     }
 
-    const chargeAmount = Math.round(amount * 1.18 * 100); // wallet credit + 18% GST in paise
+    const chargeAmount = Math.round(amount * 1.18 * 100); // base amount + 18% GST in paise
     const order = await razorpay.orders.create({
       amount: chargeAmount,
       currency: 'INR',
       receipt: `w_${Date.now()}`,
-      notes: { user_id: req.user.id, wallet_credit: amount },
+      notes: { user_id: req.user.id, wallet_credit: walletCredit },
     });
 
-    res.json({ success: true, data: { order_id: order.id, amount: order.amount, currency: order.currency, key: process.env.RAZORPAY_KEY_ID } });
+    await db.query(
+      'INSERT INTO wallet_orders (order_id, user_id, amount_paid, wallet_credit, bonus_amount) VALUES ($1, $2, $3, $4, $5)',
+      [order.id, req.user.id, amount, walletCredit, bonusAmount]
+    );
+
+    res.json({ success: true, data: { order_id: order.id, amount: order.amount, currency: order.currency, key: process.env.RAZORPAY_KEY_ID, wallet_credit: walletCredit, bonus_amount: bonusAmount, bonus_percent: bonusPercent } });
   } catch (err) {
     console.error('Order error:', err);
     res.status(500).json({ success: false, message: 'Payment gateway error' });
@@ -92,19 +174,37 @@ exports.verifyAndCredit = async (req, res) => {
       if (generated !== signature) return res.status(400).json({ success: false, message: 'Invalid payment signature' });
     }
 
+    // Resolve wallet_credit from server-stored order (prevents client tampering)
+    const orderRow = await db.query(
+      'SELECT wallet_credit, bonus_amount FROM wallet_orders WHERE order_id = $1 AND user_id = $2 AND status = $3',
+      [order_id, req.user.id, 'pending']
+    );
+    const creditAmount = orderRow.rows.length
+      ? parseFloat(orderRow.rows[0].wallet_credit)
+      : parseFloat(amount); // fallback for legacy calls
+    const bonusAmount = orderRow.rows.length ? parseFloat(orderRow.rows[0].bonus_amount) : 0;
+
     const wallet = await ensureWallet(req.user.id);
-    const creditAmount = parseFloat(amount);
 
     await db.query('UPDATE wallets SET balance = balance + $1, total_added = total_added + $1 WHERE user_id = $2', [creditAmount, req.user.id]);
+    await db.query('UPDATE wallet_orders SET status = $1 WHERE order_id = $2', ['completed', order_id]);
+
+    const baseAmount = creditAmount - bonusAmount;
+    const description = bonusAmount > 0
+      ? `Wallet recharge ₹${baseAmount.toFixed(0)} + ₹${bonusAmount.toFixed(0)} bonus`
+      : 'Wallet recharge';
 
     await db.query(`
       INSERT INTO wallet_transactions (wallet_id, user_id, type, amount, balance_before, balance_after, description, gateway_transaction_id, payment_gateway, status)
-      VALUES ($1, $2, 'credit', $3, $4, $5, 'Wallet recharge', $6, 'razorpay', 'success')
-    `, [wallet.id, req.user.id, creditAmount, wallet.balance, wallet.balance + creditAmount, payment_id]);
+      VALUES ($1, $2, 'credit', $3, $4, $5, $6, $7, 'razorpay', 'success')
+    `, [wallet.id, req.user.id, creditAmount, wallet.balance, wallet.balance + creditAmount, description, payment_id]);
 
     const updated = await db.query('SELECT * FROM wallets WHERE user_id = $1', [req.user.id]);
-    sendPushNotification([req.user.id], '💰 Money Added!', `₹${creditAmount} has been credited to your AstroVaak wallet.`, { type: 'wallet_credit', amount: String(creditAmount) });
-    res.json({ success: true, data: updated.rows[0], message: `₹${creditAmount} added to wallet` });
+    const notifMsg = bonusAmount > 0
+      ? `₹${creditAmount} credited (includes ₹${bonusAmount} bonus)!`
+      : `₹${creditAmount} has been credited to your wallet.`;
+    sendPushNotification([req.user.id], '💰 Money Added!', notifMsg, { type: 'wallet_credit', amount: String(creditAmount) });
+    res.json({ success: true, data: updated.rows[0], message: `₹${creditAmount} added to wallet`, bonus_amount: bonusAmount });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error' });
   }

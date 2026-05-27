@@ -74,4 +74,11 @@ const hiringCtrl = require('../controllers/hiringController');
 router.get('/hirings', hiringCtrl.listApplications);
 router.patch('/hirings/:id', hiringCtrl.updateStatus);
 
+// Recharge Offers Management
+const walletCtrl = require('../controllers/walletController');
+router.get('/recharge-offers', walletCtrl.adminListOffers);
+router.post('/recharge-offers', walletCtrl.adminCreateOffer);
+router.put('/recharge-offers/:id', walletCtrl.adminUpdateOffer);
+router.delete('/recharge-offers/:id', walletCtrl.adminDeleteOffer);
+
 module.exports = router;

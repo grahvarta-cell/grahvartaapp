@@ -182,6 +182,11 @@ class ApiService {
     return ((await _handle(r))['data'] as List).map((e) => WalletTransaction.fromJson(e)).toList();
   }
 
+  static Future<List<RechargeOffer>> getRechargeOffers() async {
+    final r = await http.get(Uri.parse('$baseUrl/wallet/recharge-offers'), headers: await _headers());
+    return ((await _handle(r))['data'] as List).map((e) => RechargeOffer.fromJson(e)).toList();
+  }
+
   static Future<Map<String, dynamic>> createAddMoneyOrder(double amount) async {
     final r = await http.post(Uri.parse('$baseUrl/wallet/add-money/order'), headers: await _headers(auth: true), body: jsonEncode({'amount': amount}));
     return _handle(r);

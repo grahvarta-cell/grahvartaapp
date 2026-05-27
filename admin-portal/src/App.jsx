@@ -13,6 +13,7 @@ import NotificationsPage from './pages/NotificationsPage';
 import WithdrawalsPage from './pages/WithdrawalsPage';
 import CommunityPage from './pages/CommunityPage';
 import HiringsPage from './pages/HiringsPage';
+import RechargeOffersPage from './pages/RechargeOffersPage';
 
 function ProtectedRoute({ children }) {
   const { admin, loading } = useAuth();
@@ -36,6 +37,7 @@ function AppRoutes() {
         <Route path="community" element={<CommunityPage />} />
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="hirings" element={<HiringsPage />} />
+        <Route path="recharge-offers" element={<RechargeOffersPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

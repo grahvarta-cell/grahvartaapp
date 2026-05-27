@@ -64,11 +64,12 @@ exports.createAddMoneyOrder = async (req, res) => {
       });
     }
 
+    const chargeAmount = Math.round(amount * 1.18 * 100); // wallet credit + 18% GST in paise
     const order = await razorpay.orders.create({
-      amount: Math.round(amount * 100),
+      amount: chargeAmount,
       currency: 'INR',
       receipt: `w_${Date.now()}`,
-      notes: { user_id: req.user.id },
+      notes: { user_id: req.user.id, wallet_credit: amount },
     });
 
     res.json({ success: true, data: { order_id: order.id, amount: order.amount, currency: order.currency, key: process.env.RAZORPAY_KEY_ID } });

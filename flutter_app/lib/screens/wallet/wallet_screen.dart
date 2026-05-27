@@ -159,7 +159,7 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
           ),
           const SizedBox(height: 20),
           ElevatedButton.icon(
-            onPressed: () { Navigator.pop(ctx); _processPayment(_selectedAmount); },
+            onPressed: () { Navigator.pop(ctx); _confirmAndPay(_selectedAmount); },
             icon: const Icon(Icons.payment),
             label: Text('Pay ₹${_selectedAmount.toInt()}'),
           ),
@@ -173,6 +173,56 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
       )),
     );
   }
+
+  Future<void> _confirmAndPay(double amount) async {
+    final gst = amount * 0.18;
+    final total = amount + gst;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Confirm Payment', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          _payRow('Wallet credit', '₹${amount.toStringAsFixed(2)}', AppColors.textPrimary),
+          const SizedBox(height: 8),
+          _payRow('GST (18%)', '₹${gst.toStringAsFixed(2)}', AppColors.textSecondary),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 10),
+            child: Divider(color: AppColors.border),
+          ),
+          _payRow('Total charged', '₹${total.toStringAsFixed(2)}', AppColors.orange, bold: true),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)),
+            child: Row(children: [
+              const Icon(Icons.info_outline, size: 14, color: AppColors.textMuted),
+              const SizedBox(width: 6),
+              Expanded(child: Text('₹${amount.toStringAsFixed(0)} will be credited to your wallet after payment.', style: const TextStyle(color: AppColors.textMuted, fontSize: 11))),
+            ]),
+          ),
+        ]),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel', style: TextStyle(color: AppColors.textMuted))),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.orange),
+            child: Text('Pay ₹${total.toStringAsFixed(0)}'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) _processPayment(amount);
+  }
+
+  Widget _payRow(String label, String value, Color valueColor, {bool bold = false}) => Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+      Text(value, style: TextStyle(color: valueColor, fontSize: 14, fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
+    ],
+  );
 
   Future<void> _processPayment(double amount) async {
     try {
@@ -305,7 +355,7 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
           mainAxisSpacing: 10, crossAxisSpacing: 10,
           childAspectRatio: 2.5,
           children: _quickAmounts.map((amt) => GestureDetector(
-            onTap: () => _processPayment(amt),
+            onTap: () => _confirmAndPay(amt),
             child: Container(
               decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
               child: Center(child: Text('₹${amt.toInt()}', style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.w600))),

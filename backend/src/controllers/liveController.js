@@ -36,23 +36,41 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT_ASTROLOGER) {
   }
 }
 
-async function _sendToTokens(messagingInstance, tokenList, title, body, data) {
-  if (!messagingInstance || !tokenList.length) return;
+async function _sendToTokens(messagingInstance, tokenList, title, body, data, appLabel) {
+  if (!messagingInstance || !tokenList.length) {
+    console.log(`[FCM][${appLabel}] Skipping — no instance or no tokens (tokens=${tokenList.length}, instance=${!!messagingInstance})`);
+    return;
+  }
+  const stringData = {};
+  for (const [k, v] of Object.entries({ ...data, click_action: 'FLUTTER_NOTIFICATION_CLICK' })) {
+    stringData[k] = v == null ? '' : String(v);
+  }
+  const payload = {
+    tokens: tokenList,
+    notification: { title, body },
+    data: stringData,
+    android: { priority: 'high', notification: { channelId: 'grahvarta_high_importance', priority: 'high' } },
+    apns: { payload: { aps: { sound: 'default' } } },
+  };
+  console.log(`[FCM][${appLabel}] Sending to ${tokenList.length} token(s): title="${title}" data=${JSON.stringify(stringData)}`);
   try {
-    await messagingInstance.sendEachForMulticast({
-      tokens: tokenList,
-      notification: { title, body },
-      data: { ...data, click_action: 'FLUTTER_NOTIFICATION_CLICK' },
-      android: { priority: 'high' },
-      apns: { payload: { aps: { sound: 'default' } } },
+    const result = await messagingInstance.sendEachForMulticast(payload);
+    console.log(`[FCM][${appLabel}] Result: successCount=${result.successCount} failureCount=${result.failureCount}`);
+    result.responses.forEach((r, i) => {
+      if (r.success) {
+        console.log(`[FCM][${appLabel}] token[${i}] OK — messageId=${r.messageId}`);
+      } else {
+        console.error(`[FCM][${appLabel}] token[${i}] FAILED — code=${r.error?.code} msg=${r.error?.message}`);
+      }
     });
   } catch (err) {
-    console.error('FCM send error:', err);
+    console.error(`[FCM][${appLabel}] sendEachForMulticast threw:`, err.message || err);
   }
 }
 
 async function sendPushNotification(userIds, title, body, data = {}) {
   const type = data.type || 'general';
+  console.log(`[FCM] sendPushNotification: userIds=${JSON.stringify(userIds)} title="${title}" type=${type}`);
 
   // Always persist to DB so users see it in the notifications screen
   try {
@@ -66,24 +84,34 @@ async function sendPushNotification(userIds, title, body, data = {}) {
     console.error('Notification DB insert error:', err);
   }
 
-  if (!userAppFcm && !astrologerAppFcm) return;
+  if (!userAppFcm && !astrologerAppFcm) {
+    console.warn('[FCM] Both FCM instances are null — push skipped. Check FIREBASE_SERVICE_ACCOUNT env vars.');
+    return;
+  }
 
   try {
     const tokens = await db.query(
-      'SELECT token, app_type FROM push_tokens WHERE user_id = ANY($1)',
+      'SELECT user_id, token, app_type FROM push_tokens WHERE user_id = ANY($1)',
       [userIds]
     );
-    if (!tokens.rows.length) return;
+    console.log(`[FCM] Found ${tokens.rows.length} token(s) in DB for userIds=${JSON.stringify(userIds)}`);
+    tokens.rows.forEach(r => console.log(`[FCM]   user=${r.user_id} app_type=${r.app_type} token=${r.token.substring(0, 20)}...`));
+
+    if (!tokens.rows.length) {
+      console.warn('[FCM] No tokens found — notification not sent via FCM (stored in DB only)');
+      return;
+    }
 
     const userTokens = tokens.rows.filter(r => r.app_type === 'user_app').map(r => r.token);
     const astrologerTokens = tokens.rows.filter(r => r.app_type === 'astrologer_app').map(r => r.token);
+    console.log(`[FCM] userTokens=${userTokens.length} astrologerTokens=${astrologerTokens.length}`);
 
     await Promise.all([
-      _sendToTokens(userAppFcm, userTokens, title, body, data),
-      _sendToTokens(astrologerAppFcm, astrologerTokens, title, body, data),
+      _sendToTokens(userAppFcm, userTokens, title, body, data, 'user_app'),
+      _sendToTokens(astrologerAppFcm, astrologerTokens, title, body, data, 'astrologer_app'),
     ]);
   } catch (err) {
-    console.error('FCM error:', err);
+    console.error('[FCM] sendPushNotification error:', err);
   }
 }
 

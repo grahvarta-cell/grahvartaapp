@@ -195,20 +195,32 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> _registerFcmToken() async {
     try {
-      // Firebase may not be initialized (e.g. missing google-services.json in dev)
       final messaging = FirebaseMessaging.instance;
+      debugPrint('[FCM] Requesting permission...');
       final settings = await messaging.requestPermission(alert: true, badge: true, sound: true)
           .timeout(const Duration(seconds: 5));
-      if (settings.authorizationStatus == AuthorizationStatus.denied) return;
-      final token = await messaging.getToken().timeout(const Duration(seconds: 5));
-      if (token == null) return;
+      debugPrint('[FCM] Permission status: ${settings.authorizationStatus}');
+      if (settings.authorizationStatus == AuthorizationStatus.denied) {
+        debugPrint('[FCM] Permission denied — aborting token registration');
+        return;
+      }
+      debugPrint('[FCM] Getting FCM token...');
+      final token = await messaging.getToken().timeout(const Duration(seconds: 10));
+      debugPrint('[FCM] Token: ${token == null ? "NULL" : token.substring(0, 20)}...');
+      if (token == null) {
+        debugPrint('[FCM] Token is null — aborting');
+        return;
+      }
       final platform = Platform.isIOS ? 'ios' : 'android';
+      debugPrint('[FCM] Registering token with backend (platform=$platform)...');
       await ApiService.registerPushToken(token, platform);
+      debugPrint('[FCM] Token registered successfully');
       messaging.onTokenRefresh.listen((newToken) async {
+        debugPrint('[FCM] Token refreshed, re-registering...');
         await ApiService.registerPushToken(newToken, platform);
       });
     } catch (e) {
-      debugPrint('FCM token registration failed (non-fatal): $e');
+      debugPrint('[FCM] Token registration failed: $e');
     }
   }
 }

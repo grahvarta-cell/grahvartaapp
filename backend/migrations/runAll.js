@@ -16,6 +16,7 @@ const migrations = [
   '008_push_token_app_type.sql',
   '009_clear_push_tokens.sql',
   '010_agent_hirings.sql',
+  '011_hiring_token_status.sql',
 ];
 
 async function runAll() {

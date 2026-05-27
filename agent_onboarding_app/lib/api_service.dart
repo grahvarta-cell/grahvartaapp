@@ -14,7 +14,7 @@ class ApiService {
     return body['data']['url'] as String;
   }
 
-  static Future<void> submitApplication(Map<String, dynamic> data) async {
+  static Future<Map<String, dynamic>> submitApplication(Map<String, dynamic> data) async {
     final r = await http.post(
       Uri.parse('$_base/hirings/apply'),
       headers: {'Content-Type': 'application/json'},
@@ -22,5 +22,13 @@ class ApiService {
     );
     final body = jsonDecode(r.body);
     if (r.statusCode != 201) throw body['message'] ?? 'Submission failed';
+    return body['data'] as Map<String, dynamic>;
+  }
+
+  static Future<Map<String, dynamic>> getApplicationStatus(String phone) async {
+    final r = await http.get(Uri.parse('$_base/hirings/status?phone=${Uri.encodeComponent(phone)}'));
+    final body = jsonDecode(r.body);
+    if (r.statusCode != 200) throw body['message'] ?? 'Not found';
+    return body['data'] as Map<String, dynamic>;
   }
 }

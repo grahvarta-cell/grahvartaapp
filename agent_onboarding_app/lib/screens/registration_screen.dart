@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme.dart';
 import '../api_service.dart';
+import 'dashboard_screen.dart';
 
 const List<String> _languages = [
   'Assamese','Bengali','Bodo','Dogri','English','Gujarati','Hindi',
@@ -41,7 +43,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   // Step 3
   File? _profilePhoto;
-  String? _profilePhotoUrl;
   String _phoneType = '';
   final _emailCtrl = TextEditingController();
   bool _worksOnline = false;
@@ -102,7 +103,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       if (_profilePhoto != null) {
         photoUrl = await ApiService.uploadPhoto(_profilePhoto!);
       }
-      await ApiService.submitApplication({
+      final result = await ApiService.submitApplication({
         'phone': widget.phone,
         'name': _nameCtrl.text.trim(),
         'dob': _dob != null ? DateFormat('yyyy-MM-dd').format(_dob!) : null,
@@ -115,8 +116,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         'works_online': _worksOnline,
         'hours_available': _hours,
       });
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('agent_phone', widget.phone);
+      await prefs.setString('agent_name', _nameCtrl.text.trim());
+      await prefs.setString('agent_token', result['token_no'] as String? ?? '');
       if (mounted) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const _SuccessScreen()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => DashboardScreen(phone: widget.phone)));
       }
     } catch (e) {
       if (mounted) { setState(() => _submitting = false); _showError(e.toString()); }
@@ -231,7 +236,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             onTap: () => setState(() => sel ? _selectedSkills.remove(skill) : _selectedSkills.add(skill)),
             child: Container(
               decoration: BoxDecoration(
-                color: sel ? AppColors.primary.withOpacity(0.08) : Colors.white,
+                color: sel ? AppColors.primary.withValues(alpha: 0.08) : Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: sel ? AppColors.primary : AppColors.border, width: sel ? 1.5 : 1),
               ),
@@ -305,7 +310,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           title: const Text('Working from online platform?', style: TextStyle(fontSize: 14, color: AppColors.textPrimary)),
           value: _worksOnline,
           onChanged: (v) => setState(() => _worksOnline = v),
-          activeColor: AppColors.primary,
+          activeThumbColor: AppColors.primary,
         ),
       ),
       const SizedBox(height: 20),
@@ -439,7 +444,7 @@ class _PhoneTypeCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: selected ? AppColors.primary.withOpacity(0.08) : Colors.white,
+          color: selected ? AppColors.primary.withValues(alpha: 0.08) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: selected ? AppColors.primary : AppColors.border, width: selected ? 2 : 1),
         ),
@@ -447,33 +452,6 @@ class _PhoneTypeCard extends StatelessWidget {
           Icon(icon, size: 32, color: selected ? AppColors.primary : AppColors.textMuted),
           const SizedBox(height: 6),
           Text(label, style: TextStyle(color: selected ? AppColors.primary : AppColors.textSecondary, fontWeight: selected ? FontWeight.w600 : FontWeight.normal, fontSize: 13), textAlign: TextAlign.center),
-        ]),
-      ),
-    ),
-  );
-}
-
-class _SuccessScreen extends StatelessWidget {
-  const _SuccessScreen();
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    body: Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(
-            width: 100, height: 100,
-            decoration: BoxDecoration(color: AppColors.success.withOpacity(0.1), shape: BoxShape.circle),
-            child: const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 60),
-          ),
-          const SizedBox(height: 24),
-          const Text('Application Submitted!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-          const SizedBox(height: 12),
-          const Text('Thank you for applying. Our team will review your application and get in touch with you shortly.', style: TextStyle(color: AppColors.textSecondary, fontSize: 15, height: 1.5), textAlign: TextAlign.center),
-          const SizedBox(height: 40),
-          const Icon(Icons.star_rounded, color: AppColors.primary, size: 40),
-          const SizedBox(height: 8),
-          const Text('Grahvarta', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 18)),
         ]),
       ),
     ),

@@ -1,28 +1,44 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, X, Check, Clock, Phone, Mail, Smartphone, Globe, Calendar, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Phone, Mail, Smartphone, Globe, Calendar, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import api from '../services/api';
 import PageHeader from '../components/PageHeader';
 import { TableShimmer } from '../components/Shimmer';
 import toast from 'react-hot-toast';
 
-const STATUS_TABS = ['pending', 'acknowledged', 'denied', ''];
+const ALL_STATUSES = ['pending', 'shortlisted', 'round1', 'round2', 'activated', 'rejected'];
+const STATUS_TABS = [...ALL_STATUSES, ''];
 
-function statusBadge(s) {
-  if (s === 'acknowledged') return 'badge-success';
-  if (s === 'denied')       return 'badge-error';
-  return 'badge-gray';
-}
+const STATUS_LABELS = {
+  pending:     'Pending',
+  shortlisted: 'Shortlisted',
+  round1:      'Round 1',
+  round2:      'Round 2',
+  activated:   'Activated',
+  rejected:    'Rejected',
+};
+
+const STATUS_COLORS = {
+  pending:     'badge-gray',
+  shortlisted: 'badge-warning',
+  round1:      'bg-blue-500/15 text-blue-400 px-2 py-0.5 rounded-full text-xs font-medium',
+  round2:      'bg-purple-500/15 text-purple-400 px-2 py-0.5 rounded-full text-xs font-medium',
+  activated:   'badge-success',
+  rejected:    'badge-error',
+};
+
+function statusBadge(s) { return STATUS_COLORS[s] || 'badge-gray'; }
 
 function DetailPanel({ app, onClose, onUpdated }) {
   const [notes, setNotes] = useState(app.admin_notes || '');
+  const [newStatus, setNewStatus] = useState(app.status);
   const [saving, setSaving] = useState(false);
 
-  const update = async (status) => {
+  const save = async () => {
     setSaving(true);
     try {
-      await api.patch(`/hirings/${app.id}`, { status, admin_notes: notes });
-      toast.success(`Marked as ${status}`);
+      await api.patch(`/hirings/${app.id}`, { status: newStatus, admin_notes: notes });
+      toast.success(`Status updated to ${STATUS_LABELS[newStatus]}`);
       onUpdated();
       onClose();
     } catch (err) {
@@ -38,9 +54,12 @@ function DetailPanel({ app, onClose, onUpdated }) {
   return (
     <div className="fixed inset-0 z-50 flex">
       <div className="flex-1 bg-black/50" onClick={onClose} />
-      <div className="w-[480px] bg-surface border-l border-border flex flex-col overflow-hidden">
+      <div className="w-[500px] bg-surface border-l border-border flex flex-col overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-          <h2 className="font-semibold text-white text-lg">Application Details</h2>
+          <div>
+            <h2 className="font-semibold text-white text-lg">Application Details</h2>
+            {app.token_no && <p className="text-xs text-text-muted mt-0.5">Token: <span className="text-orange font-mono">{app.token_no}</span></p>}
+          </div>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-light text-text-muted hover:text-white transition-colors">
             <X size={18} />
           </button>
@@ -50,7 +69,7 @@ function DetailPanel({ app, onClose, onUpdated }) {
           {/* Photo + name */}
           <div className="flex items-center gap-4">
             {app.profile_picture_url ? (
-              <img src={app.profile_picture_url} alt={app.name} className="w-16 h-16 rounded-full object-cover border border-border" />
+              <img src={`https://api.grahvarta.com${app.profile_picture_url}`} alt={app.name} className="w-16 h-16 rounded-full object-cover border border-border" />
             ) : (
               <div className="w-16 h-16 rounded-full bg-surface-light flex items-center justify-center text-2xl font-bold text-orange">
                 {app.name?.[0]?.toUpperCase() || '?'}
@@ -58,9 +77,7 @@ function DetailPanel({ app, onClose, onUpdated }) {
             )}
             <div>
               <p className="text-white font-semibold text-lg">{app.name}</p>
-              <span className={`text-xs ${statusBadge(app.status)}`}>
-                {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
-              </span>
+              <span className={statusBadge(app.status)}>{STATUS_LABELS[app.status] || app.status}</span>
             </div>
           </div>
 
@@ -78,7 +95,6 @@ function DetailPanel({ app, onClose, onUpdated }) {
             <Row icon={<Calendar size={14} />} label="DOB" value={app.dob ? format(new Date(app.dob), 'dd MMM yyyy') : '—'} />
             <Row icon={<Users size={14} />} label="Gender" value={app.gender || '—'} capitalize />
             <Row icon={<Globe size={14} />} label="Works online" value={app.works_online ? 'Yes' : 'No'} />
-            <Row icon={<Clock size={14} />} label="Hours/day" value={app.hours_available ? `${app.hours_available}h` : '—'} />
           </div>
 
           {/* Languages */}
@@ -86,9 +102,7 @@ function DetailPanel({ app, onClose, onUpdated }) {
             <div className="card p-4">
               <p className="text-xs text-text-muted uppercase font-semibold tracking-wider mb-3">Languages</p>
               <div className="flex flex-wrap gap-1.5">
-                {langs.map((l) => (
-                  <span key={l} className="px-2.5 py-0.5 bg-surface-light rounded-full text-xs text-text-secondary">{l}</span>
-                ))}
+                {langs.map((l) => <span key={l} className="px-2.5 py-0.5 bg-surface-light rounded-full text-xs text-text-secondary">{l}</span>)}
               </div>
             </div>
           )}
@@ -98,17 +112,34 @@ function DetailPanel({ app, onClose, onUpdated }) {
             <div className="card p-4">
               <p className="text-xs text-text-muted uppercase font-semibold tracking-wider mb-3">Skills</p>
               <div className="flex flex-wrap gap-1.5">
-                {skills.map((s) => (
-                  <span key={s} className="px-2.5 py-0.5 bg-orange/10 text-orange rounded-full text-xs">{s}</span>
-                ))}
+                {skills.map((s) => <span key={s} className="px-2.5 py-0.5 bg-orange/10 text-orange rounded-full text-xs">{s}</span>)}
               </div>
             </div>
           )}
 
-          {/* Applied */}
           <p className="text-xs text-text-muted">
             Applied {format(new Date(app.created_at), 'dd MMM yyyy, HH:mm')}
           </p>
+
+          {/* Status selector */}
+          <div>
+            <label className="block text-xs text-text-muted mb-2">Update Status</label>
+            <div className="grid grid-cols-3 gap-2">
+              {ALL_STATUSES.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setNewStatus(s)}
+                  className={`py-2 px-3 rounded-xl text-xs font-medium border transition-colors ${
+                    newStatus === s
+                      ? 'bg-orange text-white border-orange'
+                      : 'bg-surface-light text-text-secondary border-border hover:text-white'
+                  }`}
+                >
+                  {STATUS_LABELS[s]}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Admin notes */}
           <div>
@@ -123,35 +154,18 @@ function DetailPanel({ app, onClose, onUpdated }) {
           </div>
         </div>
 
-        {/* Actions */}
-        {app.status !== 'acknowledged' && app.status !== 'denied' ? (
-          <div className="px-6 py-4 border-t border-border flex gap-3 shrink-0">
-            <button
-              onClick={() => update('denied')}
-              disabled={saving}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-error/50 text-error hover:bg-error/10 text-sm font-medium transition-colors disabled:opacity-50"
-            >
-              <X size={16} /> Deny
-            </button>
-            <button
-              onClick={() => update('acknowledged')}
-              disabled={saving}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-success text-white hover:bg-success/90 text-sm font-medium transition-colors disabled:opacity-50"
-            >
-              <Check size={16} /> Acknowledge
-            </button>
-          </div>
-        ) : (
-          <div className="px-6 py-4 border-t border-border shrink-0">
-            <button
-              onClick={() => update('pending')}
-              disabled={saving}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border text-text-secondary hover:text-white hover:border-border/70 text-sm font-medium transition-colors disabled:opacity-50"
-            >
-              Reset to Pending
-            </button>
-          </div>
-        )}
+        <div className="px-6 py-4 border-t border-border shrink-0 flex gap-3">
+          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-border text-text-secondary hover:text-white text-sm font-medium transition-colors">
+            Cancel
+          </button>
+          <button
+            onClick={save}
+            disabled={saving || (newStatus === app.status && notes === (app.admin_notes || ''))}
+            className="flex-1 py-2.5 rounded-xl bg-orange text-white text-sm font-medium hover:bg-orange/90 transition-colors disabled:opacity-40"
+          >
+            {saving ? 'Saving…' : 'Save Changes'}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -192,14 +206,14 @@ export default function HiringsPage() {
     <div className="p-8">
       <PageHeader title="Agent Hirings" subtitle={`${total} application${total !== 1 ? 's' : ''}`} />
 
-      <div className="flex gap-3 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6">
         {STATUS_TABS.map((s) => (
           <button
             key={s}
             onClick={() => { setStatusFilter(s); setPage(1); }}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${statusFilter === s ? 'bg-orange text-white' : 'bg-surface-light text-text-secondary hover:text-white'}`}
           >
-            {s === '' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
+            {s === '' ? 'All' : STATUS_LABELS[s]}
           </button>
         ))}
       </div>
@@ -209,8 +223,8 @@ export default function HiringsPage() {
           <thead>
             <tr className="border-b border-border text-text-muted text-xs uppercase">
               <th className="px-4 py-3 text-left">Applicant</th>
+              <th className="px-4 py-3 text-left">Token</th>
               <th className="px-4 py-3 text-left">Phone</th>
-              <th className="px-4 py-3 text-left">Gender</th>
               <th className="px-4 py-3 text-left">Languages</th>
               <th className="px-4 py-3 text-left">Skills</th>
               <th className="px-4 py-3 text-left">Status</th>
@@ -223,15 +237,11 @@ export default function HiringsPage() {
             ) : hirings.length === 0 ? (
               <tr><td colSpan={7} className="text-center py-12 text-text-muted">No applications found</td></tr>
             ) : hirings.map((h) => (
-              <tr
-                key={h.id}
-                onClick={() => setSelected(h)}
-                className="border-b border-divider hover:bg-surface-light/50 cursor-pointer"
-              >
+              <tr key={h.id} onClick={() => setSelected(h)} className="border-b border-divider hover:bg-surface-light/50 cursor-pointer">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     {h.profile_picture_url ? (
-                      <img src={h.profile_picture_url} alt={h.name} className="w-8 h-8 rounded-full object-cover border border-border" />
+                      <img src={`https://api.grahvarta.com${h.profile_picture_url}`} alt={h.name} className="w-8 h-8 rounded-full object-cover border border-border" />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-surface-light flex items-center justify-center text-sm font-bold text-orange">
                         {h.name?.[0]?.toUpperCase() || '?'}
@@ -240,8 +250,8 @@ export default function HiringsPage() {
                     <p className="font-medium text-white">{h.name}</p>
                   </div>
                 </td>
+                <td className="px-4 py-3 font-mono text-xs text-orange">{h.token_no || '—'}</td>
                 <td className="px-4 py-3 text-text-secondary">{h.phone}</td>
-                <td className="px-4 py-3 text-text-secondary capitalize">{h.gender || '—'}</td>
                 <td className="px-4 py-3 text-text-muted text-xs">
                   {Array.isArray(h.languages) ? h.languages.slice(0, 3).join(', ') + (h.languages.length > 3 ? ` +${h.languages.length - 3}` : '') : '—'}
                 </td>
@@ -249,9 +259,7 @@ export default function HiringsPage() {
                   {Array.isArray(h.skills) ? h.skills.slice(0, 2).join(', ') + (h.skills.length > 2 ? ` +${h.skills.length - 2}` : '') : '—'}
                 </td>
                 <td className="px-4 py-3">
-                  <span className={statusBadge(h.status)}>
-                    {h.status.charAt(0).toUpperCase() + h.status.slice(1)}
-                  </span>
+                  <span className={statusBadge(h.status)}>{STATUS_LABELS[h.status] || h.status}</span>
                 </td>
                 <td className="px-4 py-3 text-text-muted text-xs">
                   {format(new Date(h.created_at), 'MMM d, yyyy')}
@@ -273,11 +281,7 @@ export default function HiringsPage() {
       </div>
 
       {selected && (
-        <DetailPanel
-          app={selected}
-          onClose={() => setSelected(null)}
-          onUpdated={fetchData}
-        />
+        <DetailPanel app={selected} onClose={() => setSelected(null)} onUpdated={fetchData} />
       )}
     </div>
   );

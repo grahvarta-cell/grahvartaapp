@@ -19,6 +19,7 @@ const migrations = [
   '011_hiring_token_status.sql',
   '013_recharge_offers.sql',
   '014_fix_wallet_orders_userid.sql',
+  '016_hiring_about_me.sql',
 ];
 
 async function runAll() {

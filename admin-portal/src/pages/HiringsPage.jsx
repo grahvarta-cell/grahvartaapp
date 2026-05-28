@@ -117,6 +117,14 @@ function DetailPanel({ app, onClose, onUpdated }) {
             </div>
           )}
 
+          {/* About Me */}
+          {app.about_me && (
+            <div className="card p-4">
+              <p className="text-xs text-text-muted uppercase font-semibold tracking-wider mb-3">About Me</p>
+              <p className="text-sm text-text-secondary leading-relaxed">{app.about_me}</p>
+            </div>
+          )}
+
           <p className="text-xs text-text-muted">
             Applied {format(new Date(app.created_at), 'dd MMM yyyy, HH:mm')}
           </p>

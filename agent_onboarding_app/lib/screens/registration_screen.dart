@@ -45,6 +45,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   File? _profilePhoto;
   String _phoneType = '';
   final _emailCtrl = TextEditingController();
+  final _aboutCtrl = TextEditingController();
   bool _worksOnline = false;
   int _hours = 4;
 
@@ -60,10 +61,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         if (_selectedSkills.isEmpty) { _showError('Select at least one skill'); return false; }
         return true;
       case 2:
+        if (_profilePhoto == null) { _showError('Please upload a profile photo'); return false; }
+        if (_phoneType.isEmpty) { _showError('Select your phone type'); return false; }
         if (_emailCtrl.text.trim().isEmpty || !_emailCtrl.text.contains('@')) {
           _showError('Enter a valid email address'); return false;
         }
-        if (_phoneType.isEmpty) { _showError('Select your phone type'); return false; }
+        if (_aboutCtrl.text.trim().isEmpty) {
+          _showError('Please fill in About Me'); return false;
+        }
         return true;
       default: return true;
     }
@@ -115,6 +120,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         'email': _emailCtrl.text.trim(),
         'works_online': _worksOnline,
         'hours_available': _hours,
+        'about_me': _aboutCtrl.text.trim(),
       });
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('agent_phone', widget.phone);
@@ -133,6 +139,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     _pageController.dispose();
     _nameCtrl.dispose();
     _emailCtrl.dispose();
+    _aboutCtrl.dispose();
     super.dispose();
   }
 
@@ -262,7 +269,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       const SizedBox(height: 20),
 
       // Profile picture
-      const Text('Profile Picture', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+      const Text('Profile Picture *', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
       const SizedBox(height: 10),
       Center(
         child: GestureDetector(
@@ -299,6 +306,26 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
       // Email
       TextField(controller: _emailCtrl, keyboardType: TextInputType.emailAddress, decoration: InputDecoration(labelText: 'Email Address *', prefixIcon: Icon(Icons.email_outlined))),
+      const SizedBox(height: 20),
+
+      // About Me
+      const Text('About Me *', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+      const SizedBox(height: 6),
+      TextField(
+        controller: _aboutCtrl,
+        maxLines: 3,
+        maxLength: 200,
+        decoration: const InputDecoration(
+          hintText: 'Tell us about your experience and expertise...',
+          alignLabelWithHint: true,
+          counterText: '',
+        ),
+        onChanged: (_) => setState(() {}),
+      ),
+      Align(
+        alignment: Alignment.centerRight,
+        child: Text('${_aboutCtrl.text.length}/200', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+      ),
       const SizedBox(height: 20),
 
       // Works online

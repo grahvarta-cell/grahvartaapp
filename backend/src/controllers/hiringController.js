@@ -39,15 +39,15 @@ async function generateTokenNo() {
 
 exports.submitApplication = async (req, res) => {
   try {
-    const { phone, name, dob, gender, languages, skills, profile_picture_url, phone_type, email, works_online, hours_available } = req.body;
+    const { phone, name, dob, gender, languages, skills, profile_picture_url, phone_type, email, works_online, hours_available, about_me } = req.body;
     if (!phone) return res.status(400).json({ success: false, message: 'Phone number is required' });
     const existing = await db.query('SELECT id FROM agent_hirings WHERE phone = $1', [phone]);
     if (existing.rows.length) return res.status(409).json({ success: false, message: 'Application already submitted for this number' });
     const tokenNo = await generateTokenNo();
     const result = await db.query(
-      `INSERT INTO agent_hirings (phone, name, dob, gender, languages, skills, profile_picture_url, phone_type, email, works_online, hours_available, token_no)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
-      [phone, name, dob || null, gender, JSON.stringify(languages || []), JSON.stringify(skills || []), profile_picture_url, phone_type, email, works_online === true || works_online === 'true', parseInt(hours_available) || 0, tokenNo]
+      `INSERT INTO agent_hirings (phone, name, dob, gender, languages, skills, profile_picture_url, phone_type, email, works_online, hours_available, about_me, token_no)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
+      [phone, name, dob || null, gender, JSON.stringify(languages || []), JSON.stringify(skills || []), profile_picture_url, phone_type, email, works_online === true || works_online === 'true', parseInt(hours_available) || 0, about_me || null, tokenNo]
     );
     res.status(201).json({ success: true, data: result.rows[0] });
   } catch (err) {

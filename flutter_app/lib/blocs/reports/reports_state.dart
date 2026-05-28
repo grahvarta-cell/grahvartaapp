@@ -25,12 +25,16 @@ class ReportsLoaded extends ReportsState {
   final List<FamilyMember> familyMembers;
   final bool freeUsed;
   final int planCredits;
+  final int currentTab;
+  final bool myReportsVisited;
 
   const ReportsLoaded({
     this.reports = const [],
     this.familyMembers = const [],
     this.freeUsed = false,
     this.planCredits = 0,
+    this.currentTab = 0,
+    this.myReportsVisited = false,
   });
 
   ReportsLoaded copyWith({
@@ -38,14 +42,18 @@ class ReportsLoaded extends ReportsState {
     List<FamilyMember>? familyMembers,
     bool? freeUsed,
     int? planCredits,
+    int? currentTab,
+    bool? myReportsVisited,
   }) =>
       ReportsLoaded(
         reports: reports ?? this.reports,
         familyMembers: familyMembers ?? this.familyMembers,
         freeUsed: freeUsed ?? this.freeUsed,
         planCredits: planCredits ?? this.planCredits,
+        currentTab: currentTab ?? this.currentTab,
+        myReportsVisited: myReportsVisited ?? this.myReportsVisited,
       );
 
   @override
-  List<Object?> get props => [reports, familyMembers, freeUsed, planCredits];
+  List<Object?> get props => [reports, familyMembers, freeUsed, planCredits, currentTab, myReportsVisited];
 }

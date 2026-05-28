@@ -33,6 +33,7 @@ function DetailPanel({ app, onClose, onUpdated }) {
   const [notes, setNotes] = useState(app.admin_notes || '');
   const [newStatus, setNewStatus] = useState(app.status);
   const [saving, setSaving] = useState(false);
+  const [converting, setConverting] = useState(false);
 
   const save = async () => {
     setSaving(true);
@@ -45,6 +46,21 @@ function DetailPanel({ app, onClose, onUpdated }) {
       toast.error(err.response?.data?.message || 'Failed');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const addAsAstrologer = async () => {
+    if (!window.confirm(`Add ${app.name} as an astrologer? A welcome email will be sent to ${app.email}.`)) return;
+    setConverting(true);
+    try {
+      const res = await api.post(`/hirings/${app.id}/activate-as-astrologer`);
+      toast.success('Astrologer account created! Welcome email sent.');
+      onUpdated();
+      onClose();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to create astrologer account');
+    } finally {
+      setConverting(false);
     }
   };
 
@@ -161,6 +177,30 @@ function DetailPanel({ app, onClose, onUpdated }) {
             />
           </div>
         </div>
+
+        {/* Add as Astrologer — shown only when activated and not yet converted */}
+        {app.status === 'activated' && !app.converted_to_astrologer && (
+          <div className="px-6 pb-0 pt-4 border-t border-border shrink-0">
+            <button
+              onClick={addAsAstrologer}
+              disabled={converting}
+              className="w-full py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white text-sm font-semibold transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+            >
+              {converting ? (
+                <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Creating Account…</>
+              ) : (
+                <>⭐ Add as Astrologer &amp; Send Welcome Email</>
+              )}
+            </button>
+          </div>
+        )}
+        {app.converted_to_astrologer && (
+          <div className="px-6 pb-0 pt-4 border-t border-border shrink-0">
+            <div className="w-full py-2.5 rounded-xl bg-green-900/30 border border-green-700/40 text-green-400 text-sm font-medium text-center">
+              ✓ Already added as Astrologer
+            </div>
+          </div>
+        )}
 
         <div className="px-6 py-4 border-t border-border shrink-0 flex gap-3">
           <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-border text-text-secondary hover:text-white text-sm font-medium transition-colors">

@@ -44,6 +44,16 @@ class ReportsCubit extends Cubit<ReportsState> {
     }
   }
 
+  void switchTab(int index) {
+    final current = state;
+    if (current is ReportsLoaded) {
+      emit(current.copyWith(
+        currentTab: index,
+        myReportsVisited: current.myReportsVisited || index == 1,
+      ));
+    }
+  }
+
   void markFreeUsed() {
     final current = state;
     if (current is ReportsLoaded) {

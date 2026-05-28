@@ -21,16 +21,13 @@ class ReportsScreen extends StatefulWidget {
 class _ReportsScreenState extends State<ReportsScreen>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
-  bool _myReportsVisited = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController!.addListener(() {
-      if (_tabController!.index == 1 && !_myReportsVisited) {
-        setState(() => _myReportsVisited = true);
-      }
+      context.read<ReportsCubit>().switchTab(_tabController!.index);
     });
     context.read<ReportsCubit>().load();
   }
@@ -318,47 +315,53 @@ class _ReportsScreenState extends State<ReportsScreen>
           ],
         ),
       ),
-      body: IndexedStack(
-        index: _tabController!.index,
-        children: [
-          BlocBuilder<ReportsCubit, ReportsState>(
-            builder: (context, state) {
-              if (state is ReportsLoading || state is ReportsInitial) {
-                return _buildShimmer();
-              }
-              if (state is ReportsError) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.error_outline, color: context.clr.error, size: 48),
-                      const SizedBox(height: 12),
-                      Text('Could not load reports', style: TextStyle(color: context.clr.txtPrimary)),
-                      const SizedBox(height: 12),
-                      ElevatedButton(
-                        onPressed: () => context.read<ReportsCubit>().load(),
-                        style: ElevatedButton.styleFrom(backgroundColor: context.clr.accent),
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              if (state is ReportsLoaded) {
-                return RefreshIndicator(
-                  onRefresh: () => context.read<ReportsCubit>().refresh(),
-                  color: context.clr.accent,
-                  child: _buildBody(state),
-                );
-              }
-              return _buildShimmer();
-            },
-          ),
-          // Lazy: only build My Reports when first visited
-          _myReportsVisited
-              ? const UnlockedReportsScreen(embedded: true)
-              : const SizedBox.shrink(),
-        ],
+      body: BlocBuilder<ReportsCubit, ReportsState>(
+        builder: (context, state) {
+          final tab = state is ReportsLoaded ? state.currentTab : 0;
+          final myVisited = state is ReportsLoaded ? state.myReportsVisited : false;
+
+          // Sync TabController if driven externally (e.g. mainTabNotifier)
+          if (_tabController!.index != tab) {
+            _tabController!.animateTo(tab);
+          }
+
+          Widget allReports;
+          if (state is ReportsLoading || state is ReportsInitial) {
+            allReports = _buildShimmer();
+          } else if (state is ReportsError) {
+            allReports = Center(
+              child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Icon(Icons.error_outline, color: context.clr.error, size: 48),
+                const SizedBox(height: 12),
+                Text('Could not load reports', style: TextStyle(color: context.clr.txtPrimary)),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () => context.read<ReportsCubit>().load(),
+                  style: ElevatedButton.styleFrom(backgroundColor: context.clr.accent),
+                  child: const Text('Retry'),
+                ),
+              ]),
+            );
+          } else if (state is ReportsLoaded) {
+            allReports = RefreshIndicator(
+              onRefresh: () => context.read<ReportsCubit>().refresh(),
+              color: context.clr.accent,
+              child: _buildBody(state),
+            );
+          } else {
+            allReports = _buildShimmer();
+          }
+
+          return IndexedStack(
+            index: tab,
+            children: [
+              allReports,
+              myVisited
+                  ? const UnlockedReportsScreen(embedded: true)
+                  : const SizedBox.shrink(),
+            ],
+          );
+        },
       ),
     );
   }

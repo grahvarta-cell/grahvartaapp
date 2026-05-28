@@ -73,6 +73,7 @@ router.post('/notifications/segment', [
 const hiringCtrl = require('../controllers/hiringController');
 router.get('/hirings', hiringCtrl.listApplications);
 router.patch('/hirings/:id', hiringCtrl.updateStatus);
+router.post('/hirings/:id/activate-as-astrologer', hiringCtrl.activateAsAstrologer);
 
 // Recharge Offers Management
 const walletCtrl = require('../controllers/walletController');

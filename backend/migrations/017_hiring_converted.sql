@@ -1,0 +1,3 @@
+ALTER TABLE agent_hirings
+  ADD COLUMN IF NOT EXISTS converted_to_astrologer BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS astrologer_user_id UUID REFERENCES users(id) ON DELETE SET NULL;

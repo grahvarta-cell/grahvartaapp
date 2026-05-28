@@ -3,6 +3,8 @@ const multer = require('multer');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
+const bcrypt = require('bcryptjs');
+const { sendAstrologerWelcome } = require('../utils/mailer');
 
 const VALID_STATUSES = ['pending', 'shortlisted', 'round1', 'round2', 'activated', 'rejected'];
 
@@ -87,6 +89,79 @@ exports.listApplications = async (req, res) => {
     res.json({ success: true, data: rows.rows, total: parseInt(count.rows[0].count) });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// Admin: activate as astrologer
+exports.activateAsAstrologer = async (req, res) => {
+  const client = await db.pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { id } = req.params;
+    const hiring = await client.query('SELECT * FROM agent_hirings WHERE id = $1', [id]);
+    if (!hiring.rows.length) return res.status(404).json({ success: false, message: 'Application not found' });
+
+    const app = hiring.rows[0];
+    if (app.status !== 'activated') return res.status(400).json({ success: false, message: 'Application must be activated first' });
+    if (app.converted_to_astrologer) return res.status(409).json({ success: false, message: 'Already added as astrologer' });
+    if (!app.email) return res.status(400).json({ success: false, message: 'Agent has no email address' });
+
+    // Generate temp password
+    const tempPassword = Math.random().toString(36).slice(-8).toUpperCase();
+    const passwordHash = await bcrypt.hash(tempPassword, 10);
+
+    // Create user account
+    const userResult = await client.query(
+      `INSERT INTO users (email, password_hash, name, avatar_url, role)
+       VALUES ($1, $2, $3, $4, 'astrologer') RETURNING id`,
+      [app.email, passwordHash, app.name || 'Astrologer', app.profile_picture_url || null]
+    );
+    const userId = userResult.rows[0].id;
+
+    // Create wallet for the user
+    await client.query(
+      `INSERT INTO wallets (user_id, balance) VALUES ($1, 0) ON CONFLICT DO NOTHING`,
+      [userId]
+    );
+
+    // Create astrologer profile
+    const langs = Array.isArray(app.languages) ? app.languages : (app.languages ? JSON.parse(app.languages) : ['English']);
+    const skills = Array.isArray(app.skills) ? app.skills : (app.skills ? JSON.parse(app.skills) : []);
+    await client.query(
+      `INSERT INTO astrologers (user_id, display_name, bio, avatar_url, languages, specializations, status)
+       VALUES ($1, $2, $3, $4, $5, $6, 'approved')`,
+      [userId, app.name, app.about_me || '', app.profile_picture_url || null,
+       langs, skills]
+    );
+
+    // Mark hiring as converted
+    await client.query(
+      `UPDATE agent_hirings SET converted_to_astrologer = TRUE, astrologer_user_id = $1, updated_at = NOW() WHERE id = $2`,
+      [userId, id]
+    );
+
+    await client.query('COMMIT');
+
+    // Send welcome email (non-fatal)
+    try {
+      await sendAstrologerWelcome({
+        to: app.email,
+        name: app.name || 'Astrologer',
+        email: app.email,
+        password: tempPassword,
+      });
+    } catch (mailErr) {
+      console.error('Welcome email failed (non-fatal):', mailErr.message);
+    }
+
+    res.json({ success: true, message: 'Astrologer account created and welcome email sent', tempPassword });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('activateAsAstrologer error:', err);
+    res.status(500).json({ success: false, message: err.message || 'Server error' });
+  } finally {
+    client.release();
   }
 };
 

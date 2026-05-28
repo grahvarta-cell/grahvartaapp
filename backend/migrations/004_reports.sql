@@ -57,6 +57,25 @@ CREATE INDEX IF NOT EXISTS idx_report_unlocks_user ON report_unlocks(user_id);
 CREATE INDEX IF NOT EXISTS idx_report_reviews_report ON report_reviews(report_id);
 CREATE INDEX IF NOT EXISTS idx_report_plan_purchases_user ON report_plan_purchases(user_id, credits_remaining);
 
+-- ── Ensure unique constraint exists (idempotent) ───────────────────────────
+DO $$
+BEGIN
+  -- Deduplicate first so the constraint can be added without error
+  WITH ranked AS (
+    SELECT id,
+           ROW_NUMBER() OVER (PARTITION BY name ORDER BY sort_order ASC, id ASC) AS rn
+    FROM reports
+  )
+  DELETE FROM reports WHERE id IN (SELECT id FROM ranked WHERE rn > 1);
+
+  -- Add unique constraint if it doesn't already exist
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'reports_name_unique'
+  ) THEN
+    ALTER TABLE reports ADD CONSTRAINT reports_name_unique UNIQUE (name);
+  END IF;
+END $$;
+
 -- ── Seed reports ────────────────────────────────────────────────────────────
 INSERT INTO reports (name, category, icon, description, inclusions, avg_rating, unlock_count, sort_order) VALUES
 ('Life Guidance',         'Understand Yourself',              '🌟', 'Discover your life purpose, soul mission, and the divine blueprint of your existence.',                    ARRAY['Life purpose & soul mission','Key life themes','Karmic lessons to overcome','Best life phases & timings','Spiritual path & growth'],          4.8, 3241, 1),

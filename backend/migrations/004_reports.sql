@@ -1,7 +1,7 @@
 -- ── Reports ────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS reports (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(100) NOT NULL,
+  name VARCHAR(100) NOT NULL UNIQUE,
   category VARCHAR(100) NOT NULL,
   icon VARCHAR(10) NOT NULL DEFAULT '📄',
   description TEXT,
@@ -75,4 +75,4 @@ INSERT INTO reports (name, category, icon, description, inclusions, avg_rating, 
 ('Life Partner',         'The Story of Love',                 '👫','A detailed profile of your soulmate — who they are, where you will meet and when.',                          ARRAY['Life partner profile','Where & how you will meet','Relationship compatibility','Soulmate indicators','Partnership timeline'],                     4.8, 2103, 14),
 ('Multiple Intelligence','Prepare Your Educational Journey',  '🧠','Discover your dominant intelligences and craft a learning path aligned with your cosmic design.',             ARRAY['Dominant intelligences','Your ideal learning style','Memory & concentration patterns','Academic strengths','Skill development path'],            4.6, 892,  15),
 ('Education',            'Prepare Your Educational Journey',  '🎓','Your full educational destiny — best study periods, higher education timing and scholarship chances.',        ARRAY['Educational success yogas','Best study periods','Higher education timing','Subject suitability','Scholarship & abroad chances'],                 4.5, 743,  16)
-ON CONFLICT DO NOTHING;
+ON CONFLICT (name) DO NOTHING;

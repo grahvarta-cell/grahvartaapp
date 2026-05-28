@@ -1,18 +1,18 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
+  host: 'mail.grahvarta.com',
+  port: 465,
+  secure: true,
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: 'support@grahvarta.com',
+    pass: 'rjE4;igu=Y6',
   },
 });
 
 exports.sendAstrologerWelcome = async ({ to, name, email, password, loginUrl }) => {
   await transporter.sendMail({
-    from: `"Grahvarta" <${process.env.SMTP_USER}>`,
+    from: '"Grahvarta" <support@grahvarta.com>',
     to,
     subject: '🎉 Welcome to Grahvarta — Your Astrologer Account is Ready',
     html: `

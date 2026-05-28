@@ -39,9 +39,9 @@ class _AstrologerPendingScreenState extends State<AstrologerPendingScreen> {
   }
 
   void _snack(String msg, {bool error = false, bool success = false}) {
-    Color bg = AppColors.surface;
-    if (error) bg = AppColors.error;
-    if (success) bg = AppColors.success;
+    Color bg = context.clr.surface;
+    if (error) bg = context.clr.error;
+    if (success) bg = context.clr.success;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(msg), backgroundColor: bg),
     );
@@ -58,7 +58,6 @@ class _AstrologerPendingScreenState extends State<AstrologerPendingScreen> {
         return false;
       },
       child: Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -70,23 +69,23 @@ class _AstrologerPendingScreenState extends State<AstrologerPendingScreen> {
                 Container(
                   width: 96, height: 96,
                   decoration: BoxDecoration(
-                    color: (isRejected ? AppColors.error : const Color(0xFFFFD700)).withOpacity(0.15),
+                    color: (isRejected ? context.clr.error : const Color(0xFFFFD700)).withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: (isRejected ? AppColors.error : const Color(0xFFFFD700)).withOpacity(0.3),
+                      color: (isRejected ? context.clr.error : const Color(0xFFFFD700)).withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
                   child: Icon(
                     isRejected ? Icons.cancel_outlined : Icons.hourglass_top_rounded,
-                    color: isRejected ? AppColors.error : const Color(0xFFFFD700),
+                    color: isRejected ? context.clr.error : const Color(0xFFFFD700),
                     size: 44,
                   ),
                 ),
                 const SizedBox(height: 32),
                 Text(
                   isRejected ? 'Profile Not Approved' : 'Pending Approval',
-                  style: const TextStyle(color: AppColors.textPrimary, fontSize: 24, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: context.clr.txtPrimary, fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -94,16 +93,16 @@ class _AstrologerPendingScreenState extends State<AstrologerPendingScreen> {
                       ? 'Your astrologer profile was not approved by the admin. Please contact support for assistance.'
                       : 'Your astrologer profile has been submitted and is under review. Our team will approve it within 24–48 hours.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 15, height: 1.5),
+                  style: TextStyle(color: context.clr.txtSecondary, fontSize: 15, height: 1.5),
                 ),
                 const SizedBox(height: 32),
                 // Progress steps
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.card,
+                    color: context.clr.card,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.clr.border),
                   ),
                   child: Column(
                     children: [
@@ -124,13 +123,13 @@ class _AstrologerPendingScreenState extends State<AstrologerPendingScreen> {
                     icon: _refreshing
                         ? const SizedBox(
                             width: 16, height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.orange),
+                            child: CircularProgressIndicator(strokeWidth: 2, color: context.clr.accent),
                           )
                         : const Icon(Icons.refresh_rounded, size: 18),
                     label: Text(_refreshing ? 'Checking...' : 'Refresh Status'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.orange,
-                      side: const BorderSide(color: AppColors.orange),
+                      foregroundColor: context.clr.accent,
+                      side: BorderSide(color: context.clr.accent),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -141,7 +140,7 @@ class _AstrologerPendingScreenState extends State<AstrologerPendingScreen> {
                   const Text(
                     'You\'ll also receive a push notification\nwhen your profile is reviewed.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: AppColors.textMuted, fontSize: 12, height: 1.4),
+                    style: TextStyle(color: context.clr.txtMuted, fontSize: 12, height: 1.4),
                   ),
                 ],
               ],
@@ -157,24 +156,24 @@ class _AstrologerPendingScreenState extends State<AstrologerPendingScreen> {
       Container(
         width: 28, height: 28,
         decoration: BoxDecoration(
-          color: done ? AppColors.success.withOpacity(0.2) : AppColors.surface,
+          color: done ? context.clr.success.withValues(alpha: 0.2) : context.clr.surface,
           shape: BoxShape.circle,
-          border: Border.all(color: done ? AppColors.success : AppColors.border),
+          border: Border.all(color: done ? context.clr.success : context.clr.border),
         ),
         child: Icon(
           done ? Icons.check : Icons.circle_outlined,
-          color: done ? AppColors.success : AppColors.textMuted,
+          color: done ? context.clr.success : context.clr.txtMuted,
           size: 16,
         ),
       ),
       const SizedBox(width: 12),
-      Text(label, style: TextStyle(color: done ? AppColors.textPrimary : AppColors.textMuted, fontSize: 14)),
+      Text(label, style: TextStyle(color: done ? context.clr.txtPrimary : context.clr.txtMuted, fontSize: 14)),
     ]);
   }
 
   Widget _divider() => Container(
     margin: const EdgeInsets.only(left: 14, top: 4, bottom: 4),
     width: 1, height: 16,
-    color: AppColors.border,
+    color: context.clr.border,
   );
 }

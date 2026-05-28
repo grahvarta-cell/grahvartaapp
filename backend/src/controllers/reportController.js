@@ -89,10 +89,10 @@ exports.getCredits = async (req, res) => {
 exports.listReports = async (req, res) => {
   try {
     const reports = await db.query(
-      `SELECT r.*,
+      `SELECT DISTINCT ON (r.name) r.*,
         (SELECT json_build_object('reviewer_name', rr.reviewer_name, 'review_text', rr.review_text, 'rating', rr.rating)
          FROM report_reviews rr WHERE rr.report_id = r.id ORDER BY RANDOM() LIMIT 1) AS random_comment
-       FROM reports r WHERE r.is_active = TRUE ORDER BY r.sort_order`
+       FROM reports r WHERE r.is_active = TRUE ORDER BY r.name, r.sort_order`
     );
     res.json({ success: true, data: reports.rows });
   } catch (err) {

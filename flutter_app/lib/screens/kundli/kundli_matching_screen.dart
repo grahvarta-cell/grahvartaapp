@@ -60,7 +60,7 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
 
   Future<void> _matchKundli() async {
     if (_boyDob == null || _girlDob == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select both dates of birth')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select both dates of birth')));
       return;
     }
     setState(() => _isCalculating = true);
@@ -155,17 +155,15 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(icon: const Icon(Icons.arrow_back_ios, color: Colors.white), onPressed: () => Navigator.pop(context)),
         title: const Text('Kundli Matching'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(children: [
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(child: _personCard('👦 Boy', _boyName, AppColors.orange, _boyDob, (d) => setState(() { _boyDob = d; _result = null; }))),
+            Expanded(child: _personCard('👦 Boy', _boyName, context.clr.accent, _boyDob, (d) => setState(() { _boyDob = d; _result = null; }))),
             const SizedBox(width: 12),
             Expanded(child: _personCard('👧 Girl', _girlName, const Color(0xFFE91E63), _girlDob, (d) => setState(() { _girlDob = d; _result = null; }))),
           ]),
@@ -173,7 +171,7 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
           if (_result == null)
             ElevatedButton(
               onPressed: _isCalculating ? null : _matchKundli,
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.orange, minimumSize: const Size(double.infinity, 52), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              style: ElevatedButton.styleFrom(backgroundColor: context.clr.accent, minimumSize: const Size(double.infinity, 52), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
               child: _isCalculating
                   ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
                   : const Text('Match Kundli 💑', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -188,13 +186,13 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
   Widget _personCard(String title, TextEditingController nameCtrl, Color color, DateTime? dob, Function(DateTime) onDate) {
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: color.withOpacity(0.3))),
+      decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: color.withOpacity(0.3))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(title, style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 15)),
         const SizedBox(height: 12),
         TextField(
           controller: nameCtrl,
-          style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
+          style: TextStyle(color: context.clr.txtPrimary, fontSize: 13),
           decoration: _inputDeco('Name', Icons.person_outline),
         ),
         const SizedBox(height: 10),
@@ -211,11 +209,11 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
           },
           child: Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppColors.border)),
+            decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(10), border: Border.all(color: context.clr.border)),
             child: Row(children: [
-              Icon(Icons.calendar_today_outlined, color: AppColors.textMuted, size: 16),
+              Icon(Icons.calendar_today_outlined, color: context.clr.txtMuted, size: 16),
               const SizedBox(width: 8),
-              Text(dob != null ? '${dob.day}/${dob.month}/${dob.year}' : 'Date of Birth', style: TextStyle(color: dob != null ? AppColors.textPrimary : AppColors.textMuted, fontSize: 12)),
+              Text(dob != null ? '${dob.day}/${dob.month}/${dob.year}' : 'Date of Birth', style: TextStyle(color: dob != null ? context.clr.txtPrimary : context.clr.txtMuted, fontSize: 12)),
             ]),
           ),
         ),
@@ -224,25 +222,25 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
   }
 
   InputDecoration _inputDeco(String hint, IconData icon) => InputDecoration(
-    hintText: hint, hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
-    prefixIcon: Icon(icon, color: AppColors.textMuted, size: 16),
-    filled: true, fillColor: AppColors.surface,
-    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
-    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
-    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.orange)),
+    hintText: hint, hintStyle: TextStyle(color: context.clr.txtMuted, fontSize: 12),
+    prefixIcon: Icon(icon, color: context.clr.txtMuted, size: 16),
+    filled: true, fillColor: context.clr.surface,
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.clr.border)),
+    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.clr.border)),
+    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.clr.accent)),
     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
   );
 
   Widget _buildResult() {
     final r = _result!;
     final percent = r['percent'] as int;
-    final color = percent >= 75 ? AppColors.success : percent >= 50 ? AppColors.orange : percent >= 30 ? AppColors.gold : AppColors.error;
+    final color = percent >= 75 ? context.clr.success : percent >= 50 ? context.clr.accent : percent >= 30 ? context.clr.accentAlt : context.clr.error;
 
     return Column(children: [
       Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [color.withOpacity(0.2), AppColors.card]),
+          gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [color.withOpacity(0.2), context.clr.card]),
           borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withOpacity(0.4)),
         ),
         child: Column(children: [
@@ -251,40 +249,40 @@ class _KundliMatchingScreenState extends State<KundliMatchingScreen> {
           Text('${r['total']} / ${r['max']} Gunas', style: TextStyle(color: color, fontSize: 28, fontWeight: FontWeight.bold)),
           Text(r['compatibility'], style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
-          Text(r['message'], style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5), textAlign: TextAlign.center),
+          Text(r['message'], style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, height: 1.5), textAlign: TextAlign.center),
           const SizedBox(height: 12),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Text('${r['boy_name']} (${r['boy_sign']})', style: const TextStyle(color: AppColors.textPrimary, fontSize: 12)),
+            Text('${r['boy_name']} (${r['boy_sign']})', style: TextStyle(color: context.clr.txtPrimary, fontSize: 12)),
             const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('❤️')),
-            Text('${r['girl_name']} (${r['girl_sign']})', style: const TextStyle(color: AppColors.textPrimary, fontSize: 12)),
+            Text('${r['girl_name']} (${r['girl_sign']})', style: TextStyle(color: context.clr.txtPrimary, fontSize: 12)),
           ]),
           const SizedBox(height: 4),
-          Text('Nakshatra: ${r['boy_nakshatra']} × ${r['girl_nakshatra']}', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+          Text('Nakshatra: ${r['boy_nakshatra']} × ${r['girl_nakshatra']}', style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
         ]),
       ),
       const SizedBox(height: 16),
-      const Text('ASHTAKOOTA ANALYSIS', style: TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 1)),
+      Text('ASHTAKOOTA ANALYSIS', style: TextStyle(color: context.clr.txtMuted, fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 1)),
       const SizedBox(height: 10),
       ...(r['gunas'] as Map<String, Map<String, dynamic>>).entries.map((e) {
         final obtained = e.value['obtained'] as int;
         final max = e.value['max'] as int;
-        final c = obtained >= max * 0.6 ? AppColors.success : obtained > 0 ? AppColors.orange : AppColors.error;
+        final c = obtained >= max * 0.6 ? context.clr.success : obtained > 0 ? context.clr.accent : context.clr.error;
         return Container(
           margin: const EdgeInsets.only(bottom: 8),
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
+          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: context.clr.border)),
           child: Row(children: [
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(e.key, style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500)),
-              Text(e.value['desc'] as String, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              Text(e.key, style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, fontWeight: FontWeight.w500)),
+              Text(e.value['desc'] as String, style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
             ])),
             Text('$obtained/$max', style: TextStyle(color: c, fontWeight: FontWeight.bold, fontSize: 15)),
           ]),
         );
       }),
       const SizedBox(height: 16),
-      TextButton(onPressed: () => setState(() => _result = null), child: const Text('Check Another Match', style: TextStyle(color: AppColors.orange))),
-      const Text('Based on Vedic nakshatra calculations', style: TextStyle(color: AppColors.textMuted, fontSize: 10)),
+      TextButton(onPressed: () => setState(() => _result = null), child: Text('Check Another Match', style: TextStyle(color: context.clr.accent))),
+      Text('Based on Vedic nakshatra calculations', style: TextStyle(color: context.clr.txtMuted, fontSize: 10)),
       const SizedBox(height: 20),
     ]);
   }

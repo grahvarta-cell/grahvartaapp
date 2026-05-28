@@ -15,8 +15,6 @@ class _OnboardingData {
   final String icon;
   final String title;
   final String subtitle;
-  final List<Color> gradient;
-  final Color accentColor;
   final List<String> symbols;
   final List<String> pills;
 
@@ -24,8 +22,6 @@ class _OnboardingData {
     required this.icon,
     required this.title,
     required this.subtitle,
-    required this.gradient,
-    required this.accentColor,
     required this.symbols,
     required this.pills,
   });
@@ -36,8 +32,6 @@ const _pages = [
     icon: '🔮',
     title: 'Discover Your\nCosmic Path',
     subtitle: 'Get personalized horoscopes, birth chart readings, and daily predictions tailored to your unique celestial blueprint.',
-    gradient: [Color(0xFF2D1B00), Color(0xFF0D0D0D)],
-    accentColor: AppColors.orange,
     symbols: ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'],
     pills: ['Daily Horoscope', 'Birth Chart', 'Compatibility'],
   ),
@@ -45,8 +39,6 @@ const _pages = [
     icon: '🌟',
     title: 'Talk to Expert\nAstrologers',
     subtitle: 'Connect instantly with 500+ verified astrologers via live chat, voice, or video call. First 3 minutes free!',
-    gradient: [Color(0xFF0D1A2D), Color(0xFF0D0D0D)],
-    accentColor: Color(0xFF4A9EFF),
     symbols: ['✨', '⭐', '🌙', '☀️', '💫', '🪐', '🌟', '⚡', '🔥', '💎', '🌈', '✦'],
     pills: ['500+ Astrologers', 'Live Chat', 'Voice & Video'],
   ),
@@ -54,8 +46,6 @@ const _pages = [
     icon: '💫',
     title: 'Live, Learn &\nGrow Together',
     subtitle: 'Join live astrology sessions, explore cosmic events, and become part of a thriving spiritual community.',
-    gradient: [Color(0xFF1A0D2D), Color(0xFF0D0D0D)],
-    accentColor: AppColors.gold,
     symbols: ['🌕', '🌗', '🌑', '🌓', '☿', '♀', '♂', '♃', '♄', '⛎', '☽', '☿'],
     pills: ['Live Sessions', 'Community', 'Cosmic Events'],
   ),
@@ -100,25 +90,55 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const RoleSelectionScreen()));
   }
 
+  List<Color> _gradientForPage(int index, bool isDark) {
+    if (isDark) {
+      const darkGradients = [
+        [Color(0xFF2D1B00), Color(0xFF0D0D0D)],
+        [Color(0xFF0D1A2D), Color(0xFF0D0D0D)],
+        [Color(0xFF1A0D2D), Color(0xFF0D0D0D)],
+      ];
+      return darkGradients[index % darkGradients.length];
+    } else {
+      const lightGradients = [
+        [Color(0xFFE8F4FF), Color(0xFFFFFFFF)],
+        [Color(0xFFE0EEFF), Color(0xFFFFFFFF)],
+        [Color(0xFFEEE8FF), Color(0xFFFFFFFF)],
+      ];
+      return lightGradients[index % lightGradients.length];
+    }
+  }
+
+  Color _accentForPage(int index, BuildContext context) {
+    if (index == 1) {
+      return context.clr.accentAlt;
+    } else if (index == 2) {
+      return context.clr.accentAlt;
+    }
+    return context.clr.accent;
+  }
+
   @override
   Widget build(BuildContext context) {
     final page = _pages[_currentPage];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final gradient = _gradientForPage(_currentPage, isDark);
+    final accentColor = _accentForPage(_currentPage, context);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.clr.bg,
       body: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: page.gradient,
+            colors: gradient,
           ),
         ),
         child: SafeArea(
           child: Stack(
             children: [
-              _BackgroundSymbols(symbols: page.symbols, rotation: _bgRotation, accentColor: page.accentColor),
+              _BackgroundSymbols(symbols: page.symbols, rotation: _bgRotation, accentColor: accentColor),
               Column(
                 children: [
                   Align(
@@ -127,7 +147,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                       padding: const EdgeInsets.only(right: 8),
                       child: TextButton(
                         onPressed: _finish,
-                        child: const Text('Skip', style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
+                        child: Text('Skip', style: TextStyle(color: context.clr.txtMuted, fontSize: 14)),
                       ),
                     ),
                   ),
@@ -139,13 +159,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
                         _contentAnimController.forward(from: 0);
                       },
                       itemCount: _pages.length,
-                      itemBuilder: (_, i) => _OnboardingPage(data: _pages[i], animController: _contentAnimController),
+                      itemBuilder: (ctx, i) {
+                        final pageAccent = _accentForPage(i, ctx);
+                        return _OnboardingPage(
+                          data: _pages[i],
+                          animController: _contentAnimController,
+                          accentColor: pageAccent,
+                        );
+                      },
                     ),
                   ),
                   _BottomControls(
                     currentPage: _currentPage,
                     total: _pages.length,
-                    accentColor: page.accentColor,
+                    accentColor: accentColor,
                     onNext: _nextPage,
                     onSkip: _finish,
                   ),
@@ -181,8 +208,9 @@ class _BackgroundSymbols extends StatelessWidget {
 class _OnboardingPage extends StatelessWidget {
   final _OnboardingData data;
   final AnimationController animController;
+  final Color accentColor;
 
-  const _OnboardingPage({required this.data, required this.animController});
+  const _OnboardingPage({required this.data, required this.animController, required this.accentColor});
 
   @override
   Widget build(BuildContext context) {
@@ -201,13 +229,13 @@ class _OnboardingPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _IconWidget(data: data),
+            _IconWidget(accentColor: accentColor, icon: data.icon),
             const SizedBox(height: 48),
             Text(
               data.title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
+              style: TextStyle(
+                color: context.clr.txtPrimary,
                 fontSize: 30,
                 fontWeight: FontWeight.w800,
                 height: 1.2,
@@ -218,7 +246,7 @@ class _OnboardingPage extends StatelessWidget {
             Text(
               data.subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 15, height: 1.6),
+              style: TextStyle(color: context.clr.txtSecondary, fontSize: 15, height: 1.6),
             ),
             const SizedBox(height: 32),
             Wrap(
@@ -228,11 +256,11 @@ class _OnboardingPage extends StatelessWidget {
               children: data.pills.map((p) => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: data.accentColor.withOpacity(0.1),
+                  color: accentColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: data.accentColor.withOpacity(0.3)),
+                  border: Border.all(color: accentColor.withValues(alpha: 0.3)),
                 ),
-                child: Text(p, style: TextStyle(color: data.accentColor, fontSize: 12, fontWeight: FontWeight.w600)),
+                child: Text(p, style: TextStyle(color: accentColor, fontSize: 12, fontWeight: FontWeight.w600)),
               )).toList(),
             ),
           ],
@@ -243,8 +271,9 @@ class _OnboardingPage extends StatelessWidget {
 }
 
 class _IconWidget extends StatelessWidget {
-  final _OnboardingData data;
-  const _IconWidget({required this.data});
+  final Color accentColor;
+  final String icon;
+  const _IconWidget({required this.accentColor, required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -256,7 +285,7 @@ class _IconWidget extends StatelessWidget {
           height: 168,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: data.accentColor.withOpacity(0.12), width: 1),
+            border: Border.all(color: accentColor.withValues(alpha: 0.12), width: 1),
           ),
         ),
         Container(
@@ -264,7 +293,7 @@ class _IconWidget extends StatelessWidget {
           height: 132,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: data.accentColor.withOpacity(0.22), width: 1),
+            border: Border.all(color: accentColor.withValues(alpha: 0.22), width: 1),
           ),
         ),
         Container(
@@ -272,11 +301,11 @@ class _IconWidget extends StatelessWidget {
           height: 100,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: data.accentColor.withOpacity(0.12),
-            border: Border.all(color: data.accentColor.withOpacity(0.4), width: 1.5),
-            boxShadow: [BoxShadow(color: data.accentColor.withOpacity(0.25), blurRadius: 32, spreadRadius: 4)],
+            color: accentColor.withValues(alpha: 0.12),
+            border: Border.all(color: accentColor.withValues(alpha: 0.4), width: 1.5),
+            boxShadow: [BoxShadow(color: accentColor.withValues(alpha: 0.25), blurRadius: 32, spreadRadius: 4)],
           ),
-          child: Center(child: Text(data.icon, style: const TextStyle(fontSize: 44))),
+          child: Center(child: Text(icon, style: const TextStyle(fontSize: 44))),
         ),
       ],
     );
@@ -316,7 +345,7 @@ class _BottomControls extends StatelessWidget {
                 width: isActive ? 24 : 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: isActive ? accentColor : AppColors.textMuted.withOpacity(0.35),
+                  color: isActive ? accentColor : context.clr.txtMuted.withValues(alpha: 0.35),
                   borderRadius: BorderRadius.circular(4),
                 ),
               );
@@ -332,7 +361,7 @@ class _BottomControls extends StatelessWidget {
               decoration: BoxDecoration(
                 color: accentColor,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: accentColor.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, 8))],
+                boxShadow: [BoxShadow(color: accentColor.withValues(alpha: 0.4), blurRadius: 20, offset: const Offset(0, 8))],
               ),
               child: Center(
                 child: Text(
@@ -346,9 +375,9 @@ class _BottomControls extends StatelessWidget {
             const SizedBox(height: 16),
             GestureDetector(
               onTap: onSkip,
-              child: const Text(
+              child: Text(
                 'Already have an account? Sign in',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                style: TextStyle(color: context.clr.txtMuted, fontSize: 13),
               ),
             ),
           ],
@@ -379,7 +408,7 @@ class _SymbolsPainter extends CustomPainter {
 
       textPainter.text = TextSpan(
         text: symbols[i],
-        style: TextStyle(fontSize: fontSize, color: color.withOpacity(opacity)),
+        style: TextStyle(fontSize: fontSize, color: color.withValues(alpha: opacity)),
       );
       textPainter.layout();
       textPainter.paint(canvas, Offset(x - textPainter.width / 2, y - textPainter.height / 2));

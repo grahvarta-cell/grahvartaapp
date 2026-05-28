@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -112,24 +111,24 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.card,
+        backgroundColor: context.clr.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(children: [
-          Icon(Icons.account_balance_wallet, color: AppColors.orange),
-          SizedBox(width: 8),
-          Text('Low Balance', style: TextStyle(color: AppColors.textPrimary)),
+        title: Row(children: [
+          Icon(Icons.account_balance_wallet, color: context.clr.accent),
+          const SizedBox(width: 8),
+          Text('Low Balance', style: TextStyle(color: context.clr.txtPrimary)),
         ]),
         content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Your wallet balance is ₹${balance.toStringAsFixed(2)}.', style: const TextStyle(color: AppColors.textSecondary)),
+          Text('Your wallet balance is ₹${balance.toStringAsFixed(2)}.', style: TextStyle(color: context.clr.txtSecondary)),
           const SizedBox(height: 6),
-          Text('Minimum ₹${required.toStringAsFixed(0)} required (2 min @ ₹${rate.toInt()}/min).', style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+          Text('Minimum ₹${required.toStringAsFixed(0)} required (2 min @ ₹${rate.toInt()}/min).', style: TextStyle(color: context.clr.txtMuted, fontSize: 13)),
           const SizedBox(height: 12),
-          const Text('Please add money to your wallet to continue.', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text('Please add money to your wallet to continue.', style: TextStyle(color: context.clr.txtSecondary, fontSize: 13)),
         ]),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
+            child: Text('Cancel', style: TextStyle(color: context.clr.txtMuted)),
           ),
           ElevatedButton.icon(
             onPressed: () {
@@ -156,7 +155,6 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
     final statusBarH = MediaQuery.of(context).padding.top;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       extendBodyBehindAppBar: true,
       body: Stack(children: [
         // ── Main scrollable content ──────────────────────────────────────────
@@ -169,7 +167,6 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
             pinned: true,
             automaticallyImplyLeading: false,
             toolbarHeight: 0,
-            backgroundColor: AppColors.background,
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.none,
               background: _buildTabBar(),
@@ -216,12 +213,12 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
       builder: (_, child) => Opacity(opacity: _heroController.value, child: child),
       child: Container(
         height: 340 + statusBarH,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF3A1200), Color(0xFF1E0A00), Color(0xFF0D0D0D)],
-            stops: [0.0, 0.5, 1.0],
+            colors: [context.clr.surface, context.clr.card, context.clr.bg],
+            stops: const [0.0, 0.5, 1.0],
           ),
         ),
         child: Stack(children: [
@@ -230,7 +227,7 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
             gradient: RadialGradient(
               center: const Alignment(0, -0.4),
               radius: 0.9,
-              colors: [AppColors.orange.withOpacity(0.12), Colors.transparent],
+              colors: [context.clr.accent.withValues(alpha: 0.12), Colors.transparent],
             ),
           ))),
 
@@ -252,9 +249,9 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: SweepGradient(colors: [
-                        AppColors.orange.withOpacity(0.6 * _heroController.value),
-                        AppColors.gold.withOpacity(0.4 * _heroController.value),
-                        AppColors.orange.withOpacity(0.6 * _heroController.value),
+                        context.clr.accent.withValues(alpha: 0.6 * _heroController.value),
+                        context.clr.accentAlt.withValues(alpha: 0.4 * _heroController.value),
+                        context.clr.accent.withValues(alpha: 0.6 * _heroController.value),
                       ]),
                     ),
                   ),
@@ -264,7 +261,7 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
                   width: 104, height: 104,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFF1E0A00), width: 3),
+                    border: Border.all(color: context.clr.bg, width: 3),
                   ),
                   child: ClipOval(
                     child: a.avatarUrl != null
@@ -278,16 +275,16 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
                   Positioned(bottom: 4, right: 4, child: Container(
                     width: 20, height: 20,
                     decoration: BoxDecoration(
-                      color: AppColors.success,
+                      color: context.clr.success,
                       shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFF1E0A00), width: 3),
+                      border: Border.all(color: context.clr.bg, width: 3),
                     ),
                   )),
                 // Verified badge
                 if (a.isVerified)
                   Positioned(top: 2, right: 2, child: Container(
                     padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(color: AppColors.orange, shape: BoxShape.circle),
+                    decoration: BoxDecoration(color: context.clr.accent, shape: BoxShape.circle),
                     child: const Icon(Icons.verified_rounded, color: Colors.white, size: 12),
                   )),
               ]),
@@ -295,8 +292,8 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
               const SizedBox(height: 14),
 
               // Name
-              Text(a.displayName, style: const TextStyle(
-                color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 0.3,
+              Text(a.displayName, style: TextStyle(
+                color: context.clr.txtPrimary, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 0.3,
               )),
 
               const SizedBox(height: 6),
@@ -306,12 +303,12 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
                 RatingBarIndicator(
                   rating: a.rating,
                   itemSize: 15,
-                  itemBuilder: (_, __) => const Icon(Icons.star_rounded, color: AppColors.gold),
+                  itemBuilder: (_, __) => Icon(Icons.star_rounded, color: context.clr.accentAlt),
                 ),
                 const SizedBox(width: 6),
-                Text('${a.ratingFormatted}', style: const TextStyle(color: AppColors.gold, fontSize: 13, fontWeight: FontWeight.w600)),
+                Text('${a.ratingFormatted}', style: TextStyle(color: context.clr.accentAlt, fontSize: 13, fontWeight: FontWeight.w600)),
                 const SizedBox(width: 4),
-                Text('· ${a.reviewCount} reviews', style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                Text('· ${a.reviewCount} reviews', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
               ]),
 
               const SizedBox(height: 16),
@@ -320,9 +317,9 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
+                  color: context.clr.surface.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withOpacity(0.08)),
+                  border: Border.all(color: context.clr.border),
                 ),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   _heroStat('${a.experienceYears}+', 'Years Exp.'),
@@ -341,22 +338,22 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
   }
 
   Widget _avatarPlaceholder(Astrologer a) => Container(
-    color: AppColors.orange.withOpacity(0.15),
+    color: context.clr.accent.withValues(alpha: 0.15),
     child: Center(child: Text(
       a.displayName.isNotEmpty ? a.displayName[0] : '?',
-      style: const TextStyle(fontSize: 40, color: AppColors.orange, fontWeight: FontWeight.bold),
+      style: TextStyle(fontSize: 40, color: context.clr.accent, fontWeight: FontWeight.bold),
     )),
   );
 
   Widget _heroStat(String val, String label) => Column(children: [
-    Text(val, style: const TextStyle(color: AppColors.orange, fontSize: 17, fontWeight: FontWeight.bold)),
+    Text(val, style: TextStyle(color: context.clr.accent, fontSize: 17, fontWeight: FontWeight.bold)),
     const SizedBox(height: 2),
-    Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+    Text(label, style: TextStyle(color: context.clr.txtMuted, fontSize: 10)),
   ]);
 
   Widget _heroDivider() => Container(
     width: 1, height: 30, margin: const EdgeInsets.symmetric(horizontal: 20),
-    color: Colors.white.withOpacity(0.1),
+    color: context.clr.border,
   );
 
   List<Widget> _buildStarDots() {
@@ -382,7 +379,7 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
   // ─── Tab bar ───────────────────────────────────────────────────────────────
   Widget _buildTabBar() {
     return Container(
-      color: AppColors.background,
+      color: context.clr.bg,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
         child: Row(children: [
@@ -406,15 +403,15 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
         curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.orange : AppColors.surface,
+          color: isSelected ? context.clr.accent : context.clr.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? AppColors.orange : AppColors.border),
+          border: Border.all(color: isSelected ? context.clr.accent : context.clr.border),
         ),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(icon, size: 14, color: isSelected ? Colors.white : AppColors.textMuted),
+          Icon(icon, size: 14, color: isSelected ? Colors.white : context.clr.txtMuted),
           const SizedBox(width: 5),
           Text(label, style: TextStyle(
-            color: isSelected ? Colors.white : AppColors.textMuted,
+            color: isSelected ? Colors.white : context.clr.txtMuted,
             fontSize: 13, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           )),
         ]),
@@ -428,7 +425,7 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
       if (a.bio != null) ...[
         _sectionHeader('About', Icons.person_outline_rounded),
         const SizedBox(height: 10),
-        _GlassCard(child: Text(a.bio!, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.7))),
+        _GlassCard(child: Text(a.bio!, style: TextStyle(color: context.clr.txtSecondary, fontSize: 14, height: 1.7))),
         const SizedBox(height: 22),
       ],
 
@@ -442,44 +439,44 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
       Wrap(spacing: 8, runSpacing: 8, children: a.languages.map((l) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.clr.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.clr.border),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           const Text('🌐', style: TextStyle(fontSize: 13)),
           const SizedBox(width: 5),
-          Text(l, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text(l, style: TextStyle(color: context.clr.txtSecondary, fontSize: 13)),
         ]),
       )).toList()),
       const SizedBox(height: 22),
 
       _sectionHeader('Consultation Rates', Icons.payments_outlined),
       const SizedBox(height: 10),
-      _AnimatedRateCard(icon: Icons.chat_bubble_outline_rounded, label: 'Chat', sublabel: 'Text consultation', rate: a.perMinuteRateChat, color: AppColors.orange, delay: 0),
+      _AnimatedRateCard(icon: Icons.chat_bubble_outline_rounded, label: 'Chat', sublabel: 'Text consultation', rate: a.perMinuteRateChat, color: context.clr.accent, delay: 0),
       const SizedBox(height: 8),
-      _AnimatedRateCard(icon: Icons.phone_outlined, label: 'Voice Call', sublabel: 'Audio consultation', rate: a.perMinuteRateCall, color: AppColors.success, delay: 80),
+      _AnimatedRateCard(icon: Icons.phone_outlined, label: 'Voice Call', sublabel: 'Audio consultation', rate: a.perMinuteRateCall, color: context.clr.success, delay: 80),
       const SizedBox(height: 8),
       _AnimatedRateCard(icon: Icons.videocam_outlined, label: 'Video Call', sublabel: 'Face-to-face session', rate: a.perMinuteRateVideo, color: const Color(0xFF2196F3), delay: 160),
     ]);
   }
 
   Widget _sectionHeader(String title, IconData icon) => Row(children: [
-    Icon(icon, size: 16, color: AppColors.orange),
+    Icon(icon, size: 16, color: context.clr.accent),
     const SizedBox(width: 8),
-    Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+    Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.clr.txtPrimary)),
   ]);
 
   // ─── Reviews tab ───────────────────────────────────────────────────────────
   Widget _buildReviews() {
     if (_loadingReviews) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.orange, strokeWidth: 2));
+      return Center(child: CircularProgressIndicator(color: context.clr.accent, strokeWidth: 2));
     }
     if (_reviews.isEmpty) {
       return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.star_outline_rounded, size: 52, color: AppColors.textMuted),
+        Icon(Icons.star_outline_rounded, size: 52, color: context.clr.txtMuted),
         const SizedBox(height: 12),
-        const Text('No reviews yet', style: TextStyle(color: AppColors.textMuted, fontSize: 15)),
+        Text('No reviews yet', style: TextStyle(color: context.clr.txtMuted, fontSize: 15)),
       ]));
     }
     return ListView.separated(
@@ -492,20 +489,17 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
 
   // ─── Consult bar ───────────────────────────────────────────────────────────
   Widget _buildConsultBar(Astrologer a) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
+    return Container(
           padding: EdgeInsets.fromLTRB(16, 14, 16, MediaQuery.of(context).padding.bottom + 14),
           decoration: BoxDecoration(
-            color: AppColors.surface.withOpacity(0.9),
-            border: Border(top: BorderSide(color: Colors.white.withOpacity(0.07))),
+            color: context.clr.surface.withValues(alpha: 0.95),
+            border: Border(top: BorderSide(color: context.clr.border)),
           ),
           child: Row(children: [
             // Call buttons
             _ConsultIconBtn(
               icon: Icons.phone_rounded,
-              color: AppColors.success,
+              color: context.clr.success,
               tooltip: '₹${a.perMinuteRateCall.toInt()}/min',
               onTap: () => _startConsultation('voice'),
             ),
@@ -525,30 +519,28 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
                 height: 50,
                 decoration: BoxDecoration(
                   gradient: a.isOnline
-                      ? const LinearGradient(colors: [AppColors.orange, Color(0xFFB85C1A)])
+                      ? LinearGradient(colors: [context.clr.accent, Color(0xFFB85C1A)])
                       : null,
-                  color: a.isOnline ? null : AppColors.surface,
+                  color: a.isOnline ? null : context.clr.surface,
                   borderRadius: BorderRadius.circular(14),
-                  border: a.isOnline ? null : Border.all(color: AppColors.border),
+                  border: a.isOnline ? null : Border.all(color: context.clr.border),
                 ),
                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Icon(Icons.chat_bubble_rounded, size: 18,
-                    color: a.isOnline ? Colors.white : AppColors.textMuted),
+                    color: a.isOnline ? Colors.white : context.clr.txtMuted),
                   const SizedBox(width: 8),
                   Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(a.isOnline ? 'Chat Now' : 'Offline',
-                      style: TextStyle(color: a.isOnline ? Colors.white : AppColors.textMuted,
+                      style: TextStyle(color: a.isOnline ? Colors.white : context.clr.txtMuted,
                         fontSize: 14, fontWeight: FontWeight.bold)),
                     Text('₹${a.perMinuteRateChat.toInt()}/min',
-                      style: TextStyle(color: a.isOnline ? Colors.white.withOpacity(0.7) : AppColors.textMuted,
+                      style: TextStyle(color: a.isOnline ? Colors.white.withOpacity(0.7) : context.clr.txtMuted,
                         fontSize: 11)),
                   ]),
                 ]),
               ),
             )),
           ]),
-        ),
-      ),
     );
   }
 }
@@ -564,7 +556,7 @@ class _GlassCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.clr.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: Colors.white.withOpacity(0.06)),
       ),
@@ -600,11 +592,11 @@ class _SpecTagState extends State<_SpecTag> with SingleTickerProviderStateMixin 
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [AppColors.orange.withOpacity(0.15), AppColors.orange.withOpacity(0.08)]),
+            gradient: LinearGradient(colors: [context.clr.accent.withValues(alpha: 0.15), context.clr.accent.withValues(alpha: 0.08)]),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.orange.withOpacity(0.3)),
+            border: Border.all(color: context.clr.accent.withValues(alpha: 0.3)),
           ),
-          child: Text(widget.label, style: const TextStyle(color: AppColors.orange, fontSize: 13, fontWeight: FontWeight.w500)),
+          child: Text(widget.label, style: TextStyle(color: context.clr.accent, fontSize: 13, fontWeight: FontWeight.w500)),
         ),
       ),
     );
@@ -648,7 +640,7 @@ class _AnimatedRateCardState extends State<_AnimatedRateCard> with SingleTickerP
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.clr.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: widget.color.withOpacity(0.15)),
           ),
@@ -660,8 +652,8 @@ class _AnimatedRateCardState extends State<_AnimatedRateCard> with SingleTickerP
             ),
             const SizedBox(width: 12),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(widget.label, style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500)),
-              Text(widget.sublabel, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              Text(widget.label, style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, fontWeight: FontWeight.w500)),
+              Text(widget.sublabel, style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
             ])),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -701,7 +693,7 @@ class _ReviewCardState extends State<_ReviewCard> with SingleTickerProviderState
   @override
   Widget build(BuildContext context) {
     final r = widget.review;
-    final colors = [AppColors.orange, const Color(0xFF9C27B0), const Color(0xFF2196F3), AppColors.success];
+    final colors = [context.clr.accent, const Color(0xFF9C27B0), const Color(0xFF2196F3), context.clr.success];
     final avatarColor = colors[widget.index % colors.length];
 
     return FadeTransition(
@@ -711,7 +703,7 @@ class _ReviewCardState extends State<_ReviewCard> with SingleTickerProviderState
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.clr.surface,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: Colors.white.withOpacity(0.05)),
           ),
@@ -727,20 +719,20 @@ class _ReviewCardState extends State<_ReviewCard> with SingleTickerProviderState
               ),
               const SizedBox(width: 10),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(r.userName, style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500)),
+                Text(r.userName, style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 2),
                 RatingBarIndicator(
                   rating: r.rating.toDouble(),
                   itemSize: 12,
-                  itemBuilder: (_, __) => const Icon(Icons.star_rounded, color: AppColors.gold),
+                  itemBuilder: (_, __) => Icon(Icons.star_rounded, color: context.clr.accentAlt),
                 ),
               ])),
               Text(r.createdAt.length > 10 ? r.createdAt.substring(0, 10) : r.createdAt,
-                  style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                  style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
             ]),
             if (r.reviewText != null && r.reviewText!.isNotEmpty) ...[
               const SizedBox(height: 10),
-              Text(r.reviewText!, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.6)),
+              Text(r.reviewText!, style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, height: 1.6)),
             ],
           ]),
         ),
@@ -759,19 +751,14 @@ class _GlassButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: ClipOval(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            width: 40, height: 40,
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.35),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withOpacity(0.12)),
-            ),
-            child: Center(child: child),
-          ),
+      child: Container(
+        width: 40, height: 40,
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.4),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
         ),
+        child: Center(child: child),
       ),
     );
   }

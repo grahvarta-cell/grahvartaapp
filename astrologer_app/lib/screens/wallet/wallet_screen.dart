@@ -59,20 +59,20 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
         setState(() => _wallet = updated);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('₹${_pendingAmount.toInt()} added to wallet!'),
-          backgroundColor: AppColors.success,
+          backgroundColor: context.clr.success,
         ));
         _loadData();
       }
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Payment verification failed: $e'), backgroundColor: AppColors.error),
+        SnackBar(content: Text('Payment verification failed: $e'), backgroundColor: context.clr.error),
       );
     }
   }
 
   void _onPaymentError(PaymentFailureResponse response) {
     if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Payment failed: ${response.message}'), backgroundColor: AppColors.error),
+      SnackBar(content: Text('Payment failed: ${response.message}'), backgroundColor: context.clr.error),
     );
   }
 
@@ -127,14 +127,14 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.clr.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => StatefulBuilder(builder: (ctx, setS) => Padding(
         padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 30),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Expanded(child: Text(ctx.s.addMoneyToWallet, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary))),
-            IconButton(icon: const Icon(Icons.close, color: AppColors.textMuted), onPressed: () => Navigator.pop(ctx)),
+            Expanded(child: Text(ctx.s.addMoneyToWallet, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: context.clr.txtPrimary))),
+            IconButton(icon: Icon(Icons.close, color: context.clr.txtMuted), onPressed: () => Navigator.pop(ctx)),
           ]),
           const SizedBox(height: 16),
           Wrap(spacing: 10, runSpacing: 10, children: _quickAmounts.map((amt) => GestureDetector(
@@ -142,18 +142,18 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
               decoration: BoxDecoration(
-                color: _selectedAmount == amt ? AppColors.orange : AppColors.card,
+                color: _selectedAmount == amt ? context.clr.accent : context.clr.card,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: _selectedAmount == amt ? AppColors.orange : AppColors.border),
+                border: Border.all(color: _selectedAmount == amt ? context.clr.accent : context.clr.border),
               ),
-              child: Text('₹${amt.toInt()}', style: TextStyle(color: _selectedAmount == amt ? Colors.white : AppColors.textSecondary, fontWeight: FontWeight.w600)),
+              child: Text('₹${amt.toInt()}', style: TextStyle(color: _selectedAmount == amt ? Colors.white : context.clr.txtSecondary, fontWeight: FontWeight.w600)),
             ),
           )).toList()),
           const SizedBox(height: 16),
           TextField(
             controller: _customCtrl,
             keyboardType: TextInputType.number,
-            style: const TextStyle(color: AppColors.textPrimary),
+            style: TextStyle(color: context.clr.txtPrimary),
             onChanged: (v) => setS(() => _selectedAmount = double.tryParse(v) ?? _selectedAmount),
             decoration: InputDecoration(labelText: ctx.s.customAmount, prefixText: '₹ '),
           ),
@@ -165,9 +165,9 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
           ),
           const SizedBox(height: 8),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            const Icon(Icons.lock, size: 12, color: AppColors.textMuted),
+            Icon(Icons.lock, size: 12, color: context.clr.txtMuted),
             const SizedBox(width: 4),
-            Text(context.s.securedByRazorpay, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+            Text(context.s.securedByRazorpay, style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
           ]),
         ]),
       )),
@@ -197,7 +197,7 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
       _razorpay.open(options);
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error),
+        SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error),
       );
     }
   }
@@ -208,16 +208,16 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.card,
+        backgroundColor: context.clr.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Subscribe to ${plan.name}?', style: const TextStyle(color: AppColors.textPrimary)),
+        title: Text('Subscribe to ${plan.name}?', style: TextStyle(color: context.clr.txtPrimary)),
         content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('₹${plan.price.toInt()}/month will be deducted from your wallet.', style: const TextStyle(color: AppColors.textSecondary)),
+          Text('₹${plan.price.toInt()}/month will be deducted from your wallet.', style: TextStyle(color: context.clr.txtSecondary)),
           const SizedBox(height: 8),
-          Text('Wallet balance: ₹${_wallet?.balance.toStringAsFixed(0) ?? 0}', style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+          Text('Wallet balance: ₹${_wallet?.balance.toStringAsFixed(0) ?? 0}', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel', style: TextStyle(color: AppColors.textMuted))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel', style: TextStyle(color: context.clr.txtMuted))),
           ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Subscribe')),
         ],
       ),
@@ -227,11 +227,11 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
     try {
       await ApiService.purchaseSubscription(plan.id);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Subscribed to ${plan.name}!'), backgroundColor: AppColors.success));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Subscribed to ${plan.name}!'), backgroundColor: context.clr.success));
         _loadData();
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error));
     }
   }
 
@@ -239,27 +239,25 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     final s = context.s;
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
         title: Text(s.walletAndPlans),
         actions: [
           TextButton.icon(
             onPressed: _showAddMoneySheet,
-            icon: const Icon(Icons.add, color: AppColors.orange),
-            label: Text(s.addMoney, style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.w600)),
+            icon: Icon(Icons.add, color: context.clr.accent),
+            label: Text(s.addMoney, style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.w600)),
           ),
         ],
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: AppColors.orange,
-          labelColor: AppColors.orange,
-          unselectedLabelColor: AppColors.textMuted,
+          indicatorColor: context.clr.accent,
+          labelColor: context.clr.accent,
+          unselectedLabelColor: context.clr.txtMuted,
           tabs: [Tab(text: s.wallet), Tab(text: s.transactions), Tab(text: 'Plans')],
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.orange))
+          ? Center(child: CircularProgressIndicator(color: context.clr.accent))
           : TabBarView(controller: _tabController, children: [
               _buildWalletTab(),
               _buildTransactionsTab(),
@@ -277,26 +275,26 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
           width: double.infinity,
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF2A1500), Color(0xFF1A0D00)]),
+            gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [context.clr.surface, context.clr.card]),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.orange.withOpacity(0.3)),
+            border: Border.all(color: context.clr.accent.withValues(alpha: 0.3)),
           ),
           child: Column(children: [
-            Text(context.s.availableBalance, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+            Text(context.s.availableBalance, style: TextStyle(color: context.clr.txtSecondary, fontSize: 14)),
             const SizedBox(height: 8),
-            Text('₹${_wallet?.balance.toStringAsFixed(2) ?? '0.00'}', style: const TextStyle(color: AppColors.textPrimary, fontSize: 36, fontWeight: FontWeight.bold)),
+            Text('₹${_wallet?.balance.toStringAsFixed(2) ?? '0.00'}', style: TextStyle(color: context.clr.txtPrimary, fontSize: 36, fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
             Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-              _statCol(context.s.totalAdded, '₹${_wallet?.totalAdded.toStringAsFixed(0) ?? 0}', AppColors.success),
-              Container(height: 40, width: 1, color: AppColors.border),
-              _statCol(context.s.totalSpent, '₹${_wallet?.totalSpent.toStringAsFixed(0) ?? 0}', AppColors.error),
+              _statCol(context.s.totalAdded, '₹${_wallet?.totalAdded.toStringAsFixed(0) ?? 0}', context.clr.success),
+              Container(height: 40, width: 1, color: context.clr.border),
+              _statCol(context.s.totalSpent, '₹${_wallet?.totalSpent.toStringAsFixed(0) ?? 0}', context.clr.error),
             ]),
           ]),
         ),
         const SizedBox(height: 20),
 
         // Quick add
-        Align(alignment: Alignment.centerLeft, child: Text(context.s.quickAdd, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary))),
+        Align(alignment: Alignment.centerLeft, child: Text(context.s.quickAdd, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: context.clr.txtPrimary))),
         const SizedBox(height: 12),
         GridView.count(
           shrinkWrap: true,
@@ -307,8 +305,8 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
           children: _quickAmounts.map((amt) => GestureDetector(
             onTap: () => _processPayment(amt),
             child: Container(
-              decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
-              child: Center(child: Text('₹${amt.toInt()}', style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.w600))),
+              decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: context.clr.border)),
+              child: Center(child: Text('₹${amt.toInt()}', style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.w600))),
             ),
           )).toList(),
         ),
@@ -323,12 +321,12 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
 
         const SizedBox(height: 20),
         // Payment methods
-        Align(alignment: Alignment.centerLeft, child: Text(context.s.acceptedPayments, style: const TextStyle(fontSize: 14, color: AppColors.textMuted))),
+        Align(alignment: Alignment.centerLeft, child: Text(context.s.acceptedPayments, style: TextStyle(fontSize: 14, color: context.clr.txtMuted))),
         const SizedBox(height: 10),
         Wrap(spacing: 8, children: ['UPI', 'Debit Card', 'Credit Card', 'Net Banking', 'Wallet'].map((m) => Chip(
-          label: Text(m, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
-          backgroundColor: AppColors.card,
-          side: const BorderSide(color: AppColors.border),
+          label: Text(m, style: TextStyle(color: context.clr.txtSecondary, fontSize: 11)),
+          backgroundColor: context.clr.card,
+          side: BorderSide(color: context.clr.border),
         )).toList()),
       ]),
     );
@@ -337,15 +335,15 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
   Widget _statCol(String label, String value, Color color) => Column(children: [
     Text(value, style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold)),
     const SizedBox(height: 4),
-    Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+    Text(label, style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
   ]);
 
   Widget _buildTransactionsTab() {
     if (_transactions.isEmpty) {
       return  Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.receipt_long_outlined, color: AppColors.textMuted, size: 48),
+        Icon(Icons.receipt_long_outlined, color: context.clr.txtMuted, size: 48),
         SizedBox(height: 12),
-        Text(context.s.noTransactions, style: const TextStyle(color: AppColors.textMuted)),
+        Text(context.s.noTransactions, style: TextStyle(color: context.clr.txtMuted)),
       ]));
     }
 
@@ -358,24 +356,24 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
         return Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
+          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(14), border: Border.all(color: context.clr.border)),
           child: Row(children: [
             Container(
               width: 44, height: 44,
               decoration: BoxDecoration(
-                color: isCredit ? AppColors.success.withOpacity(0.15) : AppColors.error.withOpacity(0.15),
+                color: isCredit ? context.clr.success.withValues(alpha: 0.15) : context.clr.error.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
-              child: Icon(isCredit ? Icons.arrow_downward : Icons.arrow_upward, color: isCredit ? AppColors.success : AppColors.error, size: 20),
+              child: Icon(isCredit ? Icons.arrow_downward : Icons.arrow_upward, color: isCredit ? context.clr.success : context.clr.error, size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(tx.description, style: const TextStyle(color: AppColors.textPrimary, fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
+              Text(tx.description, style: TextStyle(color: context.clr.txtPrimary, fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
               const SizedBox(height: 3),
-              Text(_formatDate(tx.createdAt), style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              Text(_formatDate(tx.createdAt), style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
             ])),
             const SizedBox(width: 8),
-            Text('${isCredit ? '+' : '-'}₹${tx.amount.toStringAsFixed(0)}', style: TextStyle(color: isCredit ? AppColors.success : AppColors.error, fontSize: 15, fontWeight: FontWeight.bold)),
+            Text('${isCredit ? '+' : '-'}₹${tx.amount.toStringAsFixed(0)}', style: TextStyle(color: isCredit ? context.clr.success : context.clr.error, fontSize: 15, fontWeight: FontWeight.bold)),
           ]),
         );
       },
@@ -391,7 +389,7 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
   }
 
   Widget _buildPlansTab() {
-    final planColors = [AppColors.textMuted, const Color(0xFFC0C0C0), AppColors.gold, AppColors.orange];
+    final planColors = [context.clr.txtMuted, const Color(0xFFC0C0C0), context.clr.accentAlt, context.clr.accent];
     final planIcons = ['⭐', '🥈', '🥇', '💎'];
 
     return ListView.builder(
@@ -407,9 +405,9 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.card,
+              color: context.clr.card,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: isPopular ? AppColors.orange : AppColors.border, width: isPopular ? 1.5 : 1),
+              border: Border.all(color: isPopular ? context.clr.accent : context.clr.border, width: isPopular ? 1.5 : 1),
             ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
@@ -418,9 +416,9 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(plan.name, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
                   if (plan.price > 0)
-                    Text('₹${plan.price.toInt()}/month', style: const TextStyle(color: AppColors.textSecondary, fontSize: 13))
+                    Text('₹${plan.price.toInt()}/month', style: TextStyle(color: context.clr.txtSecondary, fontSize: 13))
                   else
-                    Text(context.s.freeForever, style: const TextStyle(color: AppColors.success, fontSize: 13)),
+                    Text(context.s.freeForever, style: TextStyle(color: context.clr.success, fontSize: 13)),
                 ])),
                 if (plan.price > 0)
                   ElevatedButton(
@@ -433,8 +431,8 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
                 const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: AppColors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                  child: Text('${plan.freeMinutes} FREE minutes/month', style: const TextStyle(color: AppColors.orange, fontSize: 11, fontWeight: FontWeight.w600)),
+                  decoration: BoxDecoration(color: context.clr.accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                  child: Text('${plan.freeMinutes} FREE minutes/month', style: TextStyle(color: context.clr.accent, fontSize: 11, fontWeight: FontWeight.w600)),
                 ),
               ],
               const SizedBox(height: 12),
@@ -443,7 +441,7 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
                 child: Row(children: [
                   Icon(Icons.check_circle, color: color, size: 15),
                   const SizedBox(width: 8),
-                  Text(f, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                  Text(f, style: TextStyle(color: context.clr.txtSecondary, fontSize: 13)),
                 ]),
               )),
             ]),
@@ -451,7 +449,7 @@ class _WalletScreenState extends State<WalletScreen> with SingleTickerProviderSt
           if (isPopular)
             Positioned(top: 12, right: 28, child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-              decoration: BoxDecoration(color: AppColors.orange, borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(color: context.clr.accent, borderRadius: BorderRadius.circular(12)),
               child: const Text('POPULAR', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1)),
             )),
         ]);

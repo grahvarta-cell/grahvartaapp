@@ -103,7 +103,7 @@ class _FreeKundliScreenState extends State<FreeKundliScreen> with SingleTickerPr
 
   Future<void> _calculate() async {
     if (_dob == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select date of birth')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select date of birth')));
       return;
     }
     setState(() => _isCalculating = true);
@@ -132,10 +132,8 @@ class _FreeKundliScreenState extends State<FreeKundliScreen> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(icon: const Icon(Icons.arrow_back_ios, color: Colors.white), onPressed: () => Navigator.pop(context)),
         title: const Text('Free Kundli'),
       ),
       body: _result == null ? _buildForm() : _buildResult(),
@@ -155,18 +153,18 @@ class _FreeKundliScreenState extends State<FreeKundliScreen> with SingleTickerPr
               initialDate: DateTime(1990),
               firstDate: DateTime(1900),
               lastDate: DateTime.now(),
-              builder: (c, child) => Theme(data: ThemeData.dark().copyWith(colorScheme: const ColorScheme.dark(primary: AppColors.orange)), child: child!),
+              builder: (c, child) => Theme(data: ThemeData.dark().copyWith(colorScheme: ColorScheme.dark(primary: context.clr.accent)), child: child!),
             );
             if (d != null) setState(() => _dob = d);
           },
           child: Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
+            decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(14), border: Border.all(color: context.clr.border)),
             child: Row(children: [
-              const Icon(Icons.cake_outlined, color: AppColors.textMuted, size: 20),
+              Icon(Icons.cake_outlined, color: context.clr.txtMuted, size: 20),
               const SizedBox(width: 12),
               Text(_dob != null ? '${_dob!.day}/${_dob!.month}/${_dob!.year}' : 'Date of Birth *',
-                  style: TextStyle(color: _dob != null ? AppColors.textPrimary : AppColors.textMuted)),
+                  style: TextStyle(color: _dob != null ? context.clr.txtPrimary : context.clr.txtMuted)),
             ]),
           ),
         ),
@@ -176,18 +174,18 @@ class _FreeKundliScreenState extends State<FreeKundliScreen> with SingleTickerPr
             final t = await showTimePicker(
               context: context,
               initialTime: _tob ?? const TimeOfDay(hour: 12, minute: 0),
-              builder: (c, child) => Theme(data: ThemeData.dark().copyWith(colorScheme: const ColorScheme.dark(primary: AppColors.orange)), child: child!),
+              builder: (c, child) => Theme(data: ThemeData.dark().copyWith(colorScheme: ColorScheme.dark(primary: context.clr.accent)), child: child!),
             );
             if (t != null) setState(() => _tob = t);
           },
           child: Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
+            decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(14), border: Border.all(color: context.clr.border)),
             child: Row(children: [
-              const Icon(Icons.access_time_outlined, color: AppColors.textMuted, size: 20),
+              Icon(Icons.access_time_outlined, color: context.clr.txtMuted, size: 20),
               const SizedBox(width: 12),
               Text(_tob != null ? '${_tob!.hour.toString().padLeft(2,'0')}:${_tob!.minute.toString().padLeft(2,'0')}' : 'Time of Birth (optional)',
-                  style: TextStyle(color: _tob != null ? AppColors.textPrimary : AppColors.textMuted)),
+                  style: TextStyle(color: _tob != null ? context.clr.txtPrimary : context.clr.txtMuted)),
             ]),
           ),
         ),
@@ -214,27 +212,27 @@ class _FreeKundliScreenState extends State<FreeKundliScreen> with SingleTickerPr
         margin: const EdgeInsets.all(16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [Color(0xFF2A1500), Color(0xFF1A0D00)]),
+          gradient: LinearGradient(colors: [context.clr.surface, context.clr.card]),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.orange.withOpacity(0.3)),
+          border: Border.all(color: context.clr.accent.withValues(alpha: 0.3)),
         ),
         child: Row(children: [
-          CircleAvatar(radius: 28, backgroundColor: AppColors.orange.withOpacity(0.2),
-              child: Text((r['name'] as String)[0].toUpperCase(), style: const TextStyle(fontSize: 24, color: AppColors.orange, fontWeight: FontWeight.bold))),
+          CircleAvatar(radius: 28, backgroundColor: context.clr.accent.withValues(alpha: 0.2),
+              child: Text((r['name'] as String)[0].toUpperCase(), style: TextStyle(fontSize: 24, color: context.clr.accent, fontWeight: FontWeight.bold))),
           const SizedBox(width: 14),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(r['name'], style: const TextStyle(color: AppColors.textPrimary, fontSize: 17, fontWeight: FontWeight.bold)),
-            Text('${r['dob']}  ${r['tob']}', style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
-            Text(r['place'], style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+            Text(r['name'], style: TextStyle(color: context.clr.txtPrimary, fontSize: 17, fontWeight: FontWeight.bold)),
+            Text('${r['dob']}  ${r['tob']}', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
+            Text(r['place'], style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
           ])),
-          TextButton(onPressed: () => setState(() => _result = null), child: const Text('Reset', style: TextStyle(color: AppColors.orange))),
+          TextButton(onPressed: () => setState(() => _result = null), child: Text('Reset', style: TextStyle(color: context.clr.accent))),
         ]),
       ),
       TabBar(
         controller: _tabController,
-        indicatorColor: AppColors.orange,
-        labelColor: AppColors.orange,
-        unselectedLabelColor: AppColors.textMuted,
+        indicatorColor: context.clr.accent,
+        labelColor: context.clr.accent,
+        unselectedLabelColor: context.clr.txtMuted,
         tabs: const [Tab(text: 'Overview'), Tab(text: 'Planets'), Tab(text: 'Details')],
       ),
       Expanded(child: TabBarView(controller: _tabController, children: [
@@ -265,19 +263,19 @@ class _FreeKundliScreenState extends State<FreeKundliScreen> with SingleTickerPr
         return Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
+          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(14), border: Border.all(color: context.clr.border)),
           child: Row(children: [
-            Text(p['name'], style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
+            Text(p['name'], style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
             const Spacer(),
             Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              Text(p['sign'], style: const TextStyle(color: AppColors.orange, fontSize: 13)),
-              Text(p['nakshatra'], style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              Text(p['sign'], style: TextStyle(color: context.clr.accent, fontSize: 13)),
+              Text(p['nakshatra'], style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
             ]),
             if (p['retrograde'] == true) ...[
               const SizedBox(width: 8),
               Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(color: AppColors.orange.withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
-                child: const Text('Rx', style: TextStyle(color: AppColors.orange, fontSize: 11))),
+                decoration: BoxDecoration(color: context.clr.accent.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)),
+                child: Text('Rx', style: TextStyle(color: context.clr.accent, fontSize: 11))),
             ],
           ]),
         );
@@ -288,14 +286,14 @@ class _FreeKundliScreenState extends State<FreeKundliScreen> with SingleTickerPr
   Widget _buildDetailsTab(Map<String, dynamic> r) => SingleChildScrollView(
     padding: const EdgeInsets.all(16),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('BIRTH DETAILS', style: TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 1)),
+      Text('BIRTH DETAILS', style: TextStyle(color: context.clr.txtMuted, fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 1)),
       const SizedBox(height: 10),
       _infoRow('Name', r['name']),
       _infoRow('Date of Birth', r['dob']),
       _infoRow('Time of Birth', r['tob']),
       _infoRow('Place', r['place']),
       const SizedBox(height: 20),
-      const Text('KEY POSITIONS', style: TextStyle(color: AppColors.textMuted, fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 1)),
+      Text('KEY POSITIONS', style: TextStyle(color: context.clr.txtMuted, fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 1)),
       const SizedBox(height: 10),
       _infoRow('Sun Sign (Rashi)', r['sun_sign']),
       _infoRow('Moon Sign (Chandra Rashi)', r['moon_sign']),
@@ -307,26 +305,26 @@ class _FreeKundliScreenState extends State<FreeKundliScreen> with SingleTickerPr
   Widget _infoRow(String label, String value) => Container(
     margin: const EdgeInsets.only(bottom: 10),
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(12)),
+    decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(12)),
     child: Row(children: [
-      Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+      Text(label, style: TextStyle(color: context.clr.txtSecondary, fontSize: 13)),
       const Spacer(),
-      Text(value, style: const TextStyle(color: AppColors.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
+      Text(value, style: TextStyle(color: context.clr.txtPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
     ]),
   );
 
   Widget _field(String label, TextEditingController ctrl, IconData icon, {String? hint}) => TextFormField(
     controller: ctrl,
-    style: const TextStyle(color: AppColors.textPrimary),
+    style: TextStyle(color: context.clr.txtPrimary),
     decoration: InputDecoration(
       labelText: label, hintText: hint,
-      hintStyle: const TextStyle(color: AppColors.textMuted),
-      labelStyle: const TextStyle(color: AppColors.textMuted),
-      prefixIcon: Icon(icon, color: AppColors.textMuted, size: 20),
-      filled: true, fillColor: AppColors.card,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.border)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.border)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.orange)),
+      hintStyle: TextStyle(color: context.clr.txtMuted),
+      labelStyle: TextStyle(color: context.clr.txtMuted),
+      prefixIcon: Icon(icon, color: context.clr.txtMuted, size: 20),
+      filled: true, fillColor: context.clr.card,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: context.clr.border)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: context.clr.border)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: context.clr.accent)),
     ),
   );
 }

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../blocs/home/home_cubit.dart';
+import '../../blocs/marketplace/marketplace_cubit.dart';
+import '../../blocs/reports/reports_cubit.dart';
+import '../../blocs/live/live_cubit.dart';
 import '../../theme/app_theme.dart';
 import 'home_screen.dart';
 import '../marketplace/marketplace_screen.dart';
@@ -20,6 +25,16 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  // Lazy loading: only build a screen when first visited
+  final Set<int> _visited = {0};
+
+  static const _screens = [
+    HomeScreen(),
+    MarketplaceScreen(),
+    ReportsScreen(),
+    LiveScreen(),
+    KundliScreen(),
+  ];
 
   @override
   void initState() {
@@ -34,16 +49,9 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _onTabChange() {
-    setState(() => _currentIndex = mainTabNotifier.value);
+    final i = mainTabNotifier.value;
+    setState(() { _visited.add(i); _currentIndex = i; });
   }
-
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    MarketplaceScreen(),
-    ReportsScreen(),
-    LiveScreen(),
-    KundliScreen(),
-  ];
 
   Future<bool> _onWillPop() async {
     if (_currentIndex != 0) {
@@ -54,12 +62,12 @@ class _MainScreenState extends State<MainScreen> {
     final shouldExit = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.card,
+        backgroundColor: context.clr.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Exit App', style: TextStyle(color: AppColors.textPrimary)),
-        content: const Text('Are you sure you want to exit?', style: TextStyle(color: AppColors.textSecondary)),
+        title: Text('Exit App', style: TextStyle(color: context.clr.txtPrimary)),
+        content: Text('Are you sure you want to exit?', style: TextStyle(color: context.clr.txtSecondary)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel', style: TextStyle(color: context.clr.txtSecondary))),
           ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Exit')),
         ],
       ),
@@ -69,11 +77,24 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
-      child: Scaffold(
-        body: IndexedStack(index: _currentIndex, children: _screens),
-        bottomNavigationBar: _buildBottomNav(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => HomeCubit()),
+        BlocProvider(create: (_) => MarketplaceCubit()),
+        BlocProvider(create: (_) => ReportsCubit()),
+        BlocProvider(create: (_) => LiveCubit()),
+      ],
+      child: WillPopScope(
+        onWillPop: _onWillPop,
+        child: Scaffold(
+          body: IndexedStack(
+            index: _currentIndex,
+            children: List.generate(_screens.length, (i) =>
+              _visited.contains(i) ? _screens[i] : const SizedBox.shrink(),
+            ),
+          ),
+          bottomNavigationBar: _buildBottomNav(),
+        ),
       ),
     );
   }
@@ -81,7 +102,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildBottomNav() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.clr.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 20)],
       ),
@@ -105,23 +126,23 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _navItem({required IconData icon, required int index, required String label, String? badge}) {
     final isSelected = index == _currentIndex;
-    Widget iconWidget = Icon(icon, color: isSelected ? Colors.white : AppColors.textMuted, size: 22);
+    Widget iconWidget = Icon(icon, color: isSelected ? Colors.white : context.clr.txtMuted, size: 22);
 
     if (badge != null && !isSelected) {
       iconWidget = badges.Badge(
         badgeContent: Text(badge, style: const TextStyle(color: Colors.white, fontSize: 8)),
-        badgeStyle: const badges.BadgeStyle(badgeColor: AppColors.error),
+        badgeStyle: badges.BadgeStyle(badgeColor: context.clr.error),
         child: iconWidget,
       );
     }
 
     return GestureDetector(
-      onTap: () => setState(() { _currentIndex = index; mainTabNotifier.value = index; }),
+      onTap: () => setState(() { _visited.add(index); _currentIndex = index; mainTabNotifier.value = index; }),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.orange : Colors.transparent,
+          color: isSelected ? context.clr.accent : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(mainAxisSize: MainAxisSize.min, children: [

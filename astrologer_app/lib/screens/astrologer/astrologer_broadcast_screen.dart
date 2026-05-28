@@ -71,7 +71,7 @@ class _AstrologerBroadcastScreenState extends State<AstrologerBroadcastScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('💰 ${d['user'] ?? 'Someone'} tipped ₹${amount.toStringAsFixed(0)}!'),
-          backgroundColor: AppColors.success,
+          backgroundColor: context.clr.success,
           duration: const Duration(seconds: 3),
         ),
       );
@@ -87,7 +87,7 @@ class _AstrologerBroadcastScreenState extends State<AstrologerBroadcastScreen> {
     final denied = results.values.any((s) => s.isDenied || s.isPermanentlyDenied);
     if (denied && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Camera & Microphone permission required'), backgroundColor: AppColors.error),
+        SnackBar(content: Text('Camera & Microphone permission required'), backgroundColor: context.clr.error),
       );
       return;
     }
@@ -129,7 +129,7 @@ class _AstrologerBroadcastScreenState extends State<AstrologerBroadcastScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to start broadcast: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('Failed to start broadcast: $e'), backgroundColor: context.clr.error),
         );
       }
     }
@@ -145,7 +145,7 @@ class _AstrologerBroadcastScreenState extends State<AstrologerBroadcastScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error),
+          SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error),
         );
         setState(() => _ending = false);
       }
@@ -185,7 +185,7 @@ class _AstrologerBroadcastScreenState extends State<AstrologerBroadcastScreen> {
               child: Center(
                 child: _joined
                     ? const Icon(Icons.videocam_off, color: Colors.white54, size: 64)
-                    : const CircularProgressIndicator(color: AppColors.orange),
+                    : CircularProgressIndicator(color: context.clr.accent),
               ),
             ),
 
@@ -206,7 +206,7 @@ class _AstrologerBroadcastScreenState extends State<AstrologerBroadcastScreen> {
                     // Live badge
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: AppColors.error, borderRadius: BorderRadius.circular(6)),
+                      decoration: BoxDecoration(color: context.clr.error, borderRadius: BorderRadius.circular(6)),
                       child: const Row(mainAxisSize: MainAxisSize.min, children: [
                         Icon(Icons.circle, color: Colors.white, size: 8),
                         SizedBox(width: 4),
@@ -248,7 +248,7 @@ class _AstrologerBroadcastScreenState extends State<AstrologerBroadcastScreen> {
                     text: TextSpan(children: [
                       TextSpan(
                         text: '${m['user_name'] ?? 'User'}: ',
-                        style: const TextStyle(color: AppColors.orange, fontSize: 13, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: context.clr.accent, fontSize: 13, fontWeight: FontWeight.bold),
                       ),
                       TextSpan(
                         text: m['message'] ?? '',
@@ -295,7 +295,7 @@ class _AstrologerBroadcastScreenState extends State<AstrologerBroadcastScreen> {
                     // Mute
                     _ctrlBtn(
                       icon: _muted ? Icons.mic_off : Icons.mic,
-                      color: _muted ? AppColors.error : Colors.white24,
+                      color: _muted ? context.clr.error : Colors.white24,
                       onTap: () {
                         setState(() => _muted = !_muted);
                         _engine?.muteLocalAudioStream(_muted);
@@ -305,7 +305,7 @@ class _AstrologerBroadcastScreenState extends State<AstrologerBroadcastScreen> {
                     // Camera toggle
                     _ctrlBtn(
                       icon: _cameraOff ? Icons.videocam_off : Icons.videocam,
-                      color: _cameraOff ? AppColors.error : Colors.white24,
+                      color: _cameraOff ? context.clr.error : Colors.white24,
                       onTap: () {
                         setState(() => _cameraOff = !_cameraOff);
                         _engine?.muteLocalVideoStream(_cameraOff);
@@ -315,7 +315,7 @@ class _AstrologerBroadcastScreenState extends State<AstrologerBroadcastScreen> {
                     // End
                     _ctrlBtn(
                       icon: Icons.call_end,
-                      color: AppColors.error,
+                      color: context.clr.error,
                       onTap: _ending ? null : _endSession,
                     ),
                   ],

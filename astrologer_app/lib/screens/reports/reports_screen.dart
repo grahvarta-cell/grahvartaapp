@@ -116,7 +116,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
 
     return showModalBottomSheet<Map<String, dynamic>>(
       context: context,
-      backgroundColor: AppColors.card,
+      backgroundColor: context.clr.card,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => StatefulBuilder(
@@ -126,30 +126,30 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)))),
+              Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: context.clr.border, borderRadius: BorderRadius.circular(2)))),
               const SizedBox(height: 16),
-              Text('Generate ${report.name} for', style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 17)),
+              Text('Generate ${report.name} for', style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold, fontSize: 17)),
               const SizedBox(height: 4),
-              const Text('Choose who this report is for', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+              Text('Choose who this report is for', style: TextStyle(color: context.clr.txtMuted, fontSize: 13)),
               const SizedBox(height: 16),
               _personTile(ctx, '🌟', user?.name ?? 'You', 'Self', () => Navigator.pop(ctx, {'person': 'self', 'language': selectedLanguage})),
               if (_familyMembers.isNotEmpty) ...[
-                const Divider(color: AppColors.border, height: 20),
+                Divider(color: context.clr.border, height: 20),
                 ..._familyMembers.map((fm) => _personTile(ctx, '👤', fm.name, fm.relationship ?? 'Family', () => Navigator.pop(ctx, {'person': fm.id, 'language': selectedLanguage}))),
               ],
-              const Divider(color: AppColors.border, height: 24),
-              const Text('Report Language', style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
+              Divider(color: context.clr.border, height: 24),
+              Text('Report Language', style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
+                decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: context.clr.border)),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: selectedLanguage,
                     isExpanded: true,
-                    dropdownColor: AppColors.surface,
-                    style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
-                    icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.textMuted),
+                    dropdownColor: context.clr.surface,
+                    style: TextStyle(color: context.clr.txtPrimary, fontSize: 14),
+                    icon: Icon(Icons.keyboard_arrow_down, color: context.clr.txtMuted),
                     items: languages.map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
                     onChanged: (v) => setS(() => selectedLanguage = v ?? 'English'),
                   ),
@@ -167,12 +167,12 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: CircleAvatar(
-        backgroundColor: AppColors.orange.withOpacity(0.15),
+        backgroundColor: context.clr.accent.withValues(alpha: 0.15),
         child: Text(emoji, style: const TextStyle(fontSize: 18)),
       ),
-      title: Text(name, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
-      subtitle: Text(sub, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
-      trailing: const Icon(Icons.chevron_right, color: AppColors.textMuted),
+      title: Text(name, style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.w600)),
+      subtitle: Text(sub, style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
+      trailing: Icon(Icons.chevron_right, color: context.clr.txtMuted),
       onTap: onTap,
     );
   }
@@ -187,7 +187,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: AppColors.card,
+      backgroundColor: context.clr.card,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => _PlansSheet(
         plans: plans,
@@ -240,24 +240,23 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
   }
 
   void _showSnack(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: AppColors.surface));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: context.clr.surface));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        title: const Text('Astro Reports', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        backgroundColor: context.clr.surface,
+        title: Text('Astro Reports', style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold)),
+        iconTheme: IconThemeData(color: context.clr.txtPrimary),
         elevation: 0,
         bottom: TabBar(
           controller: _tabController!,
-          indicatorColor: AppColors.orange,
+          indicatorColor: context.clr.accent,
           indicatorWeight: 3,
-          labelColor: AppColors.orange,
-          unselectedLabelColor: AppColors.textMuted,
+          labelColor: context.clr.accent,
+          unselectedLabelColor: context.clr.txtMuted,
           labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
           tabs: const [
             Tab(text: 'All Reports'),
@@ -272,7 +271,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
               ? _buildShimmer()
               : RefreshIndicator(
                   onRefresh: _load,
-                  color: AppColors.orange,
+                  color: context.clr.accent,
                   child: _buildBody(),
                 ),
           const UnlockedReportsScreen(embedded: true),
@@ -283,16 +282,16 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.surface,
-      highlightColor: AppColors.surfaceLight,
+      baseColor: context.clr.surface,
+      highlightColor: context.clr.surfaceLight,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         children: [
           // Banner shimmer
-          Container(height: 72, decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(16))),
+          Container(height: 72, decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16))),
           const SizedBox(height: 20),
           // Category label
-          Container(height: 14, width: 140, decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(6))),
+          Container(height: 14, width: 140, decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(6))),
           const SizedBox(height: 12),
           // 2-column grid shimmer — 3 rows
           ...List.generate(3, (_) => Padding(
@@ -304,7 +303,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
             ]),
           )),
           const SizedBox(height: 16),
-          Container(height: 14, width: 120, decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(6))),
+          Container(height: 14, width: 120, decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(6))),
           const SizedBox(height: 12),
           Row(children: [
             Expanded(child: _shimmerCard()),
@@ -319,22 +318,22 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
   Widget _shimmerCard() {
     return Container(
       height: 200,
-      decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16)),
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(width: 40, height: 40, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(8))),
+          Container(width: 40, height: 40, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(8))),
           const SizedBox(height: 10),
-          Container(height: 12, width: double.infinity, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+          Container(height: 12, width: double.infinity, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
           const SizedBox(height: 6),
-          Container(height: 12, width: 80, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+          Container(height: 12, width: 80, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
           const SizedBox(height: 12),
-          Container(height: 10, width: double.infinity, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+          Container(height: 10, width: double.infinity, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
           const SizedBox(height: 5),
-          Container(height: 10, width: 100, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+          Container(height: 10, width: 100, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
           const Spacer(),
-          Container(height: 30, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10))),
+          Container(height: 30, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(10))),
         ],
       ),
     );
@@ -358,9 +357,9 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [AppColors.orange.withOpacity(0.2), AppColors.gold.withOpacity(0.1)]),
+        gradient: LinearGradient(colors: [context.clr.accent.withValues(alpha: 0.2), context.clr.accentAlt.withValues(alpha: 0.1)]),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.orange.withOpacity(0.3)),
+        border: Border.all(color: context.clr.accent.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -370,9 +369,9 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('1 Free Report Unlock!', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15)),
+                Text('1 Free Report Unlock!', style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold, fontSize: 15)),
                 SizedBox(height: 2),
-                Text('Tap any report to use your free unlock', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                Text('Tap any report to use your free unlock', style: TextStyle(color: context.clr.txtSecondary, fontSize: 12)),
               ],
             ),
           ),
@@ -388,9 +387,9 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
         Padding(
           padding: const EdgeInsets.only(top: 8, bottom: 10),
           child: Row(children: [
-            Container(width: 4, height: 18, decoration: BoxDecoration(color: AppColors.orange, borderRadius: BorderRadius.circular(2))),
+            Container(width: 4, height: 18, decoration: BoxDecoration(color: context.clr.accent, borderRadius: BorderRadius.circular(2))),
             const SizedBox(width: 8),
-            Text(category, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: 0.2)),
+            Text(category, style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: 0.2)),
           ]),
         ),
         GridView.builder(
@@ -425,9 +424,9 @@ class _ReportCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.clr.card,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.clr.border),
         ),
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -437,31 +436,31 @@ class _ReportCard extends StatelessWidget {
             Text(report.icon, style: const TextStyle(fontSize: 34)),
             const SizedBox(height: 8),
             // Name
-            Text(report.name, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
+            Text(report.name, style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold, fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 6),
             // Rating + unlock count
             Row(children: [
-              const Icon(Icons.star_rounded, color: AppColors.gold, size: 13),
+              Icon(Icons.star_rounded, color: context.clr.accentAlt, size: 13),
               const SizedBox(width: 2),
-              Text(report.avgRating.toStringAsFixed(1), style: const TextStyle(color: AppColors.gold, fontSize: 11, fontWeight: FontWeight.w600)),
+              Text(report.avgRating.toStringAsFixed(1), style: TextStyle(color: context.clr.accentAlt, fontSize: 11, fontWeight: FontWeight.w600)),
               const SizedBox(width: 4),
-              Expanded(child: Text('${_formatCount(report.unlockCount)} unlocked', style: const TextStyle(color: AppColors.textMuted, fontSize: 10), overflow: TextOverflow.ellipsis)),
+              Expanded(child: Text('${_formatCount(report.unlockCount)} unlocked', style: TextStyle(color: context.clr.txtMuted, fontSize: 10), overflow: TextOverflow.ellipsis)),
             ]),
             const SizedBox(height: 8),
             // Inclusions — show 2
             ...report.inclusions.take(2).map((inc) => Padding(
               padding: const EdgeInsets.only(bottom: 3),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Text('✓ ', style: TextStyle(color: AppColors.orange, fontSize: 10)),
-                Expanded(child: Text(inc, style: const TextStyle(color: AppColors.textSecondary, fontSize: 10), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                Text('✓ ', style: TextStyle(color: context.clr.accent, fontSize: 10)),
+                Expanded(child: Text(inc, style: TextStyle(color: context.clr.txtSecondary, fontSize: 10), maxLines: 1, overflow: TextOverflow.ellipsis)),
               ]),
             )),
             // Random comment
             if (report.randomComment != null) ...[
               const SizedBox(height: 6),
-              const Divider(color: AppColors.border, height: 1),
+              Divider(color: context.clr.border, height: 1),
               const SizedBox(height: 6),
-              Text('"${report.randomComment!.reviewText}"', style: const TextStyle(color: AppColors.textMuted, fontSize: 10), maxLines: 2, overflow: TextOverflow.ellipsis),
+              Text('"${report.randomComment!.reviewText}"', style: TextStyle(color: context.clr.txtMuted, fontSize: 10), maxLines: 2, overflow: TextOverflow.ellipsis),
             ],
             const Spacer(),
             // Unlock button
@@ -469,7 +468,7 @@ class _ReportCard extends StatelessWidget {
               width: double.infinity,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 7),
-                decoration: BoxDecoration(color: AppColors.orange, borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(color: context.clr.accent, borderRadius: BorderRadius.circular(10)),
                 child: const Center(child: Text('Unlock', style: TextStyle(color: AppColors.white, fontSize: 12, fontWeight: FontWeight.bold))),
               ),
             ),
@@ -532,7 +531,7 @@ class _PlansSheetState extends State<_PlansSheet> {
     } catch (e) {
       if (mounted) {
         setState(() => _isBuying = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error));
       }
     }
   }
@@ -544,15 +543,15 @@ class _PlansSheetState extends State<_PlansSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)))),
+          Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: context.clr.border, borderRadius: BorderRadius.circular(2)))),
           const SizedBox(height: 16),
-          const Text('Unlock Report', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18)),
+          Text('Unlock Report', style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold, fontSize: 18)),
           const SizedBox(height: 4),
-          Text('Choose a plan to unlock ${widget.report.name}', style: const TextStyle(color: AppColors.textMuted, fontSize: 13), textAlign: TextAlign.center),
+          Text('Choose a plan to unlock ${widget.report.name}', style: TextStyle(color: context.clr.txtMuted, fontSize: 13), textAlign: TextAlign.center),
           const SizedBox(height: 4),
           _loadingWallet
-              ? Container(height: 16, width: 120, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4)))
-              : Text('Wallet Balance: ₹${_walletBalance.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.gold, fontSize: 13, fontWeight: FontWeight.w600)),
+              ? Container(height: 16, width: 120, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4)))
+              : Text('Wallet Balance: ₹${_walletBalance.toStringAsFixed(0)}', style: TextStyle(color: context.clr.accentAlt, fontSize: 13, fontWeight: FontWeight.w600)),
           const SizedBox(height: 16),
           ...widget.plans.map((plan) => _PlanCard(
             plan: plan,
@@ -588,32 +587,32 @@ class _PlanCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.orange.withOpacity(0.12) : AppColors.surface,
+          color: isSelected ? context.clr.accent.withValues(alpha: 0.12) : context.clr.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: isSelected ? AppColors.orange : (isGold ? AppColors.gold.withOpacity(0.5) : AppColors.border), width: isSelected ? 1.5 : 1),
+          border: Border.all(color: isSelected ? context.clr.accent : (isGold ? context.clr.accentAlt.withValues(alpha: 0.5) : context.clr.border), width: isSelected ? 1.5 : 1),
         ),
         child: Row(children: [
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Wrap(spacing: 6, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
-                Text(plan.label, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15)),
+                Text(plan.label, style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold, fontSize: 15)),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(color: AppColors.success.withOpacity(0.15), borderRadius: BorderRadius.circular(6)),
-                  child: Text('${plan.discount}% OFF', style: const TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.bold)),
+                  decoration: BoxDecoration(color: context.clr.success.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(6)),
+                  child: Text('${plan.discount}% OFF', style: TextStyle(color: context.clr.success, fontSize: 10, fontWeight: FontWeight.bold)),
                 ),
                 if (isGold)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(color: AppColors.gold.withOpacity(0.15), borderRadius: BorderRadius.circular(6)),
-                    child: const Text('POPULAR', style: TextStyle(color: AppColors.gold, fontSize: 10, fontWeight: FontWeight.bold)),
+                    decoration: BoxDecoration(color: context.clr.accentAlt.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(6)),
+                    child: Text('POPULAR', style: TextStyle(color: context.clr.accentAlt, fontSize: 10, fontWeight: FontWeight.bold)),
                   ),
               ]),
               const SizedBox(height: 4),
               Wrap(spacing: 8, runSpacing: 2, crossAxisAlignment: WrapCrossAlignment.center, children: [
-                Text('₹${plan.price}', style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold, fontSize: 18)),
-                Text('₹${plan.actualPrice}', style: const TextStyle(color: AppColors.textMuted, fontSize: 13, decoration: TextDecoration.lineThrough)),
-                Text('${plan.credits} reports unlock', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                Text('₹${plan.price}', style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold, fontSize: 18)),
+                Text('₹${plan.actualPrice}', style: TextStyle(color: context.clr.txtMuted, fontSize: 13, decoration: TextDecoration.lineThrough)),
+                Text('${plan.credits} reports unlock', style: TextStyle(color: context.clr.txtSecondary, fontSize: 12)),
               ]),
             ]),
           ),
@@ -623,12 +622,12 @@ class _PlanCard extends StatelessWidget {
             child: ElevatedButton(
               onPressed: onBuy,
               style: ElevatedButton.styleFrom(
-                backgroundColor: canAfford ? AppColors.orange : AppColors.surface,
-                foregroundColor: canAfford ? AppColors.white : AppColors.textSecondary,
+                backgroundColor: canAfford ? context.clr.accent : context.clr.surface,
+                foregroundColor: canAfford ? AppColors.white : context.clr.txtSecondary,
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: canAfford ? BorderSide.none : const BorderSide(color: AppColors.border)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: canAfford ? BorderSide.none : BorderSide(color: context.clr.border)),
               ),
               child: Text(canAfford ? 'Buy' : 'Add Money', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             ),
@@ -670,40 +669,40 @@ class _RatingDialogState extends State<_RatingDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.card,
+      backgroundColor: context.clr.card,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text('Rate this Report', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+      title: Text('Rate this Report', style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold)),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('How was your report experience?', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+        Text('How was your report experience?', style: TextStyle(color: context.clr.txtSecondary, fontSize: 13)),
         const SizedBox(height: 16),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(5, (i) => GestureDetector(
           onTap: () => setState(() => _rating = i + 1),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Icon(i < _rating ? Icons.star_rounded : Icons.star_border_rounded, color: AppColors.gold, size: 36),
+            child: Icon(i < _rating ? Icons.star_rounded : Icons.star_border_rounded, color: context.clr.accentAlt, size: 36),
           ),
         ))),
         const SizedBox(height: 16),
         TextField(
           controller: _reviewCtrl,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: context.clr.txtPrimary),
           maxLines: 3,
           decoration: InputDecoration(
             hintText: 'Share your experience (optional)',
-            hintStyle: const TextStyle(color: AppColors.textMuted),
+            hintStyle: TextStyle(color: context.clr.txtMuted),
             filled: true,
-            fillColor: AppColors.surface,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.orange)),
+            fillColor: context.clr.surface,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.border)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.border)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.accent)),
           ),
         ),
       ]),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Skip', style: TextStyle(color: AppColors.textMuted))),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text('Skip', style: TextStyle(color: context.clr.txtMuted))),
         ElevatedButton(
           onPressed: _submitting ? null : _submit,
-          style: ElevatedButton.styleFrom(backgroundColor: AppColors.orange, foregroundColor: AppColors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+          style: ElevatedButton.styleFrom(backgroundColor: context.clr.accent, foregroundColor: AppColors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
           child: _submitting ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: AppColors.white, strokeWidth: 2)) : const Text('Submit'),
         ),
       ],
@@ -719,15 +718,15 @@ class _LoadingDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Dialog(
-      backgroundColor: AppColors.card,
+      backgroundColor: context.clr.card,
       child: Padding(
         padding: EdgeInsets.all(28),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          CircularProgressIndicator(color: AppColors.orange),
+          CircularProgressIndicator(color: context.clr.accent),
           SizedBox(height: 16),
-          Text('Generating your report...', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
+          Text('Generating your report...', style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.w600)),
           SizedBox(height: 4),
-          Text('This may take a few seconds', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+          Text('This may take a few seconds', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
         ]),
       ),
     );

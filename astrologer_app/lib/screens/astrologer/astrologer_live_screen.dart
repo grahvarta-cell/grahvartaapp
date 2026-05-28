@@ -41,7 +41,7 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.card,
+      backgroundColor: context.clr.card,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModal) => Padding(
@@ -50,14 +50,14 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Create Live Session', style: TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text('Create Live Session', style: TextStyle(color: context.clr.txtPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               _modalField(titleCtrl, 'Session Title'),
               const SizedBox(height: 12),
               TextField(
                 controller: descCtrl,
                 maxLines: 3,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: context.clr.txtPrimary),
                 decoration: _inputDeco('Description (optional)'),
               ),
               const SizedBox(height: 12),
@@ -69,17 +69,17 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.surface, borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                    color: context.clr.surface, borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: context.clr.border),
                   ),
                   child: Row(children: [
-                    const Icon(Icons.calendar_today, color: AppColors.textMuted, size: 18),
+                    Icon(Icons.calendar_today, color: context.clr.txtMuted, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       scheduledAt != null
                           ? '${scheduledAt!.day}/${scheduledAt!.month}/${scheduledAt!.year} ${scheduledAt!.hour}:${scheduledAt!.minute.toString().padLeft(2, '0')}'
                           : 'Schedule date & time (optional)',
-                      style: TextStyle(color: scheduledAt != null ? AppColors.textPrimary : AppColors.textMuted, fontSize: 14),
+                      style: TextStyle(color: scheduledAt != null ? context.clr.txtPrimary : context.clr.txtMuted, fontSize: 14),
                     ),
                   ]),
                 ),
@@ -101,12 +101,12 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
                       await _load();
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Live session created!'), backgroundColor: AppColors.success),
+                          SnackBar(content: Text('Live session created!'), backgroundColor: context.clr.success),
                         );
                       }
                     } catch (e) {
                       if (ctx.mounted) {
-                        ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error));
+                        ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error));
                       }
                     } finally {
                       setModal(() => submitting = false);
@@ -139,18 +139,18 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
 
   Widget _modalField(TextEditingController ctrl, String label) => TextField(
     controller: ctrl,
-    style: const TextStyle(color: AppColors.textPrimary),
+    style: TextStyle(color: context.clr.txtPrimary),
     decoration: _inputDeco(label),
   );
 
   InputDecoration _inputDeco(String label) => InputDecoration(
     labelText: label,
-    labelStyle: const TextStyle(color: AppColors.textSecondary),
+    labelStyle: TextStyle(color: context.clr.txtSecondary),
     filled: true,
-    fillColor: AppColors.surface,
-    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.border)),
-    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.border)),
-    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.orange)),
+    fillColor: context.clr.surface,
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.border)),
+    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.border)),
+    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.accent)),
   );
 
   Future<void> _startSession(String id) async {
@@ -164,7 +164,7 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
         ));
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error));
     }
   }
 
@@ -172,23 +172,22 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
     try {
       await ApiService.endLiveSession(id);
       await _load();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Session ended')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Session ended')));
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        title: const Text('Live Sessions', style: TextStyle(color: AppColors.textPrimary)),
+        backgroundColor: context.clr.surface,
+        title: Text('Live Sessions', style: TextStyle(color: context.clr.txtPrimary)),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showCreateSheet,
-        backgroundColor: AppColors.orange,
+        backgroundColor: context.clr.accent,
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text('New Session', style: TextStyle(color: Colors.white)),
       ),
@@ -196,9 +195,9 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
           ? _buildShimmer()
           : RefreshIndicator(
               onRefresh: _load,
-              color: AppColors.orange,
+              color: context.clr.accent,
               child: _sessions.isEmpty
-                  ? const Center(child: Text('No live sessions yet.\nCreate one to get started!', textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted)))
+                  ? Center(child: Text('No live sessions yet.\nCreate one to get started!', textAlign: TextAlign.center, style: TextStyle(color: context.clr.txtMuted)))
                   : ListView.separated(
                       padding: const EdgeInsets.all(16),
                       itemCount: _sessions.length,
@@ -211,8 +210,8 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.card,
-      highlightColor: AppColors.surface,
+      baseColor: context.clr.card,
+      highlightColor: context.clr.surface,
       child: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: 4,
@@ -244,27 +243,27 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
   Widget _sessionCard(LiveSession session) {
     Color statusColor;
     switch (session.status) {
-      case 'live': statusColor = AppColors.error; break;
-      case 'ended': statusColor = AppColors.textMuted; break;
+      case 'live': statusColor = context.clr.error; break;
+      case 'ended': statusColor = context.clr.txtMuted; break;
       default: statusColor = const Color(0xFFFFD700);
     }
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.clr.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: session.isLive ? AppColors.error.withOpacity(0.4) : AppColors.border),
+        border: Border.all(color: session.isLive ? context.clr.error.withValues(alpha: 0.4) : context.clr.border),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Expanded(child: Text(session.title.split(' ').map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}').join(' '), style: const TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.bold))),
+          Expanded(child: Text(session.title.split(' ').map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}').join(' '), style: TextStyle(color: context.clr.txtPrimary, fontSize: 15, fontWeight: FontWeight.bold))),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(color: statusColor.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               if (session.isLive) ...[
-                Container(width: 6, height: 6, decoration: BoxDecoration(color: AppColors.error, shape: BoxShape.circle)),
+                Container(width: 6, height: 6, decoration: BoxDecoration(color: context.clr.error, shape: BoxShape.circle)),
                 const SizedBox(width: 4),
               ],
               Text(session.status.toUpperCase(), style: TextStyle(color: statusColor, fontSize: 11, fontWeight: FontWeight.w600)),
@@ -273,7 +272,7 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
         ]),
         if (session.description != null) ...[
           const SizedBox(height: 6),
-          Text(session.description!, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text(session.description!, style: TextStyle(color: context.clr.txtSecondary, fontSize: 13)),
         ],
         const SizedBox(height: 12),
         Row(children: [
@@ -288,7 +287,7 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () => _startSession(session.id),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.success, foregroundColor: Colors.white, elevation: 0),
+                  style: ElevatedButton.styleFrom(backgroundColor: context.clr.success, foregroundColor: Colors.white, elevation: 0),
                   child: const Text('Go Live'),
                 ),
               ),
@@ -296,7 +295,7 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () => _endSession(session.id),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.error, foregroundColor: Colors.white, elevation: 0),
+                  style: ElevatedButton.styleFrom(backgroundColor: context.clr.error, foregroundColor: Colors.white, elevation: 0),
                   child: const Text('End Session'),
                 ),
               ),
@@ -309,9 +308,9 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
 
   Widget _statPill(IconData icon, String label) {
     return Row(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, color: AppColors.textMuted, size: 14),
+      Icon(icon, color: context.clr.txtMuted, size: 14),
       const SizedBox(width: 4),
-      Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+      Text(label, style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
     ]);
   }
 }

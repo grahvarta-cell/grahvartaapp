@@ -44,13 +44,13 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
       await auth.refreshAstrologerProfile();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(!current ? 'You are now available' : 'You are now offline'), backgroundColor: AppColors.success),
+          SnackBar(content: Text(!current ? 'You are now available' : 'You are now offline'), backgroundColor: context.clr.success),
         );
       }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update availability'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('Failed to update availability'), backgroundColor: context.clr.error),
         );
       }
     } finally {
@@ -64,9 +64,8 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
     final astrologer = auth.astrologerProfile;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.clr.surface,
         leadingWidth: 64,
         leading: Padding(
           padding: const EdgeInsets.only(left: 16),
@@ -75,11 +74,11 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
             child: CircleAvatar(
               radius: 20,
               backgroundImage: astrologer?.avatarUrl != null ? NetworkImage(astrologer!.avatarUrl!) : null,
-              backgroundColor: AppColors.orange.withOpacity(0.2),
+              backgroundColor: context.clr.accent.withValues(alpha: 0.2),
               child: astrologer?.avatarUrl == null
                   ? Text(
                       (auth.user?.name?.isNotEmpty == true ? auth.user!.name[0].toUpperCase() : 'A'),
-                      style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold),
                     )
                   : null,
             ),
@@ -89,8 +88,8 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Welcome, ${auth.user?.name?.split(' ').first ?? ''} ✨',
-              style: const TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
-            const Text('Performance Overview', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+              style: TextStyle(color: context.clr.txtPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Performance Overview', style: TextStyle(color: context.clr.txtSecondary, fontSize: 12)),
           ],
         ),
         actions: [
@@ -101,23 +100,23 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: astrologer.isAvailable ? AppColors.success.withOpacity(0.2) : AppColors.surface,
+                  color: astrologer.isAvailable ? context.clr.success.withValues(alpha: 0.2) : context.clr.surface,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: astrologer.isAvailable ? AppColors.success : AppColors.border),
+                  border: Border.all(color: astrologer.isAvailable ? context.clr.success : context.clr.border),
                 ),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Icon(astrologer.isAvailable ? Icons.toggle_on_rounded : Icons.toggle_off_rounded,
-                    color: astrologer.isAvailable ? AppColors.success : AppColors.textMuted, size: 18),
+                    color: astrologer.isAvailable ? context.clr.success : context.clr.txtMuted, size: 18),
                   const SizedBox(width: 4),
                   Text(astrologer.isAvailable ? 'Online' : 'Offline',
                     style: TextStyle(
-                      color: astrologer.isAvailable ? AppColors.success : AppColors.textMuted,
+                      color: astrologer.isAvailable ? context.clr.success : context.clr.txtMuted,
                       fontSize: 12, fontWeight: FontWeight.w600)),
                 ]),
               ),
             ),
           IconButton(
-            icon: const Icon(Icons.account_balance_wallet_outlined, color: AppColors.textPrimary),
+            icon: Icon(Icons.account_balance_wallet_outlined, color: context.clr.txtPrimary),
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AstrologerEarningsScreen())),
             tooltip: 'Wallet',
           ),
@@ -127,7 +126,7 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
           ? _buildShimmer()
           : RefreshIndicator(
               onRefresh: _loadDashboard,
-              color: AppColors.orange,
+              color: context.clr.accent,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(16),
@@ -145,8 +144,8 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
   }
 
   Widget _buildShimmer() {
-    final base = AppColors.card;
-    final highlight = AppColors.surface;
+    final base = context.clr.card;
+    final highlight = context.clr.surface;
     return Shimmer.fromColors(
       baseColor: base,
       highlightColor: highlight,
@@ -201,9 +200,9 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
       physics: const NeverScrollableScrollPhysics(),
       childAspectRatio: 1.4,
       children: [
-        _statCard(Icons.people_rounded, 'Consultations', '${stats['total'] ?? 0}', AppColors.orange),
+        _statCard(Icons.people_rounded, 'Consultations', '${stats['total'] ?? 0}', context.clr.accent),
         _statCard(Icons.star_rounded, 'Rating', '${(double.tryParse(astrologer?.rating.toString() ?? '0') ?? 0).toStringAsFixed(1)} (${astrologer?.reviewCount ?? 0})', const Color(0xFFFFD700)),
-        _statCard(Icons.trending_up_rounded, 'Total Earnings', '₹${(double.tryParse(stats['total_revenue']?.toString() ?? '0') ?? 0).toStringAsFixed(0)}', AppColors.success),
+        _statCard(Icons.trending_up_rounded, 'Total Earnings', '₹${(double.tryParse(stats['total_revenue']?.toString() ?? '0') ?? 0).toStringAsFixed(0)}', context.clr.success),
         _statCard(Icons.access_time_rounded, 'Avg Duration', '${((double.tryParse(stats['avg_duration']?.toString() ?? '0') ?? 0) / 60).round()}m', Colors.blue),
       ],
     );
@@ -213,9 +212,9 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.clr.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.clr.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,8 +225,8 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
             child: Icon(icon, color: color, size: 18),
           ),
           const Spacer(),
-          Text(value, style: const TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
-          Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+          Text(value, style: TextStyle(color: context.clr.txtPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(label, style: TextStyle(color: context.clr.txtSecondary, fontSize: 11)),
         ],
       ),
     );
@@ -238,20 +237,20 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Recent Consultations', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
+        Text('Recent Consultations', style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         Container(
-          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
+          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.clr.border)),
           child: recent.isEmpty
               ? const Padding(
                   padding: EdgeInsets.all(24),
-                  child: Center(child: Text('No consultations yet', style: TextStyle(color: AppColors.textMuted))),
+                  child: Center(child: Text('No consultations yet', style: TextStyle(color: context.clr.txtMuted))),
                 )
               : ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: recent.length > 5 ? 5 : recent.length,
-                  separatorBuilder: (_, __) => const Divider(color: AppColors.border, height: 1),
+                  separatorBuilder: (_, __) => Divider(color: context.clr.border, height: 1),
                   itemBuilder: (_, i) {
                     final c = recent[i] as Map;
                     final name = ((c['user_name'] ?? 'User') as String).split(' ').map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '').join(' ');
@@ -260,12 +259,12 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
                     final amount = double.tryParse(c['total_amount']?.toString() ?? '0') ?? 0;
                     return ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: AppColors.orange.withOpacity(0.2),
-                        child: Text(name[0].toUpperCase(), style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold)),
+                        backgroundColor: context.clr.accent.withValues(alpha: 0.2),
+                        child: Text(name[0].toUpperCase(), style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold)),
                       ),
-                      title: Text(name, style: const TextStyle(color: AppColors.textPrimary, fontSize: 14)),
-                      subtitle: Text('$type · ${mins}m', style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
-                      trailing: Text('₹${amount.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.bold)),
+                      title: Text(name, style: TextStyle(color: context.clr.txtPrimary, fontSize: 14)),
+                      subtitle: Text('$type · ${mins}m', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
+                      trailing: Text('₹${amount.toStringAsFixed(0)}', style: TextStyle(color: context.clr.success, fontWeight: FontWeight.bold)),
                     );
                   },
                 ),

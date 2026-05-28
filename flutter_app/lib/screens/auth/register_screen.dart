@@ -41,7 +41,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       lastDate: DateTime.now(),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.dark(primary: AppColors.orange, surface: AppColors.card),
+          colorScheme: ColorScheme.dark(primary: context.clr.accent, surface: context.clr.card),
         ),
         child: child!,
       ),
@@ -55,7 +55,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       initialTime: TimeOfDay.now(),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.dark(primary: AppColors.orange, surface: AppColors.card),
+          colorScheme: ColorScheme.dark(primary: context.clr.accent, surface: context.clr.card),
         ),
         child: child!,
       ),
@@ -86,11 +86,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final s = context.s;
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: RadialGradient(
             center: Alignment.topCenter,
             radius: 1.5,
-            colors: [Color(0xFF2A1500), AppColors.background],
+            colors: [context.clr.surface, context.clr.bg],
           ),
         ),
         child: SafeArea(
@@ -119,7 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
+            icon: Icon(Icons.arrow_back_ios, color: context.clr.txtPrimary),
             onPressed: _currentStep == 0 ? () => Navigator.pop(context) : () => setState(() => _currentStep = 0),
           ),
           Expanded(
@@ -127,13 +127,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 Text(
                   _currentStep == 0 ? s.createAccount : s.birthDetails,
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: context.clr.txtPrimary),
                 ),
                 const SizedBox(height: 6),
                 LinearProgressIndicator(
                   value: _currentStep == 0 ? 0.5 : 1.0,
-                  backgroundColor: AppColors.border,
-                  color: AppColors.orange,
+                  backgroundColor: context.clr.border,
+                  color: context.clr.accent,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ],
@@ -149,34 +149,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(s.joinCosmos, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+        Text(s.joinCosmos, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: context.clr.txtPrimary)),
         const SizedBox(height: 8),
-        Text(s.createCosmicProfile, style: const TextStyle(color: AppColors.textSecondary)),
+        Text(s.createCosmicProfile, style: TextStyle(color: context.clr.txtSecondary)),
         const SizedBox(height: 32),
         TextFormField(
           controller: _nameCtrl,
-          style: const TextStyle(color: AppColors.textPrimary),
-          decoration: InputDecoration(labelText: s.fullName, prefixIcon: const Icon(Icons.person_outline, color: AppColors.textMuted)),
+          style: TextStyle(color: context.clr.txtPrimary),
+          decoration: InputDecoration(labelText: s.fullName, prefixIcon: Icon(Icons.person_outline, color: context.clr.txtMuted)),
           validator: (v) => v!.length >= 2 ? null : s.name,
         ),
         const SizedBox(height: 16),
         TextFormField(
           controller: _emailCtrl,
           keyboardType: TextInputType.emailAddress,
-          style: const TextStyle(color: AppColors.textPrimary),
-          decoration: InputDecoration(labelText: s.emailAddress, prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textMuted)),
+          style: TextStyle(color: context.clr.txtPrimary),
+          decoration: InputDecoration(labelText: s.emailAddress, prefixIcon: Icon(Icons.email_outlined, color: context.clr.txtMuted)),
           validator: (v) => v!.contains('@') ? null : s.email,
         ),
         const SizedBox(height: 16),
         TextFormField(
           controller: _passCtrl,
           obscureText: _obscurePassword,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: context.clr.txtPrimary),
           decoration: InputDecoration(
             labelText: s.password,
-            prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textMuted),
+            prefixIcon: Icon(Icons.lock_outline, color: context.clr.txtMuted),
             suffixIcon: IconButton(
-              icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: AppColors.textMuted),
+              icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: context.clr.txtMuted),
               onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
             ),
           ),
@@ -192,10 +192,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         const SizedBox(height: 16),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text(s.alreadyHaveAccount, style: const TextStyle(color: AppColors.textSecondary)),
+          Text(s.alreadyHaveAccount, style: TextStyle(color: context.clr.txtSecondary)),
           GestureDetector(
             onTap: () => Navigator.pop(context),
-            child: Text(s.signIn, style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.w600)),
+            child: Text(s.signIn, style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.w600)),
           ),
         ]),
       ],
@@ -207,9 +207,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       builder: (context, auth, _) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(s.cosmicBlueprint, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+          Text(s.cosmicBlueprint, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: context.clr.txtPrimary)),
           const SizedBox(height: 8),
-          Text(s.birthHelpChart, style: const TextStyle(color: AppColors.textSecondary)),
+          Text(s.birthHelpChart, style: TextStyle(color: context.clr.txtSecondary)),
           const SizedBox(height: 32),
           _buildDatePicker(s),
           const SizedBox(height: 16),
@@ -217,15 +217,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
           const SizedBox(height: 16),
           TextFormField(
             controller: _birthPlaceCtrl,
-            style: const TextStyle(color: AppColors.textPrimary),
-            decoration: InputDecoration(labelText: s.birthPlace, prefixIcon: const Icon(Icons.location_on_outlined, color: AppColors.textMuted)),
+            style: TextStyle(color: context.clr.txtPrimary),
+            decoration: InputDecoration(labelText: s.birthPlace, prefixIcon: Icon(Icons.location_on_outlined, color: context.clr.txtMuted)),
           ),
           if (auth.error != null) ...[
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: AppColors.error.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-              child: Text(auth.error!, style: const TextStyle(color: AppColors.error)),
+              decoration: BoxDecoration(color: context.clr.error.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+              child: Text(auth.error!, style: TextStyle(color: context.clr.error)),
             ),
           ],
           const SizedBox(height: 32),
@@ -238,7 +238,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           const SizedBox(height: 16),
           TextButton(
             onPressed: auth.isLoading ? null : _register,
-            child: Text(s.skipForNow, style: const TextStyle(color: AppColors.textSecondary)),
+            child: Text(s.skipForNow, style: TextStyle(color: context.clr.txtSecondary)),
           ),
         ],
       ),
@@ -251,21 +251,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: AppColors.surfaceLight,
+          color: context.clr.surfaceLight,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.clr.border),
         ),
         child: Row(
           children: [
-            const Icon(Icons.calendar_today_outlined, color: AppColors.textMuted, size: 20),
+            Icon(Icons.calendar_today_outlined, color: context.clr.txtMuted, size: 20),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 _selectedDate != null ? DateFormat('MMMM d, yyyy').format(_selectedDate!) : s.dateOfBirth,
-                style: TextStyle(color: _selectedDate != null ? AppColors.textPrimary : AppColors.textMuted, fontSize: 14),
+                style: TextStyle(color: _selectedDate != null ? context.clr.txtPrimary : context.clr.txtMuted, fontSize: 14),
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textMuted),
+            Icon(Icons.chevron_right, color: context.clr.txtMuted),
           ],
         ),
       ),
@@ -278,21 +278,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: AppColors.surfaceLight,
+          color: context.clr.surfaceLight,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.clr.border),
         ),
         child: Row(
           children: [
-            const Icon(Icons.access_time_outlined, color: AppColors.textMuted, size: 20),
+            Icon(Icons.access_time_outlined, color: context.clr.txtMuted, size: 20),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 _selectedTime != null ? _selectedTime!.format(context) : s.timeOfBirth,
-                style: TextStyle(color: _selectedTime != null ? AppColors.textPrimary : AppColors.textMuted, fontSize: 14),
+                style: TextStyle(color: _selectedTime != null ? context.clr.txtPrimary : context.clr.txtMuted, fontSize: 14),
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textMuted),
+            Icon(Icons.chevron_right, color: context.clr.txtMuted),
           ],
         ),
       ),

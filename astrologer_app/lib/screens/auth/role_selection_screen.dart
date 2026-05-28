@@ -8,13 +8,12 @@ class RoleSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: Container(
         decoration: const BoxDecoration(
           gradient: RadialGradient(
             center: Alignment.topCenter,
             radius: 1.6,
-            colors: [Color(0xFF1A0A00), AppColors.background],
+            colors: [Color(0xFF1A0A00), context.clr.bg],
           ),
         ),
         child: SafeArea(
@@ -27,22 +26,22 @@ class RoleSelectionScreen extends StatelessWidget {
                 Container(
                   width: 72, height: 72,
                   decoration: BoxDecoration(
-                    color: AppColors.orange.withOpacity(0.15),
+                    color: context.clr.accent.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.orange.withOpacity(0.3), width: 2),
+                    border: Border.all(color: context.clr.accent.withValues(alpha: 0.3), width: 2),
                   ),
-                  child: const Icon(Icons.auto_awesome, color: AppColors.orange, size: 32),
+                  child: Icon(Icons.auto_awesome, color: context.clr.accent, size: 32),
                 ),
                 const SizedBox(height: 24),
                 const Text(
                   'Welcome to Grahvarta',
-                  style: TextStyle(color: AppColors.textPrimary, fontSize: 28, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: context.clr.txtPrimary, fontSize: 28, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
                 const Text(
                   'How would you like to continue?',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+                  style: TextStyle(color: context.clr.txtSecondary, fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
                 const Spacer(),
@@ -51,7 +50,7 @@ class RoleSelectionScreen extends StatelessWidget {
                   icon: Icons.person_rounded,
                   title: 'Continue as User',
                   subtitle: 'Get horoscopes, consult astrologers,\nexplore live sessions & reports',
-                  color: AppColors.orange,
+                  color: context.clr.accent,
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const LoginScreen(isAstrologerMode: false)),
@@ -102,7 +101,7 @@ class _RoleCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.clr.card,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: color.withOpacity(0.3), width: 1.5),
         ),
@@ -121,9 +120,9 @@ class _RoleCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: AppColors.textPrimary, fontSize: 17, fontWeight: FontWeight.bold)),
+                  Text(title, style: TextStyle(color: context.clr.txtPrimary, fontSize: 17, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(subtitle, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4)),
+                  Text(subtitle, style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, height: 1.4)),
                 ],
               ),
             ),

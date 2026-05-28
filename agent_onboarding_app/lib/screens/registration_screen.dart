@@ -161,7 +161,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _sectionTitle('Personal Information'),
       const SizedBox(height: 20),
-      TextField(controller: _nameCtrl, decoration: const InputDecoration(labelText: 'Full Name *', prefixIcon: Icon(Icons.person_outline))),
+      TextField(controller: _nameCtrl, decoration: InputDecoration(labelText: 'Full Name *', prefixIcon: Icon(Icons.person_outline))),
       const SizedBox(height: 16),
       GestureDetector(
         onTap: () async {
@@ -170,7 +170,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             initialDate: DateTime(1995),
             firstDate: DateTime(1950),
             lastDate: DateTime.now().subtract(const Duration(days: 365 * 18)),
-            builder: (ctx, child) => Theme(data: Theme.of(ctx).copyWith(colorScheme: const ColorScheme.dark(primary: AppColors.primary)), child: child!),
+            builder: (ctx, child) => Theme(data: Theme.of(ctx).copyWith(colorScheme: ColorScheme.dark(primary: AppColors.primary)), child: child!),
           );
           if (d != null) setState(() => _dob = d);
         },
@@ -298,7 +298,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       const SizedBox(height: 20),
 
       // Email
-      TextField(controller: _emailCtrl, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: 'Email Address *', prefixIcon: Icon(Icons.email_outlined))),
+      TextField(controller: _emailCtrl, keyboardType: TextInputType.emailAddress, decoration: InputDecoration(labelText: 'Email Address *', prefixIcon: Icon(Icons.email_outlined))),
       const SizedBox(height: 20),
 
       // Works online

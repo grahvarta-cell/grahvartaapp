@@ -69,11 +69,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final s = context.s;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: RefreshIndicator(
         onRefresh: () async { await _loadDashboard(); await _loadOnlineAstrologers(); await _loadHoroscope(); },
-        color: AppColors.orange,
-        backgroundColor: AppColors.card,
+        color: context.clr.accent,
+        backgroundColor: context.clr.card,
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(child: _buildHeader(user, s)),
@@ -84,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SliverToBoxAdapter(child: _buildOnlineAstrologers(s)),
               SliverToBoxAdapter(child: _buildScoresSection(s)),
               SliverToBoxAdapter(child: _buildWhatCanIDoButton(s)),
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              SliverToBoxAdapter(child: SizedBox(height: 100)),
             ],
           ],
         ),
@@ -94,18 +93,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.surface,
-      highlightColor: AppColors.surfaceLight,
+      baseColor: context.clr.surface,
+      highlightColor: context.clr.surfaceLight,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Horoscope card
-            Container(height: 110, decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(20))),
+            Container(height: 110, decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(20))),
             const SizedBox(height: 24),
             // Section title
-            Container(height: 16, width: 160, decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(6))),
+            Container(height: 16, width: 160, decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(6))),
             const SizedBox(height: 14),
             // Astrologer avatars row
             SizedBox(
@@ -116,11 +115,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (_, __) => Padding(
                   padding: const EdgeInsets.only(right: 16),
                   child: Column(children: [
-                    Container(width: 60, height: 60, decoration: const BoxDecoration(color: AppColors.card, shape: BoxShape.circle)),
+                    Container(width: 60, height: 60, decoration: BoxDecoration(color: context.clr.card, shape: BoxShape.circle)),
                     const SizedBox(height: 6),
-                    Container(height: 10, width: 48, decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(4))),
+                    Container(height: 10, width: 48, decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(4))),
                     const SizedBox(height: 4),
-                    Container(height: 9, width: 36, decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(4))),
+                    Container(height: 9, width: 36, decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(4))),
                   ]),
                 ),
               ),
@@ -131,12 +130,12 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Container(
                 margin: EdgeInsets.only(right: i < 2 ? 12 : 0),
                 height: 110,
-                decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(16)),
+                decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16)),
               ),
             ))),
             const SizedBox(height: 20),
             // CTA button
-            Container(height: 52, decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(16))),
+            Container(height: 52, decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16))),
           ],
         ),
       ),
@@ -152,25 +151,25 @@ class _HomeScreenState extends State<HomeScreen> {
           child: CircleAvatar(
             radius: 20,
             backgroundImage: user?.avatarUrl != null ? NetworkImage(user!.avatarUrl!) : null,
-            backgroundColor: AppColors.orange.withOpacity(0.2),
+            backgroundColor: context.clr.accent.withValues(alpha: 0.2),
             child: user?.avatarUrl == null
                 ? Text(user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : 'U',
-                    style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold))
+                    style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold))
                 : null,
           ),
         ),
         const SizedBox(width: 12),
         Expanded(child: Text('${user?.greeting ?? 'Hi'}, ${user?.name ?? ''}',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary))),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: context.clr.txtPrimary))),
         GestureDetector(
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletScreen())),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
+            decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: context.clr.border)),
             child:  Row(children: [
-              Icon(Icons.account_balance_wallet_outlined, color: AppColors.gold, size: 14),
+              Icon(Icons.account_balance_wallet_outlined, color: context.clr.accentAlt, size: 14),
               SizedBox(width: 4),
-              Text(s.wallet, style: TextStyle(color: AppColors.gold, fontSize: 12, fontWeight: FontWeight.w600)),
+              Text(s.wallet, style: TextStyle(color: context.clr.accentAlt, fontSize: 12, fontWeight: FontWeight.w600)),
             ]),
           ),
         ),
@@ -178,8 +177,8 @@ class _HomeScreenState extends State<HomeScreen> {
         GestureDetector(
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())),
           child: Stack(children: [
-            Container(padding: const EdgeInsets.all(8), child: const Icon(Icons.notifications_outlined, color: AppColors.textPrimary)),
-            Positioned(top: 6, right: 6, child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle))),
+            Container(padding: const EdgeInsets.all(8), child: Icon(Icons.notifications_outlined, color: context.clr.txtPrimary)),
+            Positioned(top: 6, right: 6, child: Container(width: 8, height: 8, decoration: BoxDecoration(color: context.clr.error, shape: BoxShape.circle))),
           ]),
         ),
       ]),
@@ -194,23 +193,23 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF2A1500), Color(0xFF1A0D00)]),
+          gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [context.clr.surface, context.clr.card]),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.orange.withOpacity(0.3)),
+          border: Border.all(color: context.clr.accent.withValues(alpha: 0.3)),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             const Text('✨', style: TextStyle(fontSize: 16)),
             const SizedBox(width: 8),
             Text('${h.zodiacSign.isNotEmpty ? h.zodiacSign : ''} ${s.todaysHoroscope}',
-                style: const TextStyle(color: AppColors.orange, fontSize: 13, fontWeight: FontWeight.w600)),
+                style: TextStyle(color: context.clr.accent, fontSize: 13, fontWeight: FontWeight.w600)),
           ]),
           const SizedBox(height: 10),
-          Text(h.content, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5), maxLines: 3, overflow: TextOverflow.ellipsis),
+          Text(h.content, style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, height: 1.5), maxLines: 3, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 10),
           if (h.luckyColor != null)
             Text('Lucky color: ${h.luckyColor} · Lucky number: ${h.luckyNumber}',
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
         ]),
       ),
     );
@@ -221,22 +220,22 @@ class _HomeScreenState extends State<HomeScreen> {
       Padding(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text(s.onlineAstrologers, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+          Text(s.onlineAstrologers, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: context.clr.txtPrimary)),
           Row(children: [
             GestureDetector(
               onTap: _loadOnlineAstrologers,
               child: Container(
                 padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.border)),
+                decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(8), border: Border.all(color: context.clr.border)),
                 child: _astrologersLoading
-                    ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.orange))
-                    : const Icon(Icons.refresh, color: AppColors.orange, size: 16),
+                    ? SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: context.clr.accent))
+                    : Icon(Icons.refresh, color: context.clr.accent, size: 16),
               ),
             ),
             const SizedBox(width: 8),
             GestureDetector(
               onTap: () => mainTabNotifier.value = 1,
-              child: Text(s.seeAll, style: const TextStyle(color: AppColors.orange, fontSize: 14)),
+              child: Text(s.seeAll, style: TextStyle(color: context.clr.accent, fontSize: 14)),
             ),
           ]),
         ]),
@@ -246,18 +245,18 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
+            decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.clr.border)),
             child: Row(children: [
-              const Icon(Icons.people_outline, color: AppColors.textMuted, size: 32),
+              Icon(Icons.people_outline, color: context.clr.txtMuted, size: 32),
               const SizedBox(width: 12),
                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(s.noAstrologersOnline, style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500)),
+                Text(s.noAstrologersOnline, style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, fontWeight: FontWeight.w500)),
                 SizedBox(height: 2),
-                Text('Check back later or browse all astrologers', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                Text('Check back later or browse all astrologers', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
               ])),
               GestureDetector(
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MarketplaceScreen())),
-                child: const Text('Browse', style: TextStyle(color: AppColors.orange, fontSize: 13, fontWeight: FontWeight.w600)),
+                child: Text('Browse', style: TextStyle(color: context.clr.accent, fontSize: 13, fontWeight: FontWeight.w600)),
               ),
             ]),
           ),
@@ -287,21 +286,21 @@ class _HomeScreenState extends State<HomeScreen> {
             CircleAvatar(
               radius: 30,
               backgroundImage: astrologer.avatarUrl != null ? NetworkImage(astrologer.avatarUrl!) : null,
-              backgroundColor: AppColors.orange.withOpacity(0.2),
+              backgroundColor: context.clr.accent.withValues(alpha: 0.2),
               child: astrologer.avatarUrl == null
-                  ? Text(initials, style: const TextStyle(color: AppColors.orange, fontSize: 20, fontWeight: FontWeight.bold))
+                  ? Text(initials, style: TextStyle(color: context.clr.accent, fontSize: 20, fontWeight: FontWeight.bold))
                   : null,
             ),
             if (astrologer.isOnline)
               Positioned(bottom: 2, right: 2, child: Container(
                 width: 12, height: 12,
-                decoration: BoxDecoration(color: AppColors.success, shape: BoxShape.circle, border: Border.all(color: AppColors.background, width: 2)),
+                decoration: BoxDecoration(color: context.clr.success, shape: BoxShape.circle, border: Border.all(color: context.clr.bg, width: 2)),
               )),
           ]),
           const SizedBox(height: 6),
-          Text(astrologer.displayName.split(' ').first, style: const TextStyle(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis, maxLines: 1),
-          Text(astrologer.specializations.isNotEmpty ? astrologer.specializations[0] : '', style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
-          Text('₹${astrologer.perMinuteRateChat.toInt()}/min', style: const TextStyle(color: AppColors.orange, fontSize: 11, fontWeight: FontWeight.w600)),
+          Text(astrologer.displayName.split(' ').first, style: TextStyle(color: context.clr.txtPrimary, fontSize: 12, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis, maxLines: 1),
+          Text(astrologer.specializations.isNotEmpty ? astrologer.specializations[0] : '', style: TextStyle(color: context.clr.txtMuted, fontSize: 10)),
+          Text('₹${astrologer.perMinuteRateChat.toInt()}/min', style: TextStyle(color: context.clr.accent, fontSize: 11, fontWeight: FontWeight.w600)),
         ]),
       ),
     );
@@ -353,30 +352,30 @@ class _HomeScreenState extends State<HomeScreen> {
       isScrollControlled: true,
       builder: (_) => Container(
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 36),
-        decoration: const BoxDecoration(
-          color: Color(0xFF1A1A1A),
+        decoration: BoxDecoration(
+          color: context.clr.surface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2))),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: context.clr.border, borderRadius: BorderRadius.circular(2))),
           const SizedBox(height: 20),
           Text(emoji, style: const TextStyle(fontSize: 40)),
           const SizedBox(height: 12),
-          Text('$label Score', style: const TextStyle(color: AppColors.textPrimary, fontSize: 20, fontWeight: FontWeight.bold)),
+          Text('$label Score', style: TextStyle(color: context.clr.txtPrimary, fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             CircularPercentIndicator(
               radius: 48, lineWidth: 6, percent: value.clamp(0.0, 1.0),
-              center: Text('$pct%', style: const TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
-              progressColor: AppColors.orange, backgroundColor: AppColors.border, circularStrokeCap: CircularStrokeCap.round,
+              center: Text('$pct%', style: TextStyle(color: context.clr.txtPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+              progressColor: context.clr.accent, backgroundColor: context.clr.border, circularStrokeCap: CircularStrokeCap.round,
             ),
             const SizedBox(width: 20),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(level, style: TextStyle(color: pct >= 60 ? AppColors.orange : Colors.redAccent, fontSize: 22, fontWeight: FontWeight.bold)),
-              Text(s.todaysOutlook, style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+              Text(level, style: TextStyle(color: pct >= 60 ? context.clr.accent : Colors.redAccent, fontSize: 22, fontWeight: FontWeight.bold)),
+              Text(s.todaysOutlook, style: TextStyle(color: context.clr.txtMuted, fontSize: 13)),
               if (_horoscope != null) ...[
                 const SizedBox(height: 4),
-                Text(_horoscope!.zodiacSign, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                Text(_horoscope!.zodiacSign, style: TextStyle(color: context.clr.txtSecondary, fontSize: 13)),
               ],
             ]),
           ]),
@@ -384,15 +383,15 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: const Color(0xFF2A1500), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.orange.withOpacity(0.2))),
-            child: Text(detail, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.6)),
+            decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.clr.accent.withValues(alpha: 0.2))),
+            child: Text(detail, style: TextStyle(color: context.clr.txtSecondary, fontSize: 14, height: 1.6)),
           ),
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () { Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (_) => const MarketplaceScreen())); },
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.orange, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), padding: const EdgeInsets.symmetric(vertical: 14)),
+              style: ElevatedButton.styleFrom(backgroundColor: context.clr.accent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), padding: const EdgeInsets.symmetric(vertical: 14)),
               child: Text(s.talkToAstrologer, style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
           ),
@@ -406,15 +405,15 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: () => _showScoreDetail(label, emoji, value, detail, s),
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(16)),
+        decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16)),
         child: Column(children: [
           CircularPercentIndicator(
             radius: 36, lineWidth: 4, percent: value.clamp(0.0, 1.0),
-            center: Text('${(value * 100).toInt()}%', style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.bold)),
-            progressColor: AppColors.orange, backgroundColor: AppColors.border, circularStrokeCap: CircularStrokeCap.round,
+            center: Text('${(value * 100).toInt()}%', style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, fontWeight: FontWeight.bold)),
+            progressColor: context.clr.accent, backgroundColor: context.clr.border, circularStrokeCap: CircularStrokeCap.round,
           ),
           const SizedBox(height: 8),
-          Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+          Text(label, style: TextStyle(color: context.clr.txtSecondary, fontSize: 12)),
         ]),
       ),
     ));
@@ -425,7 +424,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: ElevatedButton(
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MarketplaceScreen())),
-        style: ElevatedButton.styleFrom(backgroundColor: AppColors.orange, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), padding: const EdgeInsets.symmetric(vertical: 16)),
+        style: ElevatedButton.styleFrom(backgroundColor: context.clr.accent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), padding: const EdgeInsets.symmetric(vertical: 16)),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           const Icon(Icons.auto_awesome, size: 18),
           const SizedBox(width: 8),

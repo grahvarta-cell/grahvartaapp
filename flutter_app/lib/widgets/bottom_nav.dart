@@ -11,7 +11,7 @@ class AstroBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.clr.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 20)],
       ),
@@ -51,12 +51,12 @@ class _NavItem extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.orange : Colors.transparent,
+          color: isSelected ? context.clr.accent : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Icon(
           icon,
-          color: isSelected ? Colors.white : AppColors.textMuted,
+          color: isSelected ? Colors.white : context.clr.txtMuted,
           size: 24,
         ),
       ),

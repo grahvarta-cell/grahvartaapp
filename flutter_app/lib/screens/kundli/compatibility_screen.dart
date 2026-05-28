@@ -38,7 +38,7 @@ class _CompatibilityScreenState extends State<CompatibilityScreen> {
 
   void _checkCompatibility() {
     if (_sign1 == null || _sign2 == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select both signs')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select both signs')));
       return;
     }
     final score = _compatibilityMatrix[_sign1]?[_sign2] ?? 50;
@@ -67,10 +67,8 @@ class _CompatibilityScreenState extends State<CompatibilityScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(icon: const Icon(Icons.arrow_back_ios, color: Colors.white), onPressed: () => Navigator.pop(context)),
         title: const Text('Compatibility'),
       ),
       body: SingleChildScrollView(
@@ -106,15 +104,15 @@ class _CompatibilityScreenState extends State<CompatibilityScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.clr.card,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: selected != null ? AppColors.orange.withOpacity(0.5) : AppColors.border),
+          border: Border.all(color: selected != null ? context.clr.accent.withValues(alpha: 0.5) : context.clr.border),
         ),
         child: Column(children: [
           Text(selectedData?['symbol'] ?? '?', style: const TextStyle(fontSize: 36)),
           const SizedBox(height: 6),
-          Text(selected ?? 'Select', style: TextStyle(color: selected != null ? AppColors.textPrimary : AppColors.textMuted, fontSize: 13, fontWeight: FontWeight.w500)),
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+          Text(selected ?? 'Select', style: TextStyle(color: selected != null ? context.clr.txtPrimary : context.clr.txtMuted, fontSize: 13, fontWeight: FontWeight.w500)),
+          Text(label, style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
         ]),
       ),
     );
@@ -123,12 +121,12 @@ class _CompatibilityScreenState extends State<CompatibilityScreen> {
   void _showSignPicker(Function(String) onSelect) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.clr.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => Padding(
         padding: const EdgeInsets.all(20),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text('Select Zodiac Sign', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
+          Text('Select Zodiac Sign', style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 16),
           GridView.builder(
             shrinkWrap: true,
@@ -140,10 +138,10 @@ class _CompatibilityScreenState extends State<CompatibilityScreen> {
               return GestureDetector(
                 onTap: () { onSelect(s['name']!); Navigator.pop(context); },
                 child: Container(
-                  decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
+                  decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: context.clr.border)),
                   child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                     Text(s['symbol']!, style: const TextStyle(fontSize: 24)),
-                    Text(s['name']!, style: const TextStyle(color: AppColors.textPrimary, fontSize: 10), overflow: TextOverflow.ellipsis),
+                    Text(s['name']!, style: TextStyle(color: context.clr.txtPrimary, fontSize: 10), overflow: TextOverflow.ellipsis),
                   ]),
                 ),
               );
@@ -157,7 +155,7 @@ class _CompatibilityScreenState extends State<CompatibilityScreen> {
   Widget _buildCompatResult() {
     final r = _result!;
     final score = r['score'] as int;
-    final color = score >= 70 ? AppColors.success : score >= 50 ? AppColors.orange : AppColors.error;
+    final color = score >= 70 ? context.clr.success : score >= 50 ? context.clr.accent : context.clr.error;
     final sign1Data = _signs.firstWhere((s) => s['name'] == _sign1);
     final sign2Data = _signs.firstWhere((s) => s['name'] == _sign2);
 
@@ -165,7 +163,7 @@ class _CompatibilityScreenState extends State<CompatibilityScreen> {
       Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [color.withOpacity(0.15), AppColors.card]),
+          gradient: LinearGradient(colors: [color.withOpacity(0.15), context.clr.card]),
           borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withOpacity(0.4)),
         ),
         child: Column(children: [
@@ -180,7 +178,7 @@ class _CompatibilityScreenState extends State<CompatibilityScreen> {
             Text(sign2Data['symbol']!, style: const TextStyle(fontSize: 36)),
           ]),
           const SizedBox(height: 12),
-          Text(r['desc'], style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5), textAlign: TextAlign.center),
+          Text(r['desc'], style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, height: 1.5), textAlign: TextAlign.center),
         ]),
       ),
       const SizedBox(height: 16),
@@ -191,18 +189,18 @@ class _CompatibilityScreenState extends State<CompatibilityScreen> {
         {'label': '🤲 Trust', 'key': 'trust'},
       ].map((item) {
         final val = r[item['key']] as int;
-        final c = val >= 70 ? AppColors.success : val >= 50 ? AppColors.orange : AppColors.error;
+        final c = val >= 70 ? context.clr.success : val >= 50 ? context.clr.accent : context.clr.error;
         return Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text(item['label']!, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+              Text(item['label']!, style: TextStyle(color: context.clr.txtSecondary, fontSize: 13)),
               Text('$val%', style: TextStyle(color: c, fontSize: 13, fontWeight: FontWeight.w600)),
             ]),
             const SizedBox(height: 6),
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(value: val / 100, backgroundColor: AppColors.border, color: c, minHeight: 6),
+              child: LinearProgressIndicator(value: val / 100, backgroundColor: context.clr.border, color: c, minHeight: 6),
             ),
           ]),
         );

@@ -51,7 +51,7 @@ class _AstrologerSetupProfileScreenState extends State<AstrologerSetupProfileScr
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedLanguages.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select at least one language')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select at least one language')));
       return;
     }
 
@@ -73,7 +73,7 @@ class _AstrologerSetupProfileScreenState extends State<AstrologerSetupProfileScr
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Astrologer profile created! Awaiting approval.'), backgroundColor: AppColors.success),
+          SnackBar(content: Text('Astrologer profile created! Awaiting approval.'), backgroundColor: context.clr.success),
         );
         Navigator.pushAndRemoveUntil(
           context,
@@ -83,7 +83,7 @@ class _AstrologerSetupProfileScreenState extends State<AstrologerSetupProfileScr
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -93,11 +93,10 @@ class _AstrologerSetupProfileScreenState extends State<AstrologerSetupProfileScr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        title: const Text('Setup Astrologer Profile', style: TextStyle(color: AppColors.textPrimary)),
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        backgroundColor: context.clr.surface,
+        title: Text('Setup Astrologer Profile', style: TextStyle(color: context.clr.txtPrimary)),
+        iconTheme: IconThemeData(color: context.clr.txtPrimary),
       ),
       body: Form(
         key: _formKey,
@@ -112,7 +111,7 @@ class _AstrologerSetupProfileScreenState extends State<AstrologerSetupProfileScr
                 TextFormField(
                   controller: _bioCtrl,
                   maxLines: 4,
-                  style: const TextStyle(color: AppColors.textPrimary),
+                  style: TextStyle(color: context.clr.txtPrimary),
                   decoration: _inputDecoration('Bio', 'Tell clients about yourself...'),
                   validator: (v) => v!.isEmpty ? 'Bio is required' : null,
                 ),
@@ -139,7 +138,7 @@ class _AstrologerSetupProfileScreenState extends State<AstrologerSetupProfileScr
                   Expanded(
                     child: TextField(
                       controller: _expertiseCtrl,
-                      style: const TextStyle(color: AppColors.textPrimary),
+                      style: TextStyle(color: context.clr.txtPrimary),
                       decoration: _inputDecoration('Add area', 'e.g. Marriage, Career'),
                       onSubmitted: (_) => _addExpertise(),
                     ),
@@ -149,7 +148,7 @@ class _AstrologerSetupProfileScreenState extends State<AstrologerSetupProfileScr
                     onTap: _addExpertise,
                     child: Container(
                       width: 44, height: 44,
-                      decoration: BoxDecoration(color: AppColors.orange, borderRadius: BorderRadius.circular(12)),
+                      decoration: BoxDecoration(color: context.clr.accent, borderRadius: BorderRadius.circular(12)),
                       child: const Icon(Icons.add, color: Colors.white),
                     ),
                   ),
@@ -160,7 +159,7 @@ class _AstrologerSetupProfileScreenState extends State<AstrologerSetupProfileScr
                     spacing: 8, runSpacing: 8,
                     children: _expertiseAreas.map((a) => Chip(
                       label: Text(a, style: const TextStyle(color: Colors.white, fontSize: 12)),
-                      backgroundColor: AppColors.orange.withOpacity(0.7),
+                      backgroundColor: context.clr.accent.withValues(alpha: 0.7),
                       deleteIconColor: Colors.white70,
                       onDeleted: () => setState(() => _expertiseAreas.remove(a)),
                     )).toList(),
@@ -194,12 +193,12 @@ class _AstrologerSetupProfileScreenState extends State<AstrologerSetupProfileScr
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.clr.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.clr.border),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15)),
+        Text(title, style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold, fontSize: 15)),
         const SizedBox(height: 12),
         ...children,
       ]),
@@ -210,7 +209,7 @@ class _AstrologerSetupProfileScreenState extends State<AstrologerSetupProfileScr
     return TextFormField(
       controller: ctrl,
       keyboardType: keyboardType,
-      style: const TextStyle(color: AppColors.textPrimary),
+      style: TextStyle(color: context.clr.txtPrimary),
       decoration: _inputDecoration(label, hint),
       validator: required ? (v) => v!.isEmpty ? '$label is required' : null : null,
     );
@@ -219,13 +218,13 @@ class _AstrologerSetupProfileScreenState extends State<AstrologerSetupProfileScr
   InputDecoration _inputDecoration(String label, String hint) => InputDecoration(
     labelText: label,
     hintText: hint,
-    hintStyle: const TextStyle(color: AppColors.textMuted),
-    labelStyle: const TextStyle(color: AppColors.textSecondary),
+    hintStyle: TextStyle(color: context.clr.txtMuted),
+    labelStyle: TextStyle(color: context.clr.txtSecondary),
     filled: true,
-    fillColor: AppColors.surface,
-    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.border)),
-    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.border)),
-    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.orange)),
+    fillColor: context.clr.surface,
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.border)),
+    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.border)),
+    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.accent)),
   );
 
   Widget _chip(String label, List<String> selected, String key) {
@@ -235,11 +234,11 @@ class _AstrologerSetupProfileScreenState extends State<AstrologerSetupProfileScr
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.orange : AppColors.surface,
+          color: isSelected ? context.clr.accent : context.clr.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? AppColors.orange : AppColors.border),
+          border: Border.all(color: isSelected ? context.clr.accent : context.clr.border),
         ),
-        child: Text(label, style: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondary, fontSize: 13)),
+        child: Text(label, style: TextStyle(color: isSelected ? Colors.white : context.clr.txtSecondary, fontSize: 13)),
       ),
     );
   }
@@ -247,15 +246,15 @@ class _AstrologerSetupProfileScreenState extends State<AstrologerSetupProfileScr
   Widget _rateSlider(String label, double value, ValueChanged<double> onChanged) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-        Text('₹${value.toStringAsFixed(0)}/min', style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold)),
+        Text(label, style: TextStyle(color: context.clr.txtSecondary, fontSize: 13)),
+        Text('₹${value.toStringAsFixed(0)}/min', style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold)),
       ]),
       SliderTheme(
         data: SliderTheme.of(context).copyWith(
-          activeTrackColor: AppColors.orange,
-          thumbColor: AppColors.orange,
-          inactiveTrackColor: AppColors.border,
-          overlayColor: AppColors.orange.withOpacity(0.2),
+          activeTrackColor: context.clr.accent,
+          thumbColor: context.clr.accent,
+          inactiveTrackColor: context.clr.border,
+          overlayColor: context.clr.accent.withValues(alpha: 0.2),
         ),
         child: Slider(value: value, min: 1, max: 100, divisions: 99, onChanged: onChanged),
       ),

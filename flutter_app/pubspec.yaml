@@ -16,6 +16,7 @@ dependencies:
   provider: ^6.1.1
   flutter_bloc: ^8.1.6
   bloc: ^8.1.4
+  equatable: ^2.0.5
 
   # HTTP & API
   http: ^1.1.2

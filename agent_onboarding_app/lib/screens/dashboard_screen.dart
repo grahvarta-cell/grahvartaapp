@@ -75,7 +75,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Colors.white),
         title: const Text('My Application', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
@@ -132,7 +132,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               GestureDetector(
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: tokenNo));
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Token copied!'), duration: Duration(seconds: 1)));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Token copied!'), duration: Duration(seconds: 1)));
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -436,9 +436,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 6),
           const Text('Send us a message and we\'ll get back to you.', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
           const SizedBox(height: 20),
-          TextField(maxLines: 4, decoration: const InputDecoration(hintText: 'Type your message here...', border: OutlineInputBorder())),
+          TextField(maxLines: 4, decoration: InputDecoration(hintText: 'Type your message here...', border: OutlineInputBorder())),
           const SizedBox(height: 16),
-          SizedBox(width: double.infinity, child: ElevatedButton(onPressed: () { Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Message sent!'))); }, child: const Text('Send Message'))),
+          SizedBox(width: double.infinity, child: ElevatedButton(onPressed: () { Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Message sent!'))); }, child: const Text('Send Message'))),
         ]),
       ),
     );

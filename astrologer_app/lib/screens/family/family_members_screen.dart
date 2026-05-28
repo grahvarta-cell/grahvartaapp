@@ -35,12 +35,12 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.card,
-        title: const Text('Remove Member', style: TextStyle(color: AppColors.textPrimary)),
-        content: Text('Remove ${member.name} from your family list?', style: const TextStyle(color: AppColors.textSecondary)),
+        backgroundColor: context.clr.card,
+        title: Text('Remove Member', style: TextStyle(color: context.clr.txtPrimary)),
+        content: Text('Remove ${member.name} from your family list?', style: TextStyle(color: context.clr.txtSecondary)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary))),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Remove', style: TextStyle(color: AppColors.error))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel', style: TextStyle(color: context.clr.txtSecondary))),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Remove', style: TextStyle(color: context.clr.error))),
         ],
       ),
     );
@@ -54,14 +54,14 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
   }
 
   void _showSnack(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: AppColors.surface));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: context.clr.surface));
   }
 
   void _openForm({FamilyMember? member}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.card,
+      backgroundColor: context.clr.card,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => _FamilyMemberForm(
         existing: member,
@@ -73,16 +73,15 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        title: const Text('Family Members', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        backgroundColor: context.clr.surface,
+        title: Text('Family Members', style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold)),
+        iconTheme: IconThemeData(color: context.clr.txtPrimary),
         elevation: 0,
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openForm(),
-        backgroundColor: AppColors.orange,
+        backgroundColor: context.clr.accent,
         icon: const Icon(Icons.person_add, color: AppColors.white),
         label: const Text('Add Member', style: TextStyle(color: AppColors.white)),
       ),
@@ -90,7 +89,7 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
           ? _buildShimmer()
           : RefreshIndicator(
               onRefresh: _load,
-              color: AppColors.orange,
+              color: context.clr.accent,
               child: _members.isEmpty ? _buildEmpty() : _buildList(),
             ),
     );
@@ -98,31 +97,31 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.surface,
-      highlightColor: AppColors.surfaceLight,
+      baseColor: context.clr.surface,
+      highlightColor: context.clr.surfaceLight,
       child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         itemCount: 4,
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (_, __) => Container(
-          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(16)),
+          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.all(16),
           child: Row(children: [
-            Container(width: 56, height: 56, decoration: BoxDecoration(color: AppColors.surface, shape: BoxShape.circle)),
+            Container(width: 56, height: 56, decoration: BoxDecoration(color: context.clr.surface, shape: BoxShape.circle)),
             const SizedBox(width: 14),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Container(height: 14, width: 140, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+              Container(height: 14, width: 140, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
               const SizedBox(height: 8),
-              Container(height: 11, width: 80, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+              Container(height: 11, width: 80, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
               const SizedBox(height: 8),
-              Container(height: 11, width: double.infinity, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+              Container(height: 11, width: double.infinity, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
               const SizedBox(height: 5),
-              Container(height: 11, width: 120, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+              Container(height: 11, width: 120, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
             ])),
             Column(children: [
-              Container(width: 32, height: 32, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(8))),
+              Container(width: 32, height: 32, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(8))),
               const SizedBox(height: 8),
-              Container(width: 32, height: 32, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(8))),
+              Container(width: 32, height: 32, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(8))),
             ]),
           ]),
         ),
@@ -135,11 +134,11 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.group_outlined, size: 72, color: AppColors.textMuted),
+          Icon(Icons.group_outlined, size: 72, color: context.clr.txtMuted),
           const SizedBox(height: 16),
-          const Text('No family members yet', style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
+          Text('No family members yet', style: TextStyle(color: context.clr.txtSecondary, fontSize: 16)),
           const SizedBox(height: 8),
-          const Text('Tap + Add Member to get started', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+          Text('Tap + Add Member to get started', style: TextStyle(color: context.clr.txtMuted, fontSize: 13)),
         ],
       ),
     );
@@ -170,9 +169,9 @@ class _MemberCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.clr.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.clr.border),
       ),
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -185,18 +184,18 @@ class _MemberCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Expanded(child: Text(member.name, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15))),
+                    Expanded(child: Text(member.name, style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold, fontSize: 15))),
                     if (member.sunSign != null)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(color: AppColors.orange.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
-                        child: Text(member.sunSign!, style: const TextStyle(color: AppColors.orange, fontSize: 11, fontWeight: FontWeight.w600)),
+                        decoration: BoxDecoration(color: context.clr.accent.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                        child: Text(member.sunSign!, style: TextStyle(color: context.clr.accent, fontSize: 11, fontWeight: FontWeight.w600)),
                       ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 if (member.relationship != null)
-                  Text(member.relationship!, style: const TextStyle(color: AppColors.gold, fontSize: 12)),
+                  Text(member.relationship!, style: TextStyle(color: context.clr.accentAlt, fontSize: 12)),
                 const SizedBox(height: 6),
                 _infoRow(Icons.cake_outlined, _formatDate(member.dateOfBirth)),
                 if (member.timeOfBirth != null) _infoRow(Icons.access_time_outlined, member.timeOfBirth!),
@@ -206,8 +205,8 @@ class _MemberCard extends StatelessWidget {
           ),
           Column(
             children: [
-              IconButton(onPressed: onEdit, icon: const Icon(Icons.edit_outlined, color: AppColors.textSecondary, size: 20)),
-              IconButton(onPressed: onDelete, icon: const Icon(Icons.delete_outline, color: AppColors.error, size: 20)),
+              IconButton(onPressed: onEdit, icon: Icon(Icons.edit_outlined, color: context.clr.txtSecondary, size: 20)),
+              IconButton(onPressed: onDelete, icon: Icon(Icons.delete_outline, color: context.clr.error, size: 20)),
             ],
           ),
         ],
@@ -219,8 +218,8 @@ class _MemberCard extends StatelessWidget {
     final initials = member.name.split(' ').map((w) => w.isNotEmpty ? w[0] : '').take(2).join().toUpperCase();
     return CircleAvatar(
       radius: 28,
-      backgroundColor: AppColors.orange.withOpacity(0.15),
-      child: Text(initials, style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold, fontSize: 16)),
+      backgroundColor: context.clr.accent.withValues(alpha: 0.15),
+      child: Text(initials, style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold, fontSize: 16)),
     );
   }
 
@@ -229,9 +228,9 @@ class _MemberCard extends StatelessWidget {
       padding: const EdgeInsets.only(top: 3),
       child: Row(
         children: [
-          Icon(icon, size: 13, color: AppColors.textMuted),
+          Icon(icon, size: 13, color: context.clr.txtMuted),
           const SizedBox(width: 5),
-          Expanded(child: Text(text, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12), overflow: TextOverflow.ellipsis)),
+          Expanded(child: Text(text, style: TextStyle(color: context.clr.txtSecondary, fontSize: 12), overflow: TextOverflow.ellipsis)),
         ],
       ),
     );
@@ -308,7 +307,7 @@ class _FamilyMemberFormState extends State<_FamilyMemberForm> {
       lastDate: DateTime.now(),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.dark(primary: AppColors.orange, surface: AppColors.card),
+          colorScheme: ColorScheme.dark(primary: context.clr.accent, surface: context.clr.card),
         ),
         child: child!,
       ),
@@ -327,7 +326,7 @@ class _FamilyMemberFormState extends State<_FamilyMemberForm> {
       initialTime: TimeOfDay.now(),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.dark(primary: AppColors.orange, surface: AppColors.card),
+          colorScheme: ColorScheme.dark(primary: context.clr.accent, surface: context.clr.card),
         ),
         child: child!,
       ),
@@ -342,7 +341,7 @@ class _FamilyMemberFormState extends State<_FamilyMemberForm> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_relationship == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select relationship'), backgroundColor: AppColors.error));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select relationship'), backgroundColor: context.clr.error));
       return;
     }
     setState(() => _isSaving = true);
@@ -364,7 +363,7 @@ class _FamilyMemberFormState extends State<_FamilyMemberForm> {
     } catch (e) {
       if (mounted) {
         setState(() => _isSaving = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error));
       }
     }
   }
@@ -381,11 +380,11 @@ class _FamilyMemberFormState extends State<_FamilyMemberForm> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
-              child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2))),
+              child: Container(width: 40, height: 4, decoration: BoxDecoration(color: context.clr.border, borderRadius: BorderRadius.circular(2))),
             ),
             const SizedBox(height: 16),
             Text(isEdit ? 'Edit Family Member' : 'Add Family Member',
-                style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18)),
+                style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold, fontSize: 18)),
             const SizedBox(height: 20),
             _field(
               controller: _nameCtrl,
@@ -424,9 +423,9 @@ class _FamilyMemberFormState extends State<_FamilyMemberForm> {
             DropdownButtonFormField<String>(
               value: _relationship,
               decoration: _inputDecoration('Relationship', Icons.people_outline),
-              dropdownColor: AppColors.surface,
-              style: const TextStyle(color: AppColors.textPrimary),
-              hint: const Text('Select relationship', style: TextStyle(color: AppColors.textMuted)),
+              dropdownColor: context.clr.surface,
+              style: TextStyle(color: context.clr.txtPrimary),
+              hint: Text('Select relationship', style: TextStyle(color: context.clr.txtMuted)),
               items: _relationships.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
               onChanged: (v) => setState(() => _relationship = v),
               validator: (v) => v == null ? 'Relationship is required' : null,
@@ -438,10 +437,10 @@ class _FamilyMemberFormState extends State<_FamilyMemberForm> {
               child: ElevatedButton(
                 onPressed: _isSaving ? null : _submit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.orange,
+                  backgroundColor: context.clr.accent,
                   foregroundColor: AppColors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  disabledBackgroundColor: AppColors.orange.withOpacity(0.5),
+                  disabledBackgroundColor: context.clr.accent.withValues(alpha: 0.5),
                 ),
                 child: _isSaving
                     ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: AppColors.white, strokeWidth: 2))
@@ -457,7 +456,7 @@ class _FamilyMemberFormState extends State<_FamilyMemberForm> {
   Widget _field({required TextEditingController controller, required String label, required String hint, required IconData icon, String? Function(String?)? validator}) {
     return TextFormField(
       controller: controller,
-      style: const TextStyle(color: AppColors.textPrimary),
+      style: TextStyle(color: context.clr.txtPrimary),
       decoration: _inputDecoration(label, icon).copyWith(hintText: hint),
       validator: validator,
     );
@@ -468,7 +467,7 @@ class _FamilyMemberFormState extends State<_FamilyMemberForm> {
       controller: controller,
       readOnly: true,
       onTap: onTap,
-      style: const TextStyle(color: AppColors.textPrimary),
+      style: TextStyle(color: context.clr.txtPrimary),
       decoration: _inputDecoration(label, icon).copyWith(hintText: hint),
       validator: validator,
     );
@@ -477,15 +476,15 @@ class _FamilyMemberFormState extends State<_FamilyMemberForm> {
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: AppColors.textSecondary),
-      hintStyle: const TextStyle(color: AppColors.textMuted),
-      prefixIcon: Icon(icon, color: AppColors.textMuted, size: 20),
+      labelStyle: TextStyle(color: context.clr.txtSecondary),
+      hintStyle: TextStyle(color: context.clr.txtMuted),
+      prefixIcon: Icon(icon, color: context.clr.txtMuted, size: 20),
       filled: true,
-      fillColor: AppColors.surface,
+      fillColor: context.clr.surface,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.orange, width: 1.5)),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.border)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.border)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.accent, width: 1.5)),
     );
   }
 }

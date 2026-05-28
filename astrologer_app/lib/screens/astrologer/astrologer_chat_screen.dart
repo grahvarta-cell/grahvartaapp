@@ -107,17 +107,17 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.card,
+        backgroundColor: context.clr.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Session Ended', style: TextStyle(color: AppColors.textPrimary)),
+        title: Text('Session Ended', style: TextStyle(color: context.clr.txtPrimary)),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.check_circle_outline, color: AppColors.success, size: 48),
+          Icon(Icons.check_circle_outline, color: context.clr.success, size: 48),
           const SizedBox(height: 12),
           Text('Duration: ${_formatTime(duration is int ? duration : (duration as num).toInt())}',
-              style: const TextStyle(color: AppColors.textSecondary)),
+              style: TextStyle(color: context.clr.txtSecondary)),
           const SizedBox(height: 4),
           Text('Earned: ₹${(total * 0.8).toStringAsFixed(2)}',
-              style: const TextStyle(color: AppColors.success, fontSize: 18, fontWeight: FontWeight.bold)),
+              style: TextStyle(color: context.clr.success, fontSize: 18, fontWeight: FontWeight.bold)),
         ]),
         actions: [
           ElevatedButton(
@@ -149,11 +149,11 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.card,
-        title: const Text('End Consultation', style: TextStyle(color: AppColors.textPrimary)),
-        content: const Text('Are you sure you want to end this consultation?', style: TextStyle(color: AppColors.textSecondary)),
+        backgroundColor: context.clr.card,
+        title: Text('End Consultation', style: TextStyle(color: context.clr.txtPrimary)),
+        content: Text('Are you sure you want to end this consultation?', style: TextStyle(color: context.clr.txtSecondary)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel', style: TextStyle(color: context.clr.txtSecondary))),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
@@ -175,17 +175,17 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
       child: Row(children: [
         CircleAvatar(
           radius: 12,
-          backgroundColor: AppColors.orange.withOpacity(0.2),
-          child: Text(widget.userName[0].toUpperCase(), style: const TextStyle(color: AppColors.orange, fontSize: 10)),
+          backgroundColor: context.clr.accent.withValues(alpha: 0.2),
+          child: Text(widget.userName[0].toUpperCase(), style: TextStyle(color: context.clr.accent, fontSize: 10)),
         ),
         const SizedBox(width: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(18)),
+          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(18)),
           child: Row(children: List.generate(3, (i) => Container(
             margin: EdgeInsets.only(right: i < 2 ? 3 : 0),
             width: 6, height: 6,
-            decoration: const BoxDecoration(color: AppColors.textMuted, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: context.clr.txtMuted, shape: BoxShape.circle),
           ))),
         ),
       ]),
@@ -201,23 +201,22 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.clr.surface,
         titleSpacing: 0,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.userName, style: const TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(widget.userName, style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
             if (_elapsed > 0)
-              Text('Duration: ${_formatTime(_elapsed)}', style: const TextStyle(color: AppColors.orange, fontSize: 12)),
+              Text('Duration: ${_formatTime(_elapsed)}', style: TextStyle(color: context.clr.accent, fontSize: 12)),
           ],
         ),
         actions: [
           TextButton.icon(
             onPressed: _endConsultation,
-            icon: const Icon(Icons.call_end, color: AppColors.error, size: 18),
-            label: const Text('End', style: TextStyle(color: AppColors.error)),
+            icon: Icon(Icons.call_end, color: context.clr.error, size: 18),
+            label: Text('End', style: TextStyle(color: context.clr.error)),
           ),
         ],
       ),
@@ -225,11 +224,11 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
         children: [
           Expanded(
             child: _isEnded
-                ? const Center(child: Text('Session ended', style: TextStyle(color: AppColors.textMuted)))
+                ? Center(child: Text('Session ended', style: TextStyle(color: context.clr.txtMuted)))
                 : _loading
                 ? _buildShimmer()
                 : _messages.isEmpty
-                    ? const Center(child: Text('No messages yet', style: TextStyle(color: AppColors.textMuted)))
+                    ? Center(child: Text('No messages yet', style: TextStyle(color: context.clr.txtMuted)))
                     : ListView.builder(
                         controller: _scroll,
                         padding: const EdgeInsets.all(16),
@@ -249,8 +248,8 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.card,
-      highlightColor: AppColors.surface,
+      baseColor: context.clr.card,
+      highlightColor: context.clr.surface,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 8,
@@ -286,8 +285,8 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Center(child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-          decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(20)),
-          child: Text(msg['content'] ?? msg['message'] ?? '', style: const TextStyle(color: AppColors.textMuted, fontSize: 12), textAlign: TextAlign.center),
+          decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(20)),
+          child: Text(msg['content'] ?? msg['message'] ?? '', style: TextStyle(color: context.clr.txtMuted, fontSize: 12), textAlign: TextAlign.center),
         )),
       );
     }
@@ -299,7 +298,7 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.72),
         decoration: BoxDecoration(
-          color: isMe ? AppColors.orange : AppColors.card,
+          color: isMe ? context.clr.accent : context.clr.card,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(16),
             topRight: const Radius.circular(16),
@@ -307,7 +306,7 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
             bottomRight: Radius.circular(isMe ? 4 : 16),
           ),
         ),
-        child: Text(msg['content'] ?? msg['message'] ?? '', style: TextStyle(color: isMe ? Colors.white : AppColors.textPrimary, fontSize: 14)),
+        child: Text(msg['content'] ?? msg['message'] ?? '', style: TextStyle(color: isMe ? Colors.white : context.clr.txtPrimary, fontSize: 14)),
       ),
     );
   }
@@ -315,17 +314,17 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
   Widget _buildInput() {
     return Container(
       padding: EdgeInsets.only(left: 16, right: 16, top: 12, bottom: MediaQuery.of(context).padding.bottom + 12),
-      color: AppColors.surface,
+      color: context.clr.surface,
       child: Row(children: [
         Expanded(
           child: TextField(
             controller: _ctrl,
-            style: const TextStyle(color: AppColors.textPrimary),
+            style: TextStyle(color: context.clr.txtPrimary),
             decoration: InputDecoration(
               hintText: 'Type a message…',
-              hintStyle: const TextStyle(color: AppColors.textMuted),
+              hintStyle: TextStyle(color: context.clr.txtMuted),
               filled: true,
-              fillColor: AppColors.card,
+              fillColor: context.clr.card,
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
@@ -342,7 +341,7 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
           onTap: _sendMessage,
           child: Container(
             width: 44, height: 44,
-            decoration: BoxDecoration(color: AppColors.orange, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: context.clr.accent, shape: BoxShape.circle),
             child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
           ),
         ),

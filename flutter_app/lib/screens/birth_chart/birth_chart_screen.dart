@@ -61,15 +61,13 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(icon: const Icon(Icons.arrow_back_ios, color: Colors.white), onPressed: () => Navigator.pop(context)),
         title: const Text('Your Birth Chart'),
-        actions: [IconButton(icon: const Icon(Icons.refresh, color: AppColors.textPrimary), onPressed: _loadChart)],
+        actions: [IconButton(icon: const Icon(Icons.refresh, color: Colors.white), onPressed: _loadChart)],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.orange))
+          ? Center(child: CircularProgressIndicator(color: context.clr.accent))
           : _error != null
               ? _buildError()
               : _buildContent(),
@@ -80,13 +78,13 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
     return Center(child: Padding(
       padding: const EdgeInsets.all(32),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.auto_graph, color: AppColors.textMuted, size: 64),
+        Icon(Icons.auto_graph, color: context.clr.txtMuted, size: 64),
         const SizedBox(height: 16),
-        Text(_error!, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.6)),
+        Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: context.clr.txtSecondary, fontSize: 14, height: 1.6)),
         const SizedBox(height: 20),
         ElevatedButton(onPressed: _loadChart, child: const Text('Try Again')),
         const SizedBox(height: 10),
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Go Back', style: TextStyle(color: AppColors.textMuted))),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text('Go Back', style: TextStyle(color: context.clr.txtMuted))),
       ]),
     ));
   }
@@ -97,7 +95,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
       SliverToBoxAdapter(child: _buildKeyPositions()),
       SliverToBoxAdapter(child: _buildTabSelector()),
       SliverToBoxAdapter(child: _buildPlanetList()),
-      const SliverToBoxAdapter(child: SizedBox(height: 100)),
+      SliverToBoxAdapter(child: SizedBox(height: 100)),
     ]);
   }
 
@@ -109,7 +107,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
         child: SizedBox(
           width: size, height: size,
           child: CustomPaint(
-            painter: _NorthIndianKundaliPainter(houses: _houses),
+            painter: _NorthIndianKundaliPainter(houses: _houses, accentColor: context.clr.accent),
           ),
         ),
       ),
@@ -130,8 +128,8 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
 
   Widget _badge(String text) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-    decoration: BoxDecoration(color: AppColors.orange.withOpacity(0.15), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.orange.withOpacity(0.2))),
-    child: Text(text, style: const TextStyle(color: AppColors.orange, fontSize: 12)),
+    decoration: BoxDecoration(color: context.clr.accent.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20), border: Border.all(color: context.clr.accent.withValues(alpha: 0.2))),
+    child: Text(text, style: TextStyle(color: context.clr.accent, fontSize: 12)),
   );
 
   Widget _buildTabSelector() {
@@ -146,8 +144,8 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(color: isSelected ? AppColors.orange : AppColors.card, borderRadius: BorderRadius.circular(10)),
-              child: Text(_tabs[i], textAlign: TextAlign.center, style: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.w500)),
+              decoration: BoxDecoration(color: isSelected ? context.clr.accent : context.clr.card, borderRadius: BorderRadius.circular(10)),
+              child: Text(_tabs[i], textAlign: TextAlign.center, style: TextStyle(color: isSelected ? Colors.white : context.clr.txtSecondary, fontSize: 12, fontWeight: FontWeight.w500)),
             ),
           ),
         ));
@@ -157,9 +155,9 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
 
   Widget _buildPlanetList() {
     if (_planets.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(32),
-        child: Center(child: Text('No planet data available', style: TextStyle(color: AppColors.textMuted))),
+      return Padding(
+        padding: const EdgeInsets.all(32),
+        child: Center(child: Text('No planet data available', style: TextStyle(color: context.clr.txtMuted))),
       );
     }
 
@@ -176,19 +174,19 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
         return Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
+          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(14), border: Border.all(color: context.clr.border)),
           child: Row(children: [
             Container(
               width: 44, height: 44,
-              decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFF2A1A0A), Color(0xFF1A0D00)]), borderRadius: BorderRadius.circular(22)),
-              child: Center(child: Text(symbol, style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold, fontSize: 13))),
+              decoration: BoxDecoration(gradient: LinearGradient(colors: [context.clr.surface, context.clr.card]), borderRadius: BorderRadius.circular(22)),
+              child: Center(child: Text(symbol, style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold, fontSize: 13))),
             ),
             const SizedBox(width: 12),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(name, style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
-              Text(nakshatra, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              Text(name, style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
+              Text(nakshatra, style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
             ])),
-            Text(value, style: const TextStyle(color: AppColors.orange, fontSize: 13, fontWeight: FontWeight.w500)),
+            Text(value, style: TextStyle(color: context.clr.accent, fontSize: 13, fontWeight: FontWeight.w500)),
           ]),
         );
       }).toList()),
@@ -199,15 +197,16 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
 // ── North Indian Kundali Chart (CustomPainter) ────────────────────────────────
 class _NorthIndianKundaliPainter extends CustomPainter {
   final List<List<String>> houses;
+  final Color accentColor;
 
-  _NorthIndianKundaliPainter({required this.houses});
+  _NorthIndianKundaliPainter({required this.houses, required this.accentColor});
 
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
     final linePaint = Paint()
-      ..color = AppColors.orange.withOpacity(0.5)
+      ..color = accentColor.withValues(alpha: 0.5)
       ..strokeWidth = 1.2
       ..style = PaintingStyle.stroke;
 
@@ -248,7 +247,7 @@ class _NorthIndianKundaliPainter extends CustomPainter {
       Offset(cx * 0.45, cy * 0.55),   // 12 - inner top-left
     ];
 
-    final houseNumStyle = TextStyle(color: AppColors.orange.withOpacity(0.4), fontSize: w * 0.03, fontWeight: FontWeight.bold);
+    final houseNumStyle = TextStyle(color: accentColor.withValues(alpha: 0.4), fontSize: w * 0.03, fontWeight: FontWeight.bold);
     final planetStyle = TextStyle(color: Colors.white, fontSize: w * 0.035, fontWeight: FontWeight.w600);
 
     for (int i = 0; i < 12; i++) {

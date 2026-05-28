@@ -163,7 +163,7 @@ class _AstrologerCallScreenState extends State<AstrologerCallScreen> {
                     width: 90, height: 130,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.orange.withOpacity(0.5)),
+                      border: Border.all(color: context.clr.accent.withValues(alpha: 0.5)),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
@@ -187,9 +187,9 @@ class _AstrologerCallScreenState extends State<AstrologerCallScreen> {
                     if (!_isVideo || !_remoteJoined) ...[
                       CircleAvatar(
                         radius: 48,
-                        backgroundColor: AppColors.orange.withOpacity(0.2),
+                        backgroundColor: context.clr.accent.withValues(alpha: 0.2),
                         child: Text(widget.userName[0].toUpperCase(),
-                          style: const TextStyle(color: AppColors.orange, fontSize: 36, fontWeight: FontWeight.bold)),
+                          style: TextStyle(color: context.clr.accent, fontSize: 36, fontWeight: FontWeight.bold)),
                       ),
                       const SizedBox(height: 16),
                       Text(widget.userName,
@@ -197,16 +197,16 @@ class _AstrologerCallScreenState extends State<AstrologerCallScreen> {
                       const SizedBox(height: 8),
                     ],
                     Text(_durationText,
-                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 16)),
+                      style: TextStyle(color: context.clr.txtSecondary, fontSize: 16)),
                     const SizedBox(height: 4),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.success.withOpacity(0.2),
+                        color: context.clr.success.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(widget.type.toUpperCase(),
-                        style: const TextStyle(color: AppColors.success, fontSize: 11, fontWeight: FontWeight.w600)),
+                        style: TextStyle(color: context.clr.success, fontSize: 11, fontWeight: FontWeight.w600)),
                     ),
                   ]),
 
@@ -218,7 +218,7 @@ class _AstrologerCallScreenState extends State<AstrologerCallScreen> {
                       children: [
                         _callButton(
                           icon: _muted ? Icons.mic_off : Icons.mic,
-                          color: _muted ? AppColors.error : Colors.white24,
+                          color: _muted ? context.clr.error : Colors.white24,
                           onTap: () {
                             _engine?.muteLocalAudioStream(!_muted);
                             setState(() => _muted = !_muted);
@@ -227,7 +227,7 @@ class _AstrologerCallScreenState extends State<AstrologerCallScreen> {
                         const SizedBox(width: 32),
                         _callButton(
                           icon: Icons.call_end,
-                          color: AppColors.error,
+                          color: context.clr.error,
                           size: 64,
                           onTap: _endCall,
                         ),

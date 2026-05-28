@@ -71,7 +71,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                 maxLength: 10,
                 style: const TextStyle(color: AppColors.textPrimary),
                 onSubmitted: (_) => _continue(),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   prefixText: '+91  ',
                   prefixStyle: TextStyle(color: AppColors.textSecondary),
                   labelText: 'Mobile Number',

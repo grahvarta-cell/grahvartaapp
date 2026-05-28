@@ -100,15 +100,13 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
         title: const Text('Live & Community'),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: AppColors.orange,
-          labelColor: AppColors.orange,
-          unselectedLabelColor: AppColors.textMuted,
+          indicatorColor: context.clr.accent,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white.withValues(alpha: 0.65),
           tabs: const [Tab(text: '🔴 Live Sessions'), Tab(text: '💬 Community')],
         ),
       ),
@@ -127,26 +125,26 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
 
     return RefreshIndicator(
       onRefresh: _loadData,
-      color: AppColors.orange,
-      backgroundColor: AppColors.card,
+      color: context.clr.accent,
+      backgroundColor: context.clr.card,
       child: _sessions.isEmpty
           ? ListView(children: [
               const SizedBox(height: 80),
-              const Center(child: Icon(Icons.live_tv_outlined, size: 64, color: AppColors.textMuted)),
+              Center(child: Icon(Icons.live_tv_outlined, size: 64, color: context.clr.txtMuted)),
               const SizedBox(height: 16),
-              const Center(child: Text('No live sessions right now', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600))),
+              Center(child: Text('No live sessions right now', style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.w600))),
               const SizedBox(height: 8),
-              const Center(child: Text('Check back soon for upcoming sessions', style: TextStyle(color: AppColors.textMuted, fontSize: 13))),
+              Center(child: Text('Check back soon for upcoming sessions', style: TextStyle(color: context.clr.txtMuted, fontSize: 13))),
             ])
           : ListView(padding: const EdgeInsets.all(16), children: [
               if (liveSessions.isNotEmpty) ...[
-                const Text('🔴 Live Now', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                Text('🔴 Live Now', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.clr.txtPrimary)),
                 const SizedBox(height: 12),
                 ...liveSessions.map((s) => _buildLiveCard(s, isLive: true)),
                 const SizedBox(height: 20),
               ],
               if (upcoming.isNotEmpty) ...[
-                const Text('📅 Upcoming', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                Text('📅 Upcoming', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.clr.txtPrimary)),
                 const SizedBox(height: 12),
                 ...upcoming.map((s) => _buildLiveCard(s, isLive: false)),
               ],
@@ -160,9 +158,9 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.clr.card,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isLive ? AppColors.error.withOpacity(0.5) : AppColors.border),
+          border: Border.all(color: isLive ? context.clr.error.withValues(alpha: 0.5) : context.clr.border),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // Thumbnail
@@ -184,7 +182,7 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
                                 : [const Color(0xFF1A1500), const Color(0xFF0D0D0D)],
                           ),
                         ),
-                        child: Center(child: Icon(Icons.stars, size: 72, color: AppColors.orange.withOpacity(0.25))),
+                        child: Center(child: Icon(Icons.stars, size: 72, color: context.clr.accent.withValues(alpha: 0.25))),
                       ),
                 // Gradient overlay at bottom
                 Positioned.fill(child: DecoratedBox(
@@ -200,7 +198,7 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
                 if (isLive)
                   Positioned(top: 12, left: 12, child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(color: AppColors.error, borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(color: context.clr.error, borderRadius: BorderRadius.circular(12)),
                     child: const Row(mainAxisSize: MainAxisSize.min, children: [
                       Icon(Icons.fiber_manual_record, color: Colors.white, size: 8),
                       SizedBox(width: 4),
@@ -223,9 +221,9 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
                   CircleAvatar(
                     radius: 18,
                     backgroundImage: session.thumbnailUrl != null ? NetworkImage(session.thumbnailUrl!) : null,
-                    backgroundColor: AppColors.orange.withOpacity(0.3),
+                    backgroundColor: context.clr.accent.withValues(alpha: 0.3),
                     child: session.thumbnailUrl == null
-                        ? Text(session.astrologerName[0], style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold))
+                        ? Text(session.astrologerName[0], style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold))
                         : null,
                   ),
                   const SizedBox(width: 8),
@@ -237,7 +235,7 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
                     onTap: () => _joinLiveSession(session),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                      decoration: BoxDecoration(color: AppColors.error, borderRadius: BorderRadius.circular(20)),
+                      decoration: BoxDecoration(color: context.clr.error, borderRadius: BorderRadius.circular(20)),
                       child: const Text('Join Live', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                     ),
                   )),
@@ -248,30 +246,30 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
           Padding(
             padding: const EdgeInsets.all(14),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(session.title, style: const TextStyle(color: AppColors.textPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
+              Text(session.title, style: TextStyle(color: context.clr.txtPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
               if (session.description != null) ...[
                 const SizedBox(height: 4),
-                Text(session.description!, style: const TextStyle(color: AppColors.textMuted, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(session.description!, style: TextStyle(color: context.clr.txtMuted, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
               ],
               const SizedBox(height: 10),
               Row(children: [
                 if (isLive) ...[
-                  const Icon(Icons.monetization_on, color: AppColors.gold, size: 14),
+                  Icon(Icons.monetization_on, color: context.clr.accentAlt, size: 14),
                   const SizedBox(width: 4),
-                  Text('₹${session.totalTips.toStringAsFixed(0)} tips', style: const TextStyle(color: AppColors.gold, fontSize: 12)),
+                  Text('₹${session.totalTips.toStringAsFixed(0)} tips', style: TextStyle(color: context.clr.accentAlt, fontSize: 12)),
                 ] else ...[
-                  const Icon(Icons.schedule, color: AppColors.textMuted, size: 14),
+                  Icon(Icons.schedule, color: context.clr.txtMuted, size: 14),
                   const SizedBox(width: 4),
-                  Text(_formatSchedule(session.scheduledAt), style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                  Text(_formatSchedule(session.scheduledAt), style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
                   const Spacer(),
                   OutlinedButton(
                     onPressed: () {},
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size(80, 32),
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-                      side: const BorderSide(color: AppColors.orange),
+                      side: BorderSide(color: context.clr.accent),
                     ),
-                    child: const Text('Remind Me', style: TextStyle(fontSize: 12, color: AppColors.orange)),
+                    child: Text('Remind Me', style: TextStyle(fontSize: 12, color: context.clr.accent)),
                   ),
                 ],
               ]),
@@ -305,7 +303,7 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
   Widget _buildCommunityTab() {
     return Column(children: [
       Container(
-        color: AppColors.background,
+        color: context.clr.bg,
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // Category filter
@@ -331,13 +329,13 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(children: [
-              const Text('Sort:', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+              Text('Sort:', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
               const SizedBox(width: 8),
               ..._sortOptions.map((s) => _filterChip(
                 s['label']!,
                 _sortBy == s['key'],
                 () => setState(() => _sortBy = s['key']!),
-                activeColor: AppColors.gold,
+                activeColor: context.clr.accentAlt,
               )),
             ]),
           ),
@@ -348,12 +346,12 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
         ? _buildPostShimmer()
         : RefreshIndicator(
             onRefresh: _loadPosts,
-            color: AppColors.orange,
-            backgroundColor: AppColors.card,
+            color: context.clr.accent,
+            backgroundColor: context.clr.card,
             child: _sortedPosts.isEmpty
                 ? Center(child: Text(
                     _filterCategory == null ? 'No posts yet.' : 'No posts in this category.',
-                    style: const TextStyle(color: AppColors.textMuted)))
+                    style: TextStyle(color: context.clr.txtMuted)))
                 : ListView.builder(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
                     itemCount: _sortedPosts.length,
@@ -364,18 +362,18 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
   }
 
   Widget _filterChip(String label, bool isSelected, VoidCallback onTap, {Color? activeColor}) {
-    final color = activeColor ?? AppColors.orange;
+    final color = activeColor ?? context.clr.accent;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(right: 8),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? color : AppColors.card,
+          color: isSelected ? color : context.clr.card,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? color : AppColors.border),
+          border: Border.all(color: isSelected ? color : context.clr.border),
         ),
-        child: Text(label, style: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondary, fontSize: 12, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal)),
+        child: Text(label, style: TextStyle(color: isSelected ? Colors.white : context.clr.txtSecondary, fontSize: 12, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal)),
       ),
     );
   }
@@ -385,30 +383,30 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.clr.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: post.isPinned ? AppColors.orange.withOpacity(0.3) : AppColors.border),
+        border: Border.all(color: post.isPinned ? context.clr.accent.withValues(alpha: 0.3) : context.clr.border),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          CircleAvatar(radius: 20, backgroundColor: AppColors.orange.withOpacity(0.2),
-              child: Text(post.authorName[0], style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold))),
+          CircleAvatar(radius: 20, backgroundColor: context.clr.accent.withValues(alpha: 0.2),
+              child: Text(post.authorName[0], style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold))),
           const SizedBox(width: 10),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Text(post.authorName, style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
-              if (post.isVerified == true) ...[const SizedBox(width: 4), const Icon(Icons.verified, color: AppColors.orange, size: 14)],
+              Text(post.authorName, style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
+              if (post.isVerified == true) ...[SizedBox(width: 4), Icon(Icons.verified, color: context.clr.accent, size: 14)],
             ]),
             if (post.authorSign != null)
-              Text(post.authorSign!, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              Text(post.authorSign!, style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
           ])),
-          Text(_timeAgo(post.createdAt), style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+          Text(_timeAgo(post.createdAt), style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
         ]),
         const SizedBox(height: 12),
-        Text(post.content, style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, height: 1.6)),
+        Text(post.content, style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, height: 1.6)),
         const SizedBox(height: 12),
         Row(children: [
-          _actionBtn(Icons.favorite_border, '${post.likesCount}', post.isLiked ? AppColors.error : AppColors.textMuted, () {
+          _actionBtn(Icons.favorite_border, '${post.likesCount}', post.isLiked ? context.clr.error : context.clr.txtMuted, () {
             ApiService.toggleLike(post.id);
             final idx = _posts.indexWhere((p) => p.id == post.id);
             if (idx != -1) setState(() => _posts[idx] = CommunityPost(
@@ -420,9 +418,9 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
             ));
           }),
           const SizedBox(width: 20),
-          _actionBtn(Icons.chat_bubble_outline, '${post.commentsCount}', AppColors.textMuted, () => _showCommentsSheet(post)),
+          _actionBtn(Icons.chat_bubble_outline, '${post.commentsCount}', context.clr.txtMuted, () => _showCommentsSheet(post)),
           const SizedBox(width: 20),
-          _actionBtn(Icons.share_outlined, 'Share', AppColors.textMuted, () {}),
+          _actionBtn(Icons.share_outlined, 'Share', context.clr.txtMuted, () {}),
         ]),
       ]),
     );
@@ -449,8 +447,8 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
 
   Widget _buildFullShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.surface,
-      highlightColor: AppColors.surfaceLight,
+      baseColor: context.clr.surface,
+      highlightColor: context.clr.surfaceLight,
       child: ListView(padding: const EdgeInsets.all(16), children: [
         _shimmerLiveCard(),
         const SizedBox(height: 12),
@@ -464,15 +462,15 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
   Widget _shimmerLiveCard() {
     return Container(
       height: 240,
-      decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(20)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Container(height: 170, decoration: const BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.vertical(top: Radius.circular(20)))),
+        Container(height: 170, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.vertical(top: Radius.circular(20)))),
         Padding(
           padding: const EdgeInsets.all(14),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Container(height: 13, width: double.infinity, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+            Container(height: 13, width: double.infinity, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
             const SizedBox(height: 8),
-            Container(height: 11, width: 160, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+            Container(height: 11, width: 160, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
           ]),
         ),
       ]),
@@ -481,36 +479,36 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
 
   Widget _buildPostShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.surface,
-      highlightColor: AppColors.surfaceLight,
+      baseColor: context.clr.surface,
+      highlightColor: context.clr.surfaceLight,
       child: ListView.builder(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
         itemCount: 5,
         itemBuilder: (_, __) => Container(
           margin: const EdgeInsets.only(bottom: 14),
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(20)),
+          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(20)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Container(width: 40, height: 40, decoration: const BoxDecoration(color: AppColors.surface, shape: BoxShape.circle)),
+              Container(width: 40, height: 40, decoration: BoxDecoration(color: context.clr.surface, shape: BoxShape.circle)),
               const SizedBox(width: 10),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Container(height: 12, width: 120, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+                Container(height: 12, width: 120, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
                 const SizedBox(height: 6),
-                Container(height: 10, width: 80, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+                Container(height: 10, width: 80, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
               ])),
             ]),
             const SizedBox(height: 12),
-            Container(height: 12, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+            Container(height: 12, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
             const SizedBox(height: 6),
-            Container(height: 12, width: 220, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+            Container(height: 12, width: 220, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
             const SizedBox(height: 6),
-            Container(height: 12, width: 160, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+            Container(height: 12, width: 160, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
             const SizedBox(height: 14),
             Row(children: [
-              Container(width: 40, height: 12, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+              Container(width: 40, height: 12, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
               const SizedBox(width: 20),
-              Container(width: 40, height: 12, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+              Container(width: 40, height: 12, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
             ]),
           ]),
         ),
@@ -525,7 +523,7 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.clr.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _CommentsSheet(post: post),
     );
@@ -534,19 +532,19 @@ class _LiveScreenState extends State<LiveScreen> with SingleTickerProviderStateM
   void _showCreatePostSheet() {
     final ctrl = TextEditingController();
     showModalBottomSheet(
-      context: context, isScrollControlled: true, backgroundColor: AppColors.surface,
+      context: context, isScrollControlled: true, backgroundColor: context.clr.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => Padding(
         padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(context).viewInsets.bottom + 30),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text('Share with Community', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+          Text('Share with Community', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.clr.txtPrimary)),
           const SizedBox(height: 16),
-          TextField(controller: ctrl, maxLines: 5, autofocus: true, style: const TextStyle(color: AppColors.textPrimary),
-              decoration: const InputDecoration(hintText: 'What\'s on your mind? Share astrology insights, experiences…', hintStyle: TextStyle(color: AppColors.textMuted), border: InputBorder.none)),
+          TextField(controller: ctrl, maxLines: 5, autofocus: true, style: TextStyle(color: context.clr.txtPrimary),
+              decoration: InputDecoration(hintText: 'What\'s on your mind? Share astrology insights, experiences…', hintStyle: TextStyle(color: context.clr.txtMuted), border: InputBorder.none)),
           const SizedBox(height: 12),
           Row(children: [
-            IconButton(icon: const Icon(Icons.image_outlined, color: AppColors.textMuted), onPressed: () {}),
-            IconButton(icon: const Icon(Icons.tag, color: AppColors.textMuted), onPressed: () {}),
+            IconButton(icon: Icon(Icons.image_outlined, color: context.clr.txtMuted), onPressed: () {}),
+            IconButton(icon: Icon(Icons.tag, color: context.clr.txtMuted), onPressed: () {}),
             const Spacer(),
             ElevatedButton(onPressed: () async {
               if (ctrl.text.trim().isEmpty) return;
@@ -622,44 +620,44 @@ class _CommentsSheetState extends State<_CommentsSheet> {
         // Handle
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)))),
+          child: Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: context.clr.border, borderRadius: BorderRadius.circular(2)))),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
           child: Row(children: [
-            const Text('Comments', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
+            Text('Comments', style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(width: 8),
-            Text('(${widget.post.commentsCount})', style: const TextStyle(color: AppColors.textMuted, fontSize: 14)),
+            Text('(${widget.post.commentsCount})', style: TextStyle(color: context.clr.txtMuted, fontSize: 14)),
           ]),
         ),
-        const Divider(height: 1, color: AppColors.border),
+        Divider(height: 1, color: context.clr.border),
         // Comment list
         Expanded(
           child: _loading
               ? Shimmer.fromColors(
-                  baseColor: AppColors.surface,
-                  highlightColor: AppColors.surfaceLight,
+                  baseColor: context.clr.surface,
+                  highlightColor: context.clr.surfaceLight,
                   child: ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: 4,
                     itemBuilder: (_, __) => Padding(
                       padding: const EdgeInsets.only(bottom: 16),
                       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Container(width: 34, height: 34, decoration: const BoxDecoration(color: AppColors.card, shape: BoxShape.circle)),
+                        Container(width: 34, height: 34, decoration: BoxDecoration(color: context.clr.card, shape: BoxShape.circle)),
                         const SizedBox(width: 10),
                         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Container(height: 11, width: 100, decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(4))),
+                          Container(height: 11, width: 100, decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(4))),
                           const SizedBox(height: 6),
-                          Container(height: 11, decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(4))),
+                          Container(height: 11, decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(4))),
                           const SizedBox(height: 4),
-                          Container(height: 11, width: 180, decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(4))),
+                          Container(height: 11, width: 180, decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(4))),
                         ])),
                       ]),
                     ),
                   ),
                 )
               : _comments.isEmpty
-                  ? const Center(child: Text('No comments yet. Be the first!', style: TextStyle(color: AppColors.textMuted)))
+                  ? Center(child: Text('No comments yet. Be the first!', style: TextStyle(color: context.clr.txtMuted)))
                   : ListView.builder(
                       controller: scrollCtrl,
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -674,19 +672,19 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             CircleAvatar(
                               radius: 17,
-                              backgroundColor: AppColors.orange.withOpacity(0.2),
+                              backgroundColor: context.clr.accent.withValues(alpha: 0.2),
                               child: Text(author.isNotEmpty ? author[0].toUpperCase() : '?',
-                                  style: const TextStyle(color: AppColors.orange, fontSize: 12, fontWeight: FontWeight.bold)),
+                                  style: TextStyle(color: context.clr.accent, fontSize: 12, fontWeight: FontWeight.bold)),
                             ),
                             const SizedBox(width: 10),
                             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                               Row(children: [
-                                Text(author, style: const TextStyle(color: AppColors.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
+                                Text(author, style: TextStyle(color: context.clr.txtPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
                                 const SizedBox(width: 8),
-                                Text(_timeAgo(createdAt), style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                                Text(_timeAgo(createdAt), style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
                               ]),
                               const SizedBox(height: 3),
-                              Text(content, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5)),
+                              Text(content, style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, height: 1.5)),
                             ])),
                           ]),
                         );
@@ -697,17 +695,17 @@ class _CommentsSheetState extends State<_CommentsSheet> {
         SafeArea(
           child: Container(
             padding: EdgeInsets.fromLTRB(12, 10, 12, MediaQuery.of(context).viewInsets.bottom + 10),
-            decoration: BoxDecoration(color: AppColors.surface, border: Border(top: BorderSide(color: AppColors.border))),
+            decoration: BoxDecoration(color: context.clr.surface, border: Border(top: BorderSide(color: context.clr.border))),
             child: Row(children: [
               Expanded(
                 child: TextField(
                   controller: _ctrl,
-                  style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+                  style: TextStyle(color: context.clr.txtPrimary, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'Write a comment…',
-                    hintStyle: const TextStyle(color: AppColors.textMuted),
+                    hintStyle: TextStyle(color: context.clr.txtMuted),
                     filled: true,
-                    fillColor: AppColors.card,
+                    fillColor: context.clr.card,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     isDense: true,
@@ -720,7 +718,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                 onTap: _submitting ? null : _submit,
                 child: Container(
                   width: 40, height: 40,
-                  decoration: const BoxDecoration(color: AppColors.orange, shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: context.clr.accent, shape: BoxShape.circle),
                   child: _submitting
                       ? const Padding(padding: EdgeInsets.all(10), child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : const Icon(Icons.send_rounded, color: Colors.white, size: 18),
@@ -888,7 +886,7 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
             const SizedBox(width: 12),
             CircleAvatar(
               radius: 18,
-              backgroundColor: AppColors.orange.withOpacity(0.3),
+              backgroundColor: context.clr.accent.withValues(alpha: 0.3),
               child: Text(widget.session.astrologerName[0], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(width: 8),
@@ -910,7 +908,7 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
             // LIVE badge
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(color: AppColors.error, borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: context.clr.error, borderRadius: BorderRadius.circular(10)),
               child: const Row(mainAxisSize: MainAxisSize.min, children: [
                 Icon(Icons.fiber_manual_record, color: Colors.white, size: 8),
                 SizedBox(width: 4),
@@ -973,8 +971,8 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
       child: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
         CircleAvatar(
           radius: 72,
-          backgroundColor: AppColors.orange.withOpacity(0.15),
-          child: Text(widget.session.astrologerName[0], style: const TextStyle(fontSize: 56, color: AppColors.orange, fontWeight: FontWeight.bold)),
+          backgroundColor: context.clr.accent.withValues(alpha: 0.15),
+          child: Text(widget.session.astrologerName[0], style: TextStyle(fontSize: 56, color: context.clr.accent, fontWeight: FontWeight.bold)),
         ),
         const SizedBox(height: 20),
         // Decorative stars
@@ -991,7 +989,7 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
         // Avatar
         CircleAvatar(
           radius: 14,
-          backgroundColor: isTip ? AppColors.gold.withOpacity(0.8) : AppColors.orange.withOpacity(0.7),
+          backgroundColor: isTip ? context.clr.accentAlt.withValues(alpha: 0.8) : context.clr.accent.withValues(alpha: 0.7),
           child: Text(msg['avatar'] ?? '?', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
         ),
         const SizedBox(width: 8),
@@ -1003,12 +1001,12 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: isTip ? AppColors.gold.withOpacity(0.25) : Colors.black.withOpacity(0.45),
+                color: isTip ? context.clr.accentAlt.withValues(alpha: 0.25) : Colors.black.withOpacity(0.45),
                 borderRadius: BorderRadius.circular(16),
-                border: isTip ? Border.all(color: AppColors.gold.withOpacity(0.4)) : null,
+                border: isTip ? Border.all(color: context.clr.accentAlt.withValues(alpha: 0.4)) : null,
               ),
               child: RichText(text: TextSpan(style: const TextStyle(fontSize: 13), children: [
-                TextSpan(text: '${msg['user']}  ', style: TextStyle(color: isTip ? AppColors.gold : AppColors.orange, fontWeight: FontWeight.bold, fontSize: 12)),
+                TextSpan(text: '${msg['user']}  ', style: TextStyle(color: isTip ? context.clr.accentAlt : context.clr.accent, fontWeight: FontWeight.bold, fontSize: 12)),
                 TextSpan(text: msg['message'], style: const TextStyle(color: Colors.white, fontSize: 13)),
               ])),
             ),
@@ -1038,7 +1036,7 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
                 child: TextField(
                   controller: _chatCtrl,
                   style: const TextStyle(color: Colors.white, fontSize: 14),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'Send a message…',
                     hintStyle: TextStyle(color: Colors.white38, fontSize: 13),
                     border: InputBorder.none,
@@ -1054,7 +1052,7 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
                 onTap: _sendMessage,
                 child: Container(
                   width: 44, height: 44,
-                  decoration: const BoxDecoration(color: AppColors.orange, shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: context.clr.accent, shape: BoxShape.circle),
                   child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
                 ),
               ),
@@ -1064,7 +1062,7 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
                 onTap: _showTipDialog,
                 child: Container(
                   width: 44, height: 44,
-                  decoration: BoxDecoration(color: AppColors.gold.withOpacity(0.85), shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: context.clr.accentAlt.withValues(alpha: 0.85), shape: BoxShape.circle),
                   child: const Center(child: Text('🎁', style: TextStyle(fontSize: 20))),
                 ),
               ),
@@ -1089,27 +1087,27 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
     double tipAmount = 50;
     final msgCtrl = TextEditingController();
     showModalBottomSheet(
-      context: context, backgroundColor: AppColors.surface,
+      context: context, backgroundColor: context.clr.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => StatefulBuilder(builder: (ctx, setS) => Padding(
         padding: const EdgeInsets.all(24),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text('Send a Gift 🎁', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+          Text('Send a Gift 🎁', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: context.clr.txtPrimary)),
           const SizedBox(height: 16),
           Wrap(spacing: 10, runSpacing: 10, children: [50, 100, 200, 500, 1000].map((amt) => GestureDetector(
             onTap: () => setS(() => tipAmount = amt.toDouble()),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: tipAmount == amt ? AppColors.gold : AppColors.card,
+                color: tipAmount == amt ? context.clr.accentAlt : context.clr.card,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text('₹$amt', style: TextStyle(color: tipAmount == amt ? Colors.black : AppColors.textSecondary, fontWeight: FontWeight.w600)),
+              child: Text('₹$amt', style: TextStyle(color: tipAmount == amt ? Colors.black : context.clr.txtSecondary, fontWeight: FontWeight.w600)),
             ),
           )).toList()),
           const SizedBox(height: 12),
-          TextField(controller: msgCtrl, style: const TextStyle(color: AppColors.textPrimary),
-              decoration: const InputDecoration(hintText: 'Add a message…', hintStyle: TextStyle(color: AppColors.textMuted))),
+          TextField(controller: msgCtrl, style: TextStyle(color: context.clr.txtPrimary),
+              decoration: InputDecoration(hintText: 'Add a message…', hintStyle: TextStyle(color: context.clr.txtMuted))),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: () {
@@ -1118,7 +1116,7 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
             },
             icon: const Text('🎁'),
             label: Text('Send ₹${tipAmount.toInt()} Gift'),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.gold, foregroundColor: Colors.black),
+            style: ElevatedButton.styleFrom(backgroundColor: context.clr.accentAlt, foregroundColor: Colors.black),
           ),
         ]),
       )),

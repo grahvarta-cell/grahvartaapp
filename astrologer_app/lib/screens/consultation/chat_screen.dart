@@ -218,17 +218,17 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.card,
+        backgroundColor: context.clr.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Session Ended', style: TextStyle(color: AppColors.textPrimary)),
+        title: Text('Session Ended', style: TextStyle(color: context.clr.txtPrimary)),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.check_circle, color: AppColors.success, size: 48),
+          Icon(Icons.check_circle, color: context.clr.success, size: 48),
           const SizedBox(height: 12),
           Text('Duration: ${_formatTime(duration is int ? duration : (duration as num).toInt())}',
-              style: const TextStyle(color: AppColors.textSecondary)),
+              style: TextStyle(color: context.clr.txtSecondary)),
           const SizedBox(height: 4),
           Text('Total: ₹${double.tryParse(total.toString())?.toStringAsFixed(2) ?? total}',
-              style: const TextStyle(color: AppColors.orange, fontSize: 18, fontWeight: FontWeight.bold)),
+              style: TextStyle(color: context.clr.accent, fontSize: 18, fontWeight: FontWeight.bold)),
         ]),
         actions: [
           TextButton(
@@ -236,7 +236,7 @@ class _ChatScreenState extends State<ChatScreen> {
               Navigator.pop(context); // close dialog
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ChatHistoryScreen()));
             },
-            child: const Text('View Chats', style: TextStyle(color: AppColors.textMuted)),
+            child: Text('View Chats', style: TextStyle(color: context.clr.txtMuted)),
           ),
           ElevatedButton(
             onPressed: () { Navigator.pop(context); _showRatingDialog(); },
@@ -255,24 +255,24 @@ class _ChatScreenState extends State<ChatScreen> {
     showDialog(
       context: context,
       builder: (_) => StatefulBuilder(builder: (ctx, setS) => AlertDialog(
-        backgroundColor: AppColors.card,
+        backgroundColor: context.clr.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Rate ${widget.astrologer.displayName}', style: const TextStyle(color: AppColors.textPrimary)),
+        title: Text('Rate ${widget.astrologer.displayName}', style: TextStyle(color: context.clr.txtPrimary)),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(5, (i) => GestureDetector(
             onTap: () => setS(() => rating = i + 1.0),
-            child: Icon(Icons.star, color: i < rating ? AppColors.gold : AppColors.border, size: 36),
+            child: Icon(Icons.star, color: i < rating ? context.clr.accentAlt : context.clr.border, size: 36),
           ))),
           const SizedBox(height: 16),
           TextField(
             controller: reviewCtrl,
             maxLines: 3,
-            style: const TextStyle(color: AppColors.textPrimary),
-            decoration: const InputDecoration(hintText: 'Write your review…', hintStyle: TextStyle(color: AppColors.textMuted)),
+            style: TextStyle(color: context.clr.txtPrimary),
+            decoration: InputDecoration(hintText: 'Write your review…', hintStyle: TextStyle(color: context.clr.txtMuted)),
           ),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Skip', style: TextStyle(color: AppColors.textMuted))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('Skip', style: TextStyle(color: context.clr.txtMuted))),
           ElevatedButton(onPressed: () async {
             if (consultationId != null) {
               await ApiService.submitReview(widget.astrologer.id, rating.toInt(), reviewCtrl.text, consultationId);
@@ -289,11 +289,11 @@ class _ChatScreenState extends State<ChatScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.card,
-        title: Text(context.s.endSession, style: const TextStyle(color: AppColors.textPrimary)),
-        content: Text(context.s.endSessionMsg, style: const TextStyle(color: AppColors.textSecondary)),
+        backgroundColor: context.clr.card,
+        title: Text(context.s.endSession, style: TextStyle(color: context.clr.txtPrimary)),
+        content: Text(context.s.endSessionMsg, style: TextStyle(color: context.clr.txtSecondary)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(context.s.stayInSession, style: const TextStyle(color: AppColors.textMuted))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(context.s.stayInSession, style: TextStyle(color: context.clr.txtMuted))),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
@@ -307,7 +307,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Navigator.pop(context);
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            style: ElevatedButton.styleFrom(backgroundColor: context.clr.error),
             child: Text(context.s.endNow),
           ),
         ],
@@ -357,14 +357,14 @@ class _ChatScreenState extends State<ChatScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.card,
-        title: Text(context.s.endSession, style: const TextStyle(color: AppColors.textPrimary)),
-        content: Text(context.s.endSessionMsg, style: const TextStyle(color: AppColors.textSecondary)),
+        backgroundColor: context.clr.card,
+        title: Text(context.s.endSession, style: TextStyle(color: context.clr.txtPrimary)),
+        content: Text(context.s.endSessionMsg, style: TextStyle(color: context.clr.txtSecondary)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(context.s.stayInSession, style: const TextStyle(color: AppColors.textMuted))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(context.s.stayInSession, style: TextStyle(color: context.clr.txtMuted))),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            style: ElevatedButton.styleFrom(backgroundColor: context.clr.error),
             child: Text(context.s.endNow),
           ),
         ],
@@ -386,7 +386,6 @@ class _ChatScreenState extends State<ChatScreen> {
       child: WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
-          backgroundColor: AppColors.background,
           resizeToAvoidBottomInset: true,
           appBar: _buildAppBar(),
           body: Column(children: [
@@ -433,9 +432,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.clr.surface,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
+        icon: Icon(Icons.arrow_back_ios, color: context.clr.txtPrimary),
         onPressed: () async {
           final canPop = await _onWillPop();
           if (canPop && mounted) Navigator.pop(context);
@@ -447,16 +446,16 @@ class _ChatScreenState extends State<ChatScreen> {
         builder: (_, state) => Row(children: [
           CircleAvatar(
             radius: 18,
-            backgroundColor: AppColors.orange.withOpacity(0.2),
-            child: Text(widget.astrologer.displayName[0], style: const TextStyle(color: AppColors.orange)),
+            backgroundColor: context.clr.accent.withValues(alpha: 0.2),
+            child: Text(widget.astrologer.displayName[0], style: TextStyle(color: context.clr.accent)),
           ),
           const SizedBox(width: 10),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(widget.astrologer.displayName,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.clr.txtPrimary)),
             Text(
               state.isConnected ? 'In session · ${_formatTime(state.timerSeconds)}' : 'Connecting…',
-              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 11, color: context.clr.txtMuted),
             ),
           ])),
         ]),
@@ -468,7 +467,7 @@ class _ChatScreenState extends State<ChatScreen> {
           builder: (_, state) => !state.isEnded && (state.consultationId != null || state.isConnected)
               ? TextButton(
                   onPressed: _endConsultation,
-                  child: Text(context.s.endConsultation, style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.w600)),
+                  child: Text(context.s.endConsultation, style: TextStyle(color: context.clr.error, fontWeight: FontWeight.w600)),
                 )
               : const SizedBox.shrink(),
         ),
@@ -479,20 +478,20 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildBillingBar(ChatState state) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: AppColors.orange.withOpacity(0.1),
+      color: context.clr.accent.withValues(alpha: 0.1),
       child: Row(children: [
-        const Icon(Icons.timer, color: AppColors.orange, size: 16),
+        Icon(Icons.timer, color: context.clr.accent, size: 16),
         const SizedBox(width: 6),
         Text(_formatTime(state.timerSeconds),
-            style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold, fontSize: 14)),
+            style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold, fontSize: 14)),
         const Spacer(),
         Text('₹${state.totalCharged.toStringAsFixed(2)} charged',
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+            style: TextStyle(color: context.clr.txtSecondary, fontSize: 12)),
         const SizedBox(width: 12),
-        const Icon(Icons.account_balance_wallet_outlined, color: AppColors.gold, size: 14),
+        Icon(Icons.account_balance_wallet_outlined, color: context.clr.accentAlt, size: 14),
         const SizedBox(width: 4),
         Text('₹${state.walletBalance.toStringAsFixed(0)}',
-            style: const TextStyle(color: AppColors.gold, fontSize: 12, fontWeight: FontWeight.bold)),
+            style: TextStyle(color: context.clr.accentAlt, fontSize: 12, fontWeight: FontWeight.bold)),
       ]),
     );
   }
@@ -502,15 +501,15 @@ class _ChatScreenState extends State<ChatScreen> {
       return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
         Container(
           padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(color: AppColors.orange.withOpacity(0.1), shape: BoxShape.circle),
-          child: const Icon(Icons.stars, color: AppColors.orange, size: 48),
+          decoration: BoxDecoration(color: context.clr.accent.withValues(alpha: 0.1), shape: BoxShape.circle),
+          child: Icon(Icons.stars, color: context.clr.accent, size: 48),
         ),
         const SizedBox(height: 16),
         Text('Connecting to ${widget.astrologer.displayName}…',
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 15)),
+            style: TextStyle(color: context.clr.txtSecondary, fontSize: 15)),
         const SizedBox(height: 8),
         const Text('Select a quick reply below to start',
-            style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+            style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
       ]));
     }
 
@@ -541,8 +540,8 @@ class _ChatScreenState extends State<ChatScreen> {
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Center(child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-          decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(20)),
-          child: Text(msg.content, style: const TextStyle(color: AppColors.textMuted, fontSize: 12), textAlign: TextAlign.center),
+          decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(20)),
+          child: Text(msg.content, style: TextStyle(color: context.clr.txtMuted, fontSize: 12), textAlign: TextAlign.center),
         )),
       );
     }
@@ -557,8 +556,8 @@ class _ChatScreenState extends State<ChatScreen> {
           if (!isUser) ...[
             CircleAvatar(
               radius: 14,
-              backgroundColor: AppColors.orange.withOpacity(0.2),
-              child: Text(widget.astrologer.displayName[0], style: const TextStyle(color: AppColors.orange, fontSize: 11)),
+              backgroundColor: context.clr.accent.withValues(alpha: 0.2),
+              child: Text(widget.astrologer.displayName[0], style: TextStyle(color: context.clr.accent, fontSize: 11)),
             ),
             const SizedBox(width: 8),
           ],
@@ -566,7 +565,7 @@ class _ChatScreenState extends State<ChatScreen> {
             constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: isUser ? AppColors.orange : AppColors.card,
+              color: isUser ? context.clr.accent : context.clr.card,
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(18),
                 topRight: const Radius.circular(18),
@@ -576,10 +575,10 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
               Text(msg.content,
-                  style: TextStyle(color: isUser ? Colors.white : AppColors.textPrimary, fontSize: 14)),
+                  style: TextStyle(color: isUser ? Colors.white : context.clr.txtPrimary, fontSize: 14)),
               const SizedBox(height: 3),
               Text(DateFormat('h:mm a').format(msg.timestamp),
-                  style: TextStyle(color: isUser ? Colors.white60 : AppColors.textMuted, fontSize: 10)),
+                  style: TextStyle(color: isUser ? Colors.white60 : context.clr.txtMuted, fontSize: 10)),
             ]),
           )),
         ],
@@ -593,17 +592,17 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Row(children: [
         CircleAvatar(
           radius: 12,
-          backgroundColor: AppColors.orange.withOpacity(0.2),
-          child: Text(widget.astrologer.displayName[0], style: const TextStyle(color: AppColors.orange, fontSize: 10)),
+          backgroundColor: context.clr.accent.withValues(alpha: 0.2),
+          child: Text(widget.astrologer.displayName[0], style: TextStyle(color: context.clr.accent, fontSize: 10)),
         ),
         const SizedBox(width: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(18)),
+          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(18)),
           child: Row(children: List.generate(3, (i) => Container(
             margin: EdgeInsets.only(right: i < 2 ? 3 : 0),
             width: 6, height: 6,
-            decoration: const BoxDecoration(color: AppColors.textMuted, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: context.clr.txtMuted, shape: BoxShape.circle),
           ))),
         ),
       ]),
@@ -615,14 +614,14 @@ class _ChatScreenState extends State<ChatScreen> {
     return Container(
       padding: EdgeInsets.fromLTRB(12, 8, 12, bottomInset > 0 ? bottomInset : 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.clr.surface,
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10)],
       ),
       child: Row(children: [
-        IconButton(icon: const Icon(Icons.add_circle_outline, color: AppColors.textMuted), onPressed: () {}),
+        IconButton(icon: Icon(Icons.add_circle_outline, color: context.clr.txtMuted), onPressed: () {}),
         Expanded(child: TextField(
           controller: _messageCtrl,
-          style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+          style: TextStyle(color: context.clr.txtPrimary, fontSize: 14),
           maxLines: 5, minLines: 1,
           onChanged: (v) {
             final id = state.consultationId;
@@ -632,15 +631,15 @@ class _ChatScreenState extends State<ChatScreen> {
           },
           decoration: InputDecoration(
             hintText: context.s.typeMessage,
-            hintStyle: const TextStyle(color: AppColors.textMuted),
+            hintStyle: TextStyle(color: context.clr.txtMuted),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
-            filled: true, fillColor: AppColors.surfaceLight,
+            filled: true, fillColor: context.clr.surfaceLight,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           ),
         )),
         const SizedBox(width: 4),
         Material(
-          color: state.consultationId != null ? AppColors.orange : AppColors.border,
+          color: state.consultationId != null ? context.clr.accent : context.clr.border,
           shape: const CircleBorder(),
           child: InkWell(
             customBorder: const CircleBorder(),
@@ -648,7 +647,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: SizedBox(
               width: 44, height: 44,
               child: Icon(Icons.send_rounded,
-                  color: state.consultationId != null ? Colors.white : AppColors.textMuted, size: 20),
+                  color: state.consultationId != null ? Colors.white : context.clr.txtMuted, size: 20),
             ),
           ),
         ),
@@ -673,12 +672,12 @@ class _ChatScreenState extends State<ChatScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.orange.withOpacity(0.12),
+              color: context.clr.accent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.orange.withOpacity(0.4)),
+              border: Border.all(color: context.clr.accent.withValues(alpha: 0.4)),
             ),
             child: Text(_quickReplies[i],
-                style: const TextStyle(color: AppColors.orange, fontSize: 12, fontWeight: FontWeight.w500)),
+                style: TextStyle(color: context.clr.accent, fontSize: 12, fontWeight: FontWeight.w500)),
           ),
         ),
       ),

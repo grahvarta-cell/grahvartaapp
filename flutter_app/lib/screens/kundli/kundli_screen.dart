@@ -14,11 +14,9 @@ class KundliScreen extends StatelessWidget {
     final user = context.watch<AuthProvider>().user;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
         automaticallyImplyLeading: false,
-        title: const Text('Kundli & Astrology', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+        title: const Text('Kundli & Astrology', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -30,30 +28,30 @@ class KundliScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF2A1500), Color(0xFF1A0A2A)]),
+                gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [context.clr.surface, context.clr.surfaceLight]),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.orange.withOpacity(0.3)),
+                border: Border.all(color: context.clr.accent.withValues(alpha: 0.3)),
               ),
               child: Row(children: [
                 const Text('☀️', style: TextStyle(fontSize: 32)),
                 const SizedBox(width: 12),
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text('Your Sun Sign', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
-                  Text(user!.sunSign!, style: const TextStyle(color: AppColors.orange, fontSize: 22, fontWeight: FontWeight.bold)),
+                  Text('Your Sun Sign', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
+                  Text(user!.sunSign!, style: TextStyle(color: context.clr.accent, fontSize: 22, fontWeight: FontWeight.bold)),
                   if (user.birthPlace != null)
-                    Text('Born in ${user.birthPlace}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                    Text('Born in ${user.birthPlace}', style: TextStyle(color: context.clr.txtSecondary, fontSize: 12)),
                 ]),
               ]),
             ),
 
-          const Text('Kundli Services', style: TextStyle(color: AppColors.textMuted, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 1)),
+          Text('Kundli Services', style: TextStyle(color: context.clr.txtMuted, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 1)),
           const SizedBox(height: 12),
 
           _ServiceCard(
             icon: '🔮',
             title: 'Free Kundli',
             subtitle: 'Get your detailed birth chart with planet positions, houses, and nakshatra',
-            color: AppColors.orange,
+            color: context.clr.accent,
             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => FreeKundliScreen())),
           ),
           const SizedBox(height: 12),
@@ -61,7 +59,7 @@ class KundliScreen extends StatelessWidget {
             icon: '💑',
             title: 'Kundli Matching',
             subtitle: 'Match kundlis for marriage compatibility using Ashtakoot method',
-            color: AppColors.gold,
+            color: context.clr.accentAlt,
             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KundliMatchingScreen())),
           ),
           const SizedBox(height: 12),
@@ -74,7 +72,7 @@ class KundliScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: 24),
-          const Text('Quick Reference', style: TextStyle(color: AppColors.textMuted, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 1)),
+          Text('Quick Reference', style: TextStyle(color: context.clr.txtMuted, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 1)),
           const SizedBox(height: 12),
           _buildZodiacGrid(context),
         ]),
@@ -107,12 +105,12 @@ class KundliScreen extends StatelessWidget {
         final s = signs[i];
         return Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
+          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(14), border: Border.all(color: context.clr.border)),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Text(s['symbol']!, style: const TextStyle(fontSize: 24)),
             const SizedBox(height: 4),
-            Text(s['sign']!, style: const TextStyle(color: AppColors.textPrimary, fontSize: 12, fontWeight: FontWeight.w600)),
-            Text(s['dates']!, style: const TextStyle(color: AppColors.textMuted, fontSize: 9), textAlign: TextAlign.center),
+            Text(s['sign']!, style: TextStyle(color: context.clr.txtPrimary, fontSize: 12, fontWeight: FontWeight.w600)),
+            Text(s['dates']!, style: TextStyle(color: context.clr.txtMuted, fontSize: 9), textAlign: TextAlign.center),
           ]),
         );
       },
@@ -135,7 +133,7 @@ class _ServiceCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
+        decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.clr.border)),
         child: Row(children: [
           Container(
             width: 52, height: 52,
@@ -144,9 +142,9 @@ class _ServiceCard extends StatelessWidget {
           ),
           const SizedBox(width: 14),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: const TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
+            Text(title, style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
             const SizedBox(height: 4),
-            Text(subtitle, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, height: 1.4), maxLines: 2, overflow: TextOverflow.ellipsis),
+            Text(subtitle, style: TextStyle(color: context.clr.txtSecondary, fontSize: 12, height: 1.4), maxLines: 2, overflow: TextOverflow.ellipsis),
           ])),
           Icon(Icons.arrow_forward_ios, color: color, size: 16),
         ]),

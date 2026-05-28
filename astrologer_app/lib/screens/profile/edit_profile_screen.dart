@@ -59,7 +59,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
       builder: (c, child) => Theme(
-        data: ThemeData.dark().copyWith(colorScheme: const ColorScheme.dark(primary: AppColors.orange)),
+        data: ThemeData.dark().copyWith(colorScheme: ColorScheme.dark(primary: context.clr.accent)),
         child: child!,
       ),
     );
@@ -94,14 +94,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully'), backgroundColor: AppColors.success),
+          SnackBar(content: Text('Profile updated successfully'), backgroundColor: context.clr.success),
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error),
+          SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error),
         );
       }
     } finally {
@@ -114,11 +114,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final user = context.watch<AuthProvider>().user;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back_ios, color: context.clr.txtPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text('Edit Profile'),
@@ -126,8 +124,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           TextButton(
             onPressed: _isSaving ? null : _save,
             child: _isSaving
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.orange, strokeWidth: 2))
-                : const Text('Save', style: TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold)),
+                ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: context.clr.accent, strokeWidth: 2))
+                : Text('Save', style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -146,8 +144,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     width: 100, height: 100,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: const LinearGradient(colors: [AppColors.orange, AppColors.orangeDark]),
-                      boxShadow: [BoxShadow(color: AppColors.orange.withOpacity(0.3), blurRadius: 20)],
+                      gradient: LinearGradient(colors: [context.clr.accent, context.clr.accentAlt]),
+                      boxShadow: [BoxShadow(color: context.clr.accent.withValues(alpha: 0.3), blurRadius: 20)],
                     ),
                     child: _pickedImage != null
                         ? ClipOval(child: Image.file(_pickedImage!, fit: BoxFit.cover))
@@ -157,14 +155,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(color: AppColors.orange, shape: BoxShape.circle),
+                    decoration: BoxDecoration(color: context.clr.accent, shape: BoxShape.circle),
                     child: const Icon(Icons.camera_alt, color: Colors.white, size: 14),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 8),
-            const Text('Tap to change photo', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+            Text('Tap to change photo', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
             const SizedBox(height: 28),
 
             _field('Full Name', _nameCtrl, Icons.person_outline, validator: (v) => v!.trim().isEmpty ? 'Name is required' : null),
@@ -214,18 +212,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return TextFormField(
       controller: ctrl,
       validator: validator,
-      style: const TextStyle(color: AppColors.textPrimary),
+      style: TextStyle(color: context.clr.txtPrimary),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        hintStyle: const TextStyle(color: AppColors.textMuted),
-        labelStyle: const TextStyle(color: AppColors.textMuted),
-        prefixIcon: Icon(icon, color: AppColors.textMuted, size: 20),
+        hintStyle: TextStyle(color: context.clr.txtMuted),
+        labelStyle: TextStyle(color: context.clr.txtMuted),
+        prefixIcon: Icon(icon, color: context.clr.txtMuted, size: 20),
         filled: true,
-        fillColor: AppColors.card,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.border)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.border)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.orange)),
+        fillColor: context.clr.card,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: context.clr.border)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: context.clr.border)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: context.clr.accent)),
       ),
     );
   }

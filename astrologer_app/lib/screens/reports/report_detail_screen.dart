@@ -44,12 +44,11 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: AppColors.background,
         appBar: AppBar(
-          backgroundColor: AppColors.surface,
+          backgroundColor: context.clr.surface,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+            icon: Icon(Icons.arrow_back, color: context.clr.txtPrimary),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -58,9 +57,8 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
     }
     if (_unlock == null) {
       return Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: AppBar(backgroundColor: AppColors.surface, iconTheme: const IconThemeData(color: AppColors.textPrimary)),
-        body: const Center(child: Text('Report not found', style: TextStyle(color: AppColors.textSecondary))),
+        appBar: AppBar(backgroundColor: context.clr.surface, iconTheme: IconThemeData(color: context.clr.txtPrimary)),
+        body: Center(child: Text('Report not found', style: TextStyle(color: context.clr.txtSecondary))),
       );
     }
     return PopScope(
@@ -72,8 +70,8 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.surface,
-      highlightColor: AppColors.surfaceLight,
+      baseColor: context.clr.surface,
+      highlightColor: context.clr.surfaceLight,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -82,29 +80,29 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
             // Header card shimmer
             Container(
               height: 100,
-              decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(16)),
+              decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16)),
             ),
             const SizedBox(height: 20),
             // Section blocks
             ...List.generate(4, (_) => Padding(
               padding: const EdgeInsets.only(bottom: 14),
               child: Container(
-                decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(16)),
+                decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16)),
                 padding: const EdgeInsets.all(16),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   // Section title
                   Row(children: [
-                    Container(width: 4, height: 16, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(2))),
+                    Container(width: 4, height: 16, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(2))),
                     const SizedBox(width: 8),
-                    Container(height: 13, width: 160, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+                    Container(height: 13, width: 160, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
                   ]),
                   const SizedBox(height: 12),
                   // Body lines
-                  Container(height: 11, width: double.infinity, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+                  Container(height: 11, width: double.infinity, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
                   const SizedBox(height: 6),
-                  Container(height: 11, width: double.infinity, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+                  Container(height: 11, width: double.infinity, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
                   const SizedBox(height: 6),
-                  Container(height: 11, width: 200, decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4))),
+                  Container(height: 11, width: 200, decoration: BoxDecoration(color: context.clr.surface, borderRadius: BorderRadius.circular(4))),
                 ]),
               ),
             )),
@@ -117,12 +115,11 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
   Widget _buildContent() {
     final unlock = _unlock!;
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.clr.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back, color: context.clr.txtPrimary),
           onPressed: _onWillPop,
         ),
         centerTitle: false,
@@ -132,10 +129,10 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(unlock.reportName,
-                style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold, fontSize: 16),
                 overflow: TextOverflow.ellipsis),
             Text('For ${unlock.personLabel}',
-                style: const TextStyle(color: AppColors.orange, fontSize: 12)),
+                style: TextStyle(color: context.clr.accent, fontSize: 12)),
           ],
         ),
       ),
@@ -149,9 +146,9 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [AppColors.orange.withOpacity(0.2), AppColors.gold.withOpacity(0.08)]),
+                gradient: LinearGradient(colors: [context.clr.accent.withValues(alpha: 0.2), context.clr.accentAlt.withValues(alpha: 0.08)]),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.orange.withOpacity(0.3)),
+                border: Border.all(color: context.clr.accent.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
@@ -160,15 +157,15 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
                   Expanded(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text(unlock.reportName,
-                          style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18)),
+                          style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold, fontSize: 18)),
                       const SizedBox(height: 4),
-                      Text(unlock.category, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                      Text(unlock.category, style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
                       const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(color: AppColors.orange.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(color: context.clr.accent.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
                         child: Text('For ${unlock.personLabel}',
-                            style: const TextStyle(color: AppColors.orange, fontSize: 12, fontWeight: FontWeight.w600)),
+                            style: TextStyle(color: context.clr.accent, fontSize: 12, fontWeight: FontWeight.w600)),
                       ),
                     ]),
                   ),
@@ -181,7 +178,7 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
             else
               const Center(child: Padding(
                 padding: EdgeInsets.all(32),
-                child: Text('Report content is being generated...', style: TextStyle(color: AppColors.textSecondary)),
+                child: Text('Report content is being generated...', style: TextStyle(color: context.clr.txtSecondary)),
               )),
             const SizedBox(height: 32),
             _buildRateButton(),
@@ -221,8 +218,8 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
     if (sections.isEmpty || (sections.length == 1 && sections[0]['title']!.isEmpty)) {
       return Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
-        child: Text(_cleanMarkdown(content), style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, height: 1.7)),
+        decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.clr.border)),
+        child: Text(_cleanMarkdown(content), style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, height: 1.7)),
       );
     }
 
@@ -235,20 +232,20 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
         return Container(
           margin: const EdgeInsets.only(bottom: 14),
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
+          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.clr.border)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (title.isNotEmpty) ...[
                 Row(children: [
-                  Container(width: 4, height: 16, decoration: BoxDecoration(color: AppColors.orange, borderRadius: BorderRadius.circular(2))),
+                  Container(width: 4, height: 16, decoration: BoxDecoration(color: context.clr.accent, borderRadius: BorderRadius.circular(2))),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(title, style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold, fontSize: 14))),
+                  Expanded(child: Text(title, style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold, fontSize: 14))),
                 ]),
                 const SizedBox(height: 10),
               ],
               if (body.isNotEmpty)
-                Text(body, style: const TextStyle(color: AppColors.textPrimary, fontSize: 13, height: 1.7)),
+                Text(body, style: TextStyle(color: context.clr.txtPrimary, fontSize: 13, height: 1.7)),
             ],
           ),
         );
@@ -271,16 +268,16 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
   Widget _buildRateButton() {
     if (_hasRated) {
       return const Center(child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.check_circle, color: AppColors.success, size: 18),
+        Icon(Icons.check_circle, color: context.clr.success, size: 18),
         SizedBox(width: 6),
-        Text('Thanks for your rating!', style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w600)),
+        Text('Thanks for your rating!', style: TextStyle(color: context.clr.success, fontWeight: FontWeight.w600)),
       ]));
     }
     return OutlinedButton.icon(
       onPressed: _showRatingDialog,
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.orange,
-        side: const BorderSide(color: AppColors.orange),
+        foregroundColor: context.clr.accent,
+        side: BorderSide(color: context.clr.accent),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
         minimumSize: const Size(double.infinity, 0),
@@ -334,39 +331,39 @@ class _InlineRatingDialogState extends State<_InlineRatingDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.card,
+      backgroundColor: context.clr.card,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text('Rate this Report', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+      title: Text('Rate this Report', style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold)),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('How useful was this report?', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+        Text('How useful was this report?', style: TextStyle(color: context.clr.txtSecondary, fontSize: 13)),
         const SizedBox(height: 16),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(5, (i) => GestureDetector(
           onTap: () => setState(() => _rating = i + 1),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Icon(i < _rating ? Icons.star_rounded : Icons.star_border_rounded, color: AppColors.gold, size: 36),
+            child: Icon(i < _rating ? Icons.star_rounded : Icons.star_border_rounded, color: context.clr.accentAlt, size: 36),
           ),
         ))),
         const SizedBox(height: 16),
         TextField(
           controller: _ctrl,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: context.clr.txtPrimary),
           maxLines: 3,
           decoration: InputDecoration(
             hintText: 'Share your thoughts (optional)',
-            hintStyle: const TextStyle(color: AppColors.textMuted),
-            filled: true, fillColor: AppColors.surface,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.orange)),
+            hintStyle: TextStyle(color: context.clr.txtMuted),
+            filled: true, fillColor: context.clr.surface,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.border)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.border)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.accent)),
           ),
         ),
       ]),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Skip', style: TextStyle(color: AppColors.textMuted))),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text('Skip', style: TextStyle(color: context.clr.txtMuted))),
         ElevatedButton(
           onPressed: _submitting ? null : _submit,
-          style: ElevatedButton.styleFrom(backgroundColor: AppColors.orange, foregroundColor: AppColors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+          style: ElevatedButton.styleFrom(backgroundColor: context.clr.accent, foregroundColor: AppColors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
           child: _submitting ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: AppColors.white, strokeWidth: 2)) : const Text('Submit'),
         ),
       ],

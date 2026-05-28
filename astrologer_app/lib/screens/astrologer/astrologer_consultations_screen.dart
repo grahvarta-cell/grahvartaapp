@@ -67,21 +67,20 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        title: const Text('Consultations', style: TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+        backgroundColor: context.clr.surface,
+        title: Text('Consultations', style: TextStyle(color: context.clr.txtPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.textPrimary),
+            icon: Icon(Icons.refresh_rounded, color: context.clr.txtPrimary),
             onPressed: _loadConsultations,
           ),
         ],
         bottom: TabBar(
           controller: _tabCtrl,
-          indicatorColor: AppColors.orange,
-          labelColor: AppColors.orange,
-          unselectedLabelColor: AppColors.textMuted,
+          indicatorColor: context.clr.accent,
+          labelColor: context.clr.accent,
+          unselectedLabelColor: context.clr.txtMuted,
           labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           tabs: [
             Tab(text: 'Active (${_consultations['active']!.length})'),
@@ -105,8 +104,8 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.card,
-      highlightColor: AppColors.surface,
+      baseColor: context.clr.card,
+      highlightColor: context.clr.surface,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 6,
@@ -142,16 +141,16 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.history_rounded, color: AppColors.textMuted, size: 48),
+            Icon(Icons.history_rounded, color: context.clr.txtMuted, size: 48),
             const SizedBox(height: 12),
-            const Text('No consultations', style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
+            Text('No consultations', style: TextStyle(color: context.clr.txtMuted, fontSize: 14)),
           ],
         ),
       );
     }
     return RefreshIndicator(
       onRefresh: _loadConsultations,
-      color: AppColors.orange,
+      color: context.clr.accent,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: items.length,
@@ -178,10 +177,10 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.clr.card,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isActive ? AppColors.orange.withOpacity(0.4) : AppColors.border,
+            color: isActive ? context.clr.accent.withValues(alpha: 0.4) : context.clr.border,
             width: isActive ? 1.5 : 1,
           ),
         ),
@@ -191,11 +190,11 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
               children: [
                 CircleAvatar(
                   radius: 24,
-                  backgroundColor: AppColors.orange.withOpacity(0.2),
+                  backgroundColor: context.clr.accent.withValues(alpha: 0.2),
                   backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
                   child: avatarUrl == null
                       ? Text(userName[0].toUpperCase(),
-                          style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold, fontSize: 18))
+                          style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold, fontSize: 18))
                       : null,
                 ),
                 if (isOnline)
@@ -204,9 +203,9 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
                     child: Container(
                       width: 10, height: 10,
                       decoration: BoxDecoration(
-                        color: AppColors.success,
+                        color: context.clr.success,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.card, width: 1.5),
+                        border: Border.all(color: context.clr.card, width: 1.5),
                       ),
                     ),
                   ),
@@ -221,7 +220,7 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
                     children: [
                       Expanded(
                         child: Text(userName,
-                          style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
+                          style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
                       ),
                       _statusBadge(status),
                     ],
@@ -232,13 +231,13 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
                       _typeIcon(type),
                       const SizedBox(width: 4),
                       Text(_typeLabel(type),
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                        style: TextStyle(color: context.clr.txtSecondary, fontSize: 12)),
                       const SizedBox(width: 8),
                       if (durationSec > 0) ...[
-                        const Icon(Icons.access_time, color: AppColors.textMuted, size: 12),
+                        Icon(Icons.access_time, color: context.clr.txtMuted, size: 12),
                         const SizedBox(width: 2),
                         Text(_formatDuration(durationSec as int),
-                          style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                          style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
                         const SizedBox(width: 8),
                       ],
                     ],
@@ -247,10 +246,10 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(createdAt, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                      Text(createdAt, style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
                       if (amount > 0)
                         Text('₹${amount.toStringAsFixed(0)}',
-                          style: const TextStyle(color: AppColors.success, fontSize: 13, fontWeight: FontWeight.bold)),
+                          style: TextStyle(color: context.clr.success, fontSize: 13, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ],
@@ -261,10 +260,10 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
                 margin: const EdgeInsets.only(left: 8),
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: AppColors.orange.withOpacity(0.2),
+                  color: context.clr.accent.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.orange, size: 14),
+                child: Icon(Icons.arrow_forward_ios_rounded, color: context.clr.accent, size: 14),
               ),
           ],
         ),
@@ -298,12 +297,12 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
     Color color;
     String label;
     switch (status) {
-      case 'active': color = AppColors.success; label = 'Active'; break;
-      case 'accepted': color = AppColors.orange; label = 'Accepted'; break;
+      case 'active': color = context.clr.success; label = 'Active'; break;
+      case 'accepted': color = context.clr.accent; label = 'Accepted'; break;
       case 'completed': color = Colors.blue; label = 'Done'; break;
-      case 'cancelled': color = AppColors.error; label = 'Cancelled'; break;
+      case 'cancelled': color = context.clr.error; label = 'Cancelled'; break;
       case 'missed': color = Colors.orange; label = 'Missed'; break;
-      default: color = AppColors.textMuted; label = status;
+      default: color = context.clr.txtMuted; label = status;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -322,7 +321,7 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
     switch (type) {
       case 'voice': icon = Icons.phone_rounded; color = Colors.green; break;
       case 'video': icon = Icons.videocam_rounded; color = Colors.blue; break;
-      default: icon = Icons.chat_bubble_rounded; color = AppColors.orange;
+      default: icon = Icons.chat_bubble_rounded; color = context.clr.accent;
     }
     return Icon(icon, size: 13, color: color);
   }

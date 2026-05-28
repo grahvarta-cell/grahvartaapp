@@ -67,7 +67,6 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: NestedScrollView(
         headerSliverBuilder: (_, __) => [
           SliverToBoxAdapter(child: _buildHeader()),
@@ -79,16 +78,16 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
             ? _buildShimmer()
             : RefreshIndicator(
                 onRefresh: _loadAstrologers,
-                color: AppColors.orange,
-                backgroundColor: AppColors.card,
+                color: context.clr.accent,
+                backgroundColor: context.clr.card,
                 child: _astrologers.isEmpty
                     ? ListView(children: [
                         const SizedBox(height: 80),
-                        const Center(child: Icon(Icons.search_off_rounded, size: 64, color: AppColors.textMuted)),
+                        Center(child: Icon(Icons.search_off_rounded, size: 64, color: context.clr.txtMuted)),
                         const SizedBox(height: 16),
-                        const Center(child: Text('No astrologers found', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600))),
+                        Center(child: Text('No astrologers found', style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.w600))),
                         const SizedBox(height: 8),
-                        const Center(child: Text('Try changing your filters or check back later', style: TextStyle(color: AppColors.textMuted, fontSize: 13))),
+                        Center(child: Text('Try changing your filters or check back later', style: TextStyle(color: context.clr.txtMuted, fontSize: 13))),
                       ])
                     : ListView.builder(
                         padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
@@ -102,8 +101,8 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.surface,
-      highlightColor: AppColors.surfaceLight,
+      baseColor: context.clr.surface,
+      highlightColor: context.clr.surfaceLight,
       child: ListView.builder(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
         itemCount: 5,
@@ -111,45 +110,45 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.card,
+            color: context.clr.card,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             // Avatar + info row
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Container(width: 64, height: 64, decoration: const BoxDecoration(color: AppColors.surfaceLight, shape: BoxShape.circle)),
+              Container(width: 64, height: 64, decoration: BoxDecoration(color: context.clr.surfaceLight, shape: BoxShape.circle)),
               const SizedBox(width: 12),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Container(height: 14, width: 140, decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(4))),
+                Container(height: 14, width: 140, decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(4))),
                 const SizedBox(height: 8),
-                Container(height: 11, width: 100, decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(4))),
+                Container(height: 11, width: 100, decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(4))),
                 const SizedBox(height: 8),
-                Container(height: 11, width: 160, decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(4))),
+                Container(height: 11, width: 160, decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(4))),
               ])),
               const SizedBox(width: 8),
               Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                Container(height: 22, width: 70, decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(8))),
+                Container(height: 22, width: 70, decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(8))),
                 const SizedBox(height: 8),
-                Container(height: 14, width: 55, decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(4))),
+                Container(height: 14, width: 55, decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(4))),
               ]),
             ]),
             const SizedBox(height: 12),
             // Spec chips row
             Row(children: [
-              Container(height: 26, width: 60, decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(10))),
+              Container(height: 26, width: 60, decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(10))),
               const SizedBox(width: 6),
-              Container(height: 26, width: 55, decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(10))),
+              Container(height: 26, width: 55, decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(10))),
               const SizedBox(width: 6),
-              Container(height: 26, width: 50, decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(10))),
+              Container(height: 26, width: 50, decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(10))),
             ]),
             const SizedBox(height: 12),
             // Action buttons row
             Row(children: [
-              Expanded(child: Container(height: 38, decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12)))),
+              Expanded(child: Container(height: 38, decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(12)))),
               const SizedBox(width: 8),
-              Expanded(child: Container(height: 38, decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12)))),
+              Expanded(child: Container(height: 38, decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(12)))),
               const SizedBox(width: 8),
-              Expanded(child: Container(height: 38, decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12)))),
+              Expanded(child: Container(height: 38, decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(12)))),
             ]),
           ]),
         ),
@@ -162,11 +161,11 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
       padding: const EdgeInsets.fromLTRB(20, 56, 20, 8),
       child: Row(children: [
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(context.s.talkToAstrologers, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+          Text(context.s.talkToAstrologers, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: context.clr.txtPrimary)),
           const SizedBox(height: 2),
-          Text('${_astrologers.where((a) => a.isOnline).length} online now', style: const TextStyle(color: AppColors.orange, fontSize: 13)),
+          Text('${_astrologers.where((a) => a.isOnline).length} online now', style: TextStyle(color: context.clr.accent, fontSize: 13)),
         ])),
-        IconButton(icon: const Icon(Icons.tune_rounded, color: AppColors.textPrimary), onPressed: _showFilterSheet),
+        IconButton(icon: Icon(Icons.tune_rounded, color: context.clr.txtPrimary), onPressed: _showFilterSheet),
       ]),
     );
   }
@@ -175,13 +174,13 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Container(
-        decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
+        decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(14), border: Border.all(color: context.clr.border)),
         child:  TextField(
-          style: TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: context.clr.txtPrimary),
           decoration: InputDecoration(
             hintText: context.s.searchHint,
-            hintStyle: TextStyle(color: AppColors.textMuted),
-            prefixIcon: Icon(Icons.search, color: AppColors.textMuted),
+            hintStyle: TextStyle(color: context.clr.txtMuted),
+            prefixIcon: Icon(Icons.search, color: context.clr.txtMuted),
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
@@ -208,11 +207,11 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.orange : AppColors.card,
+                      color: isSelected ? context.clr.accent : context.clr.card,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: isSelected ? AppColors.orange : AppColors.border),
+                      border: Border.all(color: isSelected ? context.clr.accent : context.clr.border),
                     ),
-                    child: Text(s['label']!, style: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondary, fontSize: 12, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal)),
+                    child: Text(s['label']!, style: TextStyle(color: isSelected ? Colors.white : context.clr.txtSecondary, fontSize: 12, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal)),
                   ),
                 ),
               );
@@ -229,14 +228,14 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: value ? AppColors.orange.withOpacity(0.15) : AppColors.card,
+          color: value ? context.clr.accent.withValues(alpha: 0.15) : context.clr.card,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: value ? AppColors.orange : AppColors.border),
+          border: Border.all(color: value ? context.clr.accent : context.clr.border),
         ),
         child: Row(children: [
-          if (value) const Icon(Icons.check, color: AppColors.orange, size: 14),
+          if (value) Icon(Icons.check, color: context.clr.accent, size: 14),
           if (value) const SizedBox(width: 4),
-          Text(label, style: TextStyle(color: value ? AppColors.orange : AppColors.textSecondary, fontSize: 12)),
+          Text(label, style: TextStyle(color: value ? context.clr.accent : context.clr.txtSecondary, fontSize: 12)),
         ]),
       ),
     );
@@ -261,10 +260,10 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.orange : AppColors.surfaceLight,
+                  color: isSelected ? context.clr.accent : context.clr.surfaceLight,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text(spec, style: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondary, fontSize: 12, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal)),
+                child: Text(spec, style: TextStyle(color: isSelected ? Colors.white : context.clr.txtSecondary, fontSize: 12, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal)),
               ),
             ),
           );
@@ -280,9 +279,9 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.clr.card,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.clr.border),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -304,16 +303,16 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
     return Stack(children: [
       CircleAvatar(
         radius: 32,
-        backgroundColor: AppColors.orange.withOpacity(0.2),
+        backgroundColor: context.clr.accent.withValues(alpha: 0.2),
         backgroundImage: astrologer.avatarUrl != null ? NetworkImage(astrologer.avatarUrl!) : null,
         child: astrologer.avatarUrl == null
-            ? Text(astrologer.displayName[0], style: const TextStyle(color: AppColors.orange, fontSize: 22, fontWeight: FontWeight.bold))
+            ? Text(astrologer.displayName[0], style: TextStyle(color: context.clr.accent, fontSize: 22, fontWeight: FontWeight.bold))
             : null,
       ),
       if (astrologer.isOnline)
         Positioned(bottom: 2, right: 2, child: Container(
           width: 13, height: 13,
-          decoration: BoxDecoration(color: AppColors.success, shape: BoxShape.circle, border: Border.all(color: AppColors.card, width: 2)),
+          decoration: BoxDecoration(color: context.clr.success, shape: BoxShape.circle, border: Border.all(color: context.clr.card, width: 2)),
         )),
     ]);
   }
@@ -321,15 +320,15 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
   Widget _buildAstrologerInfo(Astrologer astrologer) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
-        Text(astrologer.displayName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+        Text(astrologer.displayName, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.clr.txtPrimary)),
         const SizedBox(width: 4),
-        if (astrologer.isVerified) const Icon(Icons.verified, color: AppColors.orange, size: 14),
+        if (astrologer.isVerified) Icon(Icons.verified, color: context.clr.accent, size: 14),
       ]),
       const SizedBox(height: 4),
       Row(children: [
-        RatingBarIndicator(rating: astrologer.rating, itemSize: 13, itemBuilder: (_, __) => const Icon(Icons.star, color: AppColors.gold)),
+        RatingBarIndicator(rating: astrologer.rating, itemSize: 13, itemBuilder: (_, __) => Icon(Icons.star, color: context.clr.accentAlt)),
         const SizedBox(width: 4),
-        Text('${astrologer.ratingFormatted} (${astrologer.reviewCount})', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+        Text('${astrologer.ratingFormatted} (${astrologer.reviewCount})', style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
       ]),
       const SizedBox(height: 4),
       Row(children: [
@@ -342,9 +341,9 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
 
   Widget _infoTag(IconData icon, String text) {
     return Row(children: [
-      Icon(icon, size: 11, color: AppColors.textMuted),
+      Icon(icon, size: 11, color: context.clr.txtMuted),
       const SizedBox(width: 3),
-      Text(text, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+      Text(text, style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
     ]);
   }
 
@@ -353,24 +352,24 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
-          color: astrologer.isOnline ? AppColors.success.withOpacity(0.15) : AppColors.border,
+          color: astrologer.isOnline ? context.clr.success.withValues(alpha: 0.15) : context.clr.border,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
           astrologer.isOnline ? 'Available' : 'Offline',
-          style: TextStyle(color: astrologer.isOnline ? AppColors.success : AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.w600),
+          style: TextStyle(color: astrologer.isOnline ? context.clr.success : context.clr.txtMuted, fontSize: 10, fontWeight: FontWeight.w600),
         ),
       ),
       if (astrologer.queueCount > 0) ...[
         const SizedBox(height: 4),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-          decoration: BoxDecoration(color: AppColors.orange.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
-          child: Text('${astrologer.queueCount} in queue', style: const TextStyle(color: AppColors.orange, fontSize: 10, fontWeight: FontWeight.w600)),
+          decoration: BoxDecoration(color: context.clr.accent.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+          child: Text('${astrologer.queueCount} in queue', style: TextStyle(color: context.clr.accent, fontSize: 10, fontWeight: FontWeight.w600)),
         ),
       ],
       const SizedBox(height: 6),
-      Text('₹${astrologer.perMinuteRateChat.toInt()}/min', style: const TextStyle(color: AppColors.orange, fontSize: 13, fontWeight: FontWeight.bold)),
+      Text('₹${astrologer.perMinuteRateChat.toInt()}/min', style: TextStyle(color: context.clr.accent, fontSize: 13, fontWeight: FontWeight.bold)),
     ]);
   }
 
@@ -378,20 +377,20 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
     return Wrap(spacing: 6, runSpacing: 4, children: [
       ...astrologer.specializations.take(3).map((s) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(color: AppColors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(10), border: Border.all(color: AppColors.orange.withOpacity(0.3))),
-        child: Text(s, style: const TextStyle(color: AppColors.orange, fontSize: 11)),
+        decoration: BoxDecoration(color: context.clr.accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10), border: Border.all(color: context.clr.accent.withValues(alpha: 0.3))),
+        child: Text(s, style: TextStyle(color: context.clr.accent, fontSize: 11)),
       )),
       ...astrologer.languages.take(2).map((l) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(10)),
-        child: Text(l, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+        decoration: BoxDecoration(color: context.clr.surfaceLight, borderRadius: BorderRadius.circular(10)),
+        child: Text(l, style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
       )),
     ]);
   }
 
   Widget _buildConsultButtons(Astrologer astrologer) {
     return Row(children: [
-      Expanded(child: _consultBtn(Icons.chat_bubble_outline, 'Chat', AppColors.orange, () => _startConsultation(astrologer, 'chat'))),
+      Expanded(child: _consultBtn(Icons.chat_bubble_outline, 'Chat', context.clr.accent, () => _startConsultation(astrologer, 'chat'))),
       const SizedBox(width: 8),
       Expanded(child: _consultBtn(Icons.phone_outlined, 'Call', const Color(0xFF4CAF50), () => _startConsultation(astrologer, 'voice'))),
       const SizedBox(width: 8),
@@ -421,7 +420,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
   void _showFilterSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.clr.surface,
       isScrollControlled: true,
       useSafeArea: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
@@ -430,9 +429,9 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
         child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(context.s.filterSort, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+          Text(context.s.filterSort, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: context.clr.txtPrimary)),
           const SizedBox(height: 20),
-          Text(context.s.sortBy, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text(context.s.sortBy, style: TextStyle(color: context.clr.txtSecondary, fontSize: 13)),
           const SizedBox(height: 10),
           GridView.count(
             crossAxisCount: 2,
@@ -448,11 +447,11 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> with SingleTicker
                 child: Container(
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: isSel ? AppColors.orange : AppColors.card,
+                    color: isSel ? context.clr.accent : context.clr.card,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: isSel ? AppColors.orange : AppColors.border),
+                    border: Border.all(color: isSel ? context.clr.accent : context.clr.border),
                   ),
-                  child: Text(s['label']!, style: TextStyle(color: isSel ? Colors.white : AppColors.textSecondary, fontSize: 13, fontWeight: isSel ? FontWeight.w600 : FontWeight.normal)),
+                  child: Text(s['label']!, style: TextStyle(color: isSel ? Colors.white : context.clr.txtSecondary, fontSize: 13, fontWeight: isSel ? FontWeight.w600 : FontWeight.normal)),
                 ),
               );
             }).toList(),

@@ -54,12 +54,12 @@ class _MainScreenState extends State<MainScreen> {
     final shouldExit = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.card,
+        backgroundColor: context.clr.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Exit App', style: TextStyle(color: AppColors.textPrimary)),
-        content: const Text('Are you sure you want to exit?', style: TextStyle(color: AppColors.textSecondary)),
+        title: Text('Exit App', style: TextStyle(color: context.clr.txtPrimary)),
+        content: Text('Are you sure you want to exit?', style: TextStyle(color: context.clr.txtSecondary)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel', style: TextStyle(color: context.clr.txtSecondary))),
           ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Exit')),
         ],
       ),
@@ -81,7 +81,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildBottomNav() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.clr.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 20)],
       ),
@@ -105,12 +105,12 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _navItem({required IconData icon, required int index, required String label, String? badge}) {
     final isSelected = index == _currentIndex;
-    Widget iconWidget = Icon(icon, color: isSelected ? Colors.white : AppColors.textMuted, size: 22);
+    Widget iconWidget = Icon(icon, color: isSelected ? Colors.white : context.clr.txtMuted, size: 22);
 
     if (badge != null && !isSelected) {
       iconWidget = badges.Badge(
         badgeContent: Text(badge, style: const TextStyle(color: Colors.white, fontSize: 8)),
-        badgeStyle: const badges.BadgeStyle(badgeColor: AppColors.error),
+        badgeStyle: badges.BadgeStyle(badgeColor: context.clr.error),
         child: iconWidget,
       );
     }
@@ -121,7 +121,7 @@ class _MainScreenState extends State<MainScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.orange : Colors.transparent,
+          color: isSelected ? context.clr.accent : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(mainAxisSize: MainAxisSize.min, children: [

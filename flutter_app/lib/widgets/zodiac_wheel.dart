@@ -18,7 +18,8 @@ class _ZodiacWheelState extends State<ZodiacWheel> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 60))..repeat();
+    // Use 120s duration to halve repaint frequency; TickerMode pauses when tab is hidden
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 120))..repeat();
   }
 
   @override
@@ -36,6 +37,7 @@ class _ZodiacWheelState extends State<ZodiacWheel> with SingleTickerProviderStat
         painter: ZodiacWheelPainter(
           rotationAngle: _controller.value * 2 * pi,
           highlightedSign: widget.highlightedSign,
+          accentColor: context.clr.accent,
         ),
       ),
     );
@@ -45,6 +47,7 @@ class _ZodiacWheelState extends State<ZodiacWheel> with SingleTickerProviderStat
 class ZodiacWheelPainter extends CustomPainter {
   final double rotationAngle;
   final String? highlightedSign;
+  final Color accentColor;
 
   static const List<String> signs = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'];
   static const List<String> signNames = [
@@ -52,7 +55,7 @@ class ZodiacWheelPainter extends CustomPainter {
     'LIBRA', 'SCORPIO', 'SAGIT', 'CAPRI', 'AQUAR', 'PISCES'
   ];
 
-  ZodiacWheelPainter({required this.rotationAngle, this.highlightedSign});
+  ZodiacWheelPainter({required this.rotationAngle, this.highlightedSign, required this.accentColor});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -64,10 +67,10 @@ class ZodiacWheelPainter extends CustomPainter {
     canvas.rotate(rotationAngle);
     canvas.translate(-center.dx, -center.dy);
 
-    _drawCircle(canvas, center, radius * 0.95, AppColors.orange.withOpacity(0.3), 1.0);
-    _drawCircle(canvas, center, radius * 0.75, AppColors.orange.withOpacity(0.2), 0.8);
-    _drawCircle(canvas, center, radius * 0.55, AppColors.orange.withOpacity(0.15), 0.6);
-    _drawCircle(canvas, center, radius * 0.30, AppColors.orange.withOpacity(0.1), 0.5);
+    _drawCircle(canvas, center, radius * 0.95, accentColor.withValues(alpha: 0.3), 1.0);
+    _drawCircle(canvas, center, radius * 0.75, accentColor.withValues(alpha: 0.2), 0.8);
+    _drawCircle(canvas, center, radius * 0.55, accentColor.withValues(alpha: 0.15), 0.6);
+    _drawCircle(canvas, center, radius * 0.30, accentColor.withValues(alpha: 0.1), 0.5);
 
     // Outer ring segments
     for (int i = 0; i < 12; i++) {
@@ -75,7 +78,7 @@ class ZodiacWheelPainter extends CustomPainter {
       final endAngle = ((i + 1) * 30 - 90) * pi / 180;
 
       final paint = Paint()
-        ..color = i.isEven ? AppColors.orange.withOpacity(0.08) : AppColors.orange.withOpacity(0.04)
+        ..color = i.isEven ? accentColor.withValues(alpha: 0.08) : accentColor.withValues(alpha: 0.04)
         ..style = PaintingStyle.fill;
 
       final path = Path()
@@ -87,7 +90,7 @@ class ZodiacWheelPainter extends CustomPainter {
 
       // Divider lines
       final linePaint = Paint()
-        ..color = AppColors.orange.withOpacity(0.3)
+        ..color = accentColor.withValues(alpha: 0.3)
         ..strokeWidth = 0.5;
       final lineEnd = Offset(
         center.dx + radius * 0.95 * cos(startAngle),
@@ -117,7 +120,7 @@ class ZodiacWheelPainter extends CustomPainter {
           text: signs[i],
           style: TextStyle(
             fontSize: size.width * 0.055,
-            color: AppColors.orange.withOpacity(0.9),
+            color: accentColor.withValues(alpha: 0.9),
           ),
         ),
         textDirection: TextDirection.ltr,
@@ -145,7 +148,7 @@ class ZodiacWheelPainter extends CustomPainter {
 
   void _drawStarburstCenter(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.orange.withOpacity(0.6)
+      ..color = accentColor.withValues(alpha: 0.6)
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
 
@@ -165,7 +168,7 @@ class ZodiacWheelPainter extends CustomPainter {
     canvas.drawCircle(
       Offset.zero,
       size.width * 0.06,
-      Paint()..color = AppColors.orange.withOpacity(0.3),
+      Paint()..color = accentColor.withValues(alpha: 0.3),
     );
   }
 

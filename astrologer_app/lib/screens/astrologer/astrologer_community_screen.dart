@@ -70,11 +70,11 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
       await _load();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Post created!'), backgroundColor: AppColors.success),
+          SnackBar(content: Text('Post created!'), backgroundColor: context.clr.success),
         );
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error));
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -84,9 +84,9 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
     try {
       await ApiService.deletePost(id);
       await _load();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Post deleted')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post deleted')));
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error));
     }
   }
 
@@ -102,7 +102,7 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.clr.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -119,23 +119,23 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
                 Center(
                   child: Container(
                     width: 40, height: 4,
-                    decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)),
+                    decoration: BoxDecoration(color: context.clr.border, borderRadius: BorderRadius.circular(2)),
                   ),
                 ),
                 const SizedBox(height: 20),
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  const Text('Filter & Sort', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w700)),
+                  Text('Filter & Sort', style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.w700)),
                   TextButton(
                     onPressed: () {
                       setSheet(() { tempCategory = 'all'; tempSort = 'latest'; });
                     },
-                    child: const Text('Reset', style: TextStyle(color: AppColors.orange, fontSize: 13)),
+                    child: Text('Reset', style: TextStyle(color: context.clr.accent, fontSize: 13)),
                   ),
                 ]),
                 const SizedBox(height: 16),
 
                 // Category section
-                const Text('Category', style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
+                Text('Category', style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 10),
                 GridView.count(
                   crossAxisCount: 3,
@@ -156,7 +156,7 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
                 const SizedBox(height: 20),
 
                 // Sort section
-                const Text('Sort By', style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
+                Text('Sort By', style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 10),
                 GridView.count(
                   crossAxisCount: 3,
@@ -169,7 +169,7 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
                     s['label']!,
                     tempSort == s['key'],
                     () => setSheet(() => tempSort = s['key']!),
-                    activeColor: AppColors.gold,
+                    activeColor: context.clr.accentAlt,
                   )).toList(),
                 ),
                 const SizedBox(height: 24),
@@ -187,7 +187,7 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
                       _load();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.orange,
+                      backgroundColor: context.clr.accent,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -204,21 +204,21 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
   }
 
   Widget _sheetChip(String label, bool isSelected, VoidCallback onTap, {Color? activeColor}) {
-    final color = activeColor ?? AppColors.orange;
+    final color = activeColor ?? context.clr.accent;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         decoration: BoxDecoration(
-          color: isSelected ? color : AppColors.card,
+          color: isSelected ? color : context.clr.card,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: isSelected ? color : AppColors.border),
+          border: Border.all(color: isSelected ? color : context.clr.border),
         ),
         alignment: Alignment.center,
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : AppColors.textSecondary,
+            color: isSelected ? Colors.white : context.clr.txtSecondary,
             fontSize: 12,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
@@ -233,15 +233,14 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
     final myName = auth.astrologerProfile?.displayName ?? auth.user?.name ?? '';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        title: const Text('Community', style: TextStyle(color: AppColors.textPrimary)),
+        backgroundColor: context.clr.surface,
+        title: Text('Community', style: TextStyle(color: context.clr.txtPrimary)),
         actions: [
           Stack(
             children: [
               IconButton(
-                icon: const Icon(Icons.tune_rounded, color: AppColors.textPrimary),
+                icon: Icon(Icons.tune_rounded, color: context.clr.txtPrimary),
                 onPressed: _openFilterSheet,
                 tooltip: 'Filter & Sort',
               ),
@@ -250,7 +249,7 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
                   right: 10, top: 10,
                   child: Container(
                     width: 8, height: 8,
-                    decoration: const BoxDecoration(color: AppColors.orange, shape: BoxShape.circle),
+                    decoration: BoxDecoration(color: context.clr.accent, shape: BoxShape.circle),
                   ),
                 ),
             ],
@@ -267,11 +266,11 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
                 ? _buildShimmer()
                 : RefreshIndicator(
                     onRefresh: _load,
-                    color: AppColors.orange,
+                    color: context.clr.accent,
                     child: _sortedPosts.isEmpty
                         ? Center(child: Text(
                             _filterCategory == null ? 'No posts yet. Share something!' : 'No posts in this category.',
-                            style: const TextStyle(color: AppColors.textMuted)))
+                            style: TextStyle(color: context.clr.txtMuted)))
                         : ListView.separated(
                             padding: const EdgeInsets.all(16),
                             itemCount: _sortedPosts.length,
@@ -288,8 +287,8 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.card,
-      highlightColor: AppColors.surface,
+      baseColor: context.clr.card,
+      highlightColor: context.clr.surface,
       child: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: 5,
@@ -331,16 +330,16 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
   Widget _buildComposer(String myName) {
     return Container(
       padding: const EdgeInsets.all(16),
-      color: AppColors.surface,
+      color: context.clr.surface,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
         const SizedBox(height: 12),
         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
           CircleAvatar(
             radius: 18,
-            backgroundColor: AppColors.orange.withOpacity(0.2),
+            backgroundColor: context.clr.accent.withValues(alpha: 0.2),
             child: Text(myName.isNotEmpty ? myName[0].toUpperCase() : 'A',
-              style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.bold)),
+              style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -348,12 +347,12 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
               controller: _postCtrl,
               maxLines: 3,
               minLines: 1,
-              style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+              style: TextStyle(color: context.clr.txtPrimary, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Share a tip, insight, or prediction...',
-                hintStyle: const TextStyle(color: AppColors.textMuted),
+                hintStyle: TextStyle(color: context.clr.txtMuted),
                 filled: true,
-                fillColor: AppColors.card,
+                fillColor: context.clr.card,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               ),
@@ -364,7 +363,7 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
             onTap: _submitting ? null : _createPost,
             child: Container(
               width: 40, height: 40,
-              decoration: BoxDecoration(color: AppColors.orange, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: context.clr.accent, shape: BoxShape.circle),
               child: _submitting
                   ? const Padding(padding: EdgeInsets.all(10), child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                   : const Icon(Icons.send_rounded, color: Colors.white, size: 18),
@@ -380,52 +379,52 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.clr.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.clr.border),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           CircleAvatar(
             radius: 16,
-            backgroundColor: AppColors.orange.withOpacity(0.2),
-            child: Text(post.authorName[0].toUpperCase(), style: const TextStyle(color: AppColors.orange, fontSize: 12, fontWeight: FontWeight.bold)),
+            backgroundColor: context.clr.accent.withValues(alpha: 0.2),
+            child: Text(post.authorName[0].toUpperCase(), style: TextStyle(color: context.clr.accent, fontSize: 12, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(width: 8),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Text(post.authorName, style: const TextStyle(color: AppColors.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
+              Text(post.authorName, style: TextStyle(color: context.clr.txtPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
               if (post.isVerified == true) ...[
                 const SizedBox(width: 4),
-                const Icon(Icons.verified, color: AppColors.orange, size: 13),
+                Icon(Icons.verified, color: context.clr.accent, size: 13),
               ],
             ]),
-            Text(post.createdAt, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+            Text(post.createdAt, style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
           ])),
           if (isMyPost)
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: AppColors.error, size: 18),
+              icon: Icon(Icons.delete_outline, color: context.clr.error, size: 18),
               onPressed: () => _deletePost(post.id),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
         ]),
         const SizedBox(height: 10),
-        Text(post.content, style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, height: 1.4)),
+        Text(post.content, style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, height: 1.4)),
         const SizedBox(height: 10),
         Row(children: [
           GestureDetector(
             onTap: () => _toggleLike(post.id),
             child: Row(children: [
-              Icon(post.isLiked ? Icons.favorite : Icons.favorite_border, color: post.isLiked ? AppColors.error : AppColors.textMuted, size: 18),
+              Icon(post.isLiked ? Icons.favorite : Icons.favorite_border, color: post.isLiked ? context.clr.error : context.clr.txtMuted, size: 18),
               const SizedBox(width: 4),
-              Text('${post.likesCount}', style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+              Text('${post.likesCount}', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
             ]),
           ),
           const SizedBox(width: 16),
-          const Icon(Icons.comment_outlined, color: AppColors.textMuted, size: 18),
+          Icon(Icons.comment_outlined, color: context.clr.txtMuted, size: 18),
           const SizedBox(width: 4),
-          Text('${post.commentsCount}', style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+          Text('${post.commentsCount}', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
         ]),
       ]),
     );

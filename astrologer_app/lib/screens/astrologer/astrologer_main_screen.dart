@@ -116,12 +116,12 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
     final shouldExit = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.card,
+        backgroundColor: context.clr.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Exit App', style: TextStyle(color: AppColors.textPrimary)),
-        content: const Text('Are you sure you want to exit?', style: TextStyle(color: AppColors.textSecondary)),
+        title: Text('Exit App', style: TextStyle(color: context.clr.txtPrimary)),
+        content: Text('Are you sure you want to exit?', style: TextStyle(color: context.clr.txtSecondary)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel', style: TextStyle(color: context.clr.txtSecondary))),
           ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Exit')),
         ],
       ),
@@ -161,7 +161,7 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
   Widget _buildBottomNav() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.clr.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 20)],
       ),
@@ -200,11 +200,11 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.orange : Colors.transparent,
+              color: isSelected ? context.clr.accent : Colors.transparent,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(icon, color: isSelected ? Colors.white : AppColors.textMuted, size: 22),
+              Icon(icon, color: isSelected ? Colors.white : context.clr.txtMuted, size: 22),
               if (isSelected) ...[
                 const SizedBox(height: 2),
                 Text(label, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600)),
@@ -216,7 +216,7 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
               top: 4, right: 4,
               child: Container(
                 width: 8, height: 8,
-                decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
+                decoration: BoxDecoration(color: context.clr.error, shape: BoxShape.circle),
               ),
             ),
         ],
@@ -250,27 +250,27 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
             margin: const EdgeInsets.all(32),
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.clr.surface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.orange.withOpacity(0.4), width: 1.5),
+              border: Border.all(color: context.clr.accent.withValues(alpha: 0.4), width: 1.5),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   width: 64, height: 64,
-                  decoration: BoxDecoration(color: AppColors.orange.withOpacity(0.2), shape: BoxShape.circle),
-                  child: Icon(icon, color: AppColors.orange, size: 28),
+                  decoration: BoxDecoration(color: context.clr.accent.withValues(alpha: 0.2), shape: BoxShape.circle),
+                  child: Icon(icon, color: context.clr.accent, size: 28),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   'Incoming ${type.toUpperCase()} Consultation',
-                  style: const TextStyle(color: AppColors.textMuted, fontSize: 11, letterSpacing: 1),
+                  style: TextStyle(color: context.clr.txtMuted, fontSize: 11, letterSpacing: 1),
                 ),
                 const SizedBox(height: 8),
-                Text(userName, style: const TextStyle(color: AppColors.textPrimary, fontSize: 22, fontWeight: FontWeight.bold)),
+                Text(userName, style: TextStyle(color: context.clr.txtPrimary, fontSize: 22, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                Text('₹$rate/min', style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                Text('₹$rate/min', style: TextStyle(color: context.clr.txtSecondary, fontSize: 14)),
                 const SizedBox(height: 24),
                 Row(children: [
                   Expanded(
@@ -279,9 +279,9 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
                       icon: const Icon(Icons.close, size: 18),
                       label: const Text('Decline'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.error.withOpacity(0.2),
-                        foregroundColor: AppColors.error,
-                        side: BorderSide(color: AppColors.error.withOpacity(0.5)),
+                        backgroundColor: context.clr.error.withValues(alpha: 0.2),
+                        foregroundColor: context.clr.error,
+                        side: BorderSide(color: context.clr.error.withValues(alpha: 0.5)),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -295,9 +295,9 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
                       icon: const Icon(Icons.check, size: 18),
                       label: const Text('Accept'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.success.withOpacity(0.2),
-                        foregroundColor: AppColors.success,
-                        side: BorderSide(color: AppColors.success.withOpacity(0.5)),
+                        backgroundColor: context.clr.success.withValues(alpha: 0.2),
+                        foregroundColor: context.clr.success,
+                        side: BorderSide(color: context.clr.success.withValues(alpha: 0.5)),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

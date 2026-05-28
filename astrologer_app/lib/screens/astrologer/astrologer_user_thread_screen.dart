@@ -112,24 +112,23 @@ class _AstrologerUserThreadScreenState extends State<AstrologerUserThreadScreen>
     final initials = widget.userName.split(' ').map((w) => w.isNotEmpty ? w[0] : '').take(2).join().toUpperCase();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.clr.surface,
         titleSpacing: 0,
         title: Row(children: [
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: AppColors.orange.withOpacity(0.15),
+              color: context.clr.accent.withValues(alpha: 0.15),
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.orange.withOpacity(0.3)),
+              border: Border.all(color: context.clr.accent.withValues(alpha: 0.3)),
             ),
-            child: Center(child: Text(initials, style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.w700, fontSize: 13))),
+            child: Center(child: Text(initials, style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.w700, fontSize: 13))),
           ),
           const SizedBox(width: 10),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(widget.userName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-            const Text('All sessions', style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+            Text(widget.userName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: context.clr.txtPrimary)),
+            Text('All sessions', style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
           ]),
         ]),
       ),
@@ -138,7 +137,7 @@ class _AstrologerUserThreadScreenState extends State<AstrologerUserThreadScreen>
           ? _buildShimmer()
           : Column(children: [
               if (_loadingMore)
-                const LinearProgressIndicator(color: AppColors.orange, backgroundColor: AppColors.surface),
+                LinearProgressIndicator(color: context.clr.accent, backgroundColor: context.clr.surface),
               Expanded(child: _buildMessageList()),
             ]),
     );
@@ -146,8 +145,8 @@ class _AstrologerUserThreadScreenState extends State<AstrologerUserThreadScreen>
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.card,
-      highlightColor: AppColors.surface,
+      baseColor: context.clr.card,
+      highlightColor: context.clr.surface,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 10,
@@ -179,9 +178,9 @@ class _AstrologerUserThreadScreenState extends State<AstrologerUserThreadScreen>
   Widget _buildMessageList() {
     if (_messages.isEmpty) {
       return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.textMuted, size: 48),
+        Icon(Icons.chat_bubble_outline_rounded, color: context.clr.txtMuted, size: 48),
         const SizedBox(height: 12),
-        Text('No messages yet with ${widget.userName}', style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+        Text('No messages yet with ${widget.userName}', style: TextStyle(color: context.clr.txtMuted, fontSize: 13)),
       ]));
     }
 
@@ -205,16 +204,16 @@ class _AstrologerUserThreadScreenState extends State<AstrologerUserThreadScreen>
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(children: [
-        const Expanded(child: Divider(color: AppColors.border)),
+        Expanded(child: Divider(color: context.clr.border)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
-            child: Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+            decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: context.clr.border)),
+            child: Text(label, style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
           ),
         ),
-        const Expanded(child: Divider(color: AppColors.border)),
+        Expanded(child: Divider(color: context.clr.border)),
       ]),
     );
   }
@@ -229,11 +228,11 @@ class _AstrologerUserThreadScreenState extends State<AstrologerUserThreadScreen>
         child: Center(child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.orange.withOpacity(0.08),
+            color: context.clr.accent.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.orange.withOpacity(0.2)),
+            border: Border.all(color: context.clr.accent.withValues(alpha: 0.2)),
           ),
-          child: Text(msg['message'] ?? msg['content'] ?? '', style: const TextStyle(color: AppColors.orange, fontSize: 11, fontWeight: FontWeight.w500)),
+          child: Text(msg['message'] ?? msg['content'] ?? '', style: TextStyle(color: context.clr.accent, fontSize: 11, fontWeight: FontWeight.w500)),
         )),
       );
     }
@@ -248,8 +247,8 @@ class _AstrologerUserThreadScreenState extends State<AstrologerUserThreadScreen>
           if (!isMe) ...[
             Container(
               width: 28, height: 28,
-              decoration: BoxDecoration(color: AppColors.orange.withOpacity(0.15), shape: BoxShape.circle),
-              child: Center(child: Text(widget.userName[0].toUpperCase(), style: const TextStyle(color: AppColors.orange, fontSize: 12, fontWeight: FontWeight.w700))),
+              decoration: BoxDecoration(color: context.clr.accent.withValues(alpha: 0.15), shape: BoxShape.circle),
+              child: Center(child: Text(widget.userName[0].toUpperCase(), style: TextStyle(color: context.clr.accent, fontSize: 12, fontWeight: FontWeight.w700))),
             ),
             const SizedBox(width: 6),
           ],
@@ -260,22 +259,22 @@ class _AstrologerUserThreadScreenState extends State<AstrologerUserThreadScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.68),
                 decoration: BoxDecoration(
-                  color: isMe ? AppColors.orange : AppColors.card,
+                  color: isMe ? context.clr.accent : context.clr.card,
                   borderRadius: BorderRadius.only(
                     topLeft: const Radius.circular(18),
                     topRight: const Radius.circular(18),
                     bottomLeft: Radius.circular(isMe ? 18 : 4),
                     bottomRight: Radius.circular(isMe ? 4 : 18),
                   ),
-                  border: isMe ? null : Border.all(color: AppColors.border),
+                  border: isMe ? null : Border.all(color: context.clr.border),
                 ),
                 child: Text(
                   msg['message'] ?? msg['content'] ?? '',
-                  style: TextStyle(color: isMe ? Colors.white : AppColors.textPrimary, fontSize: 13, height: 1.4),
+                  style: TextStyle(color: isMe ? Colors.white : context.clr.txtPrimary, fontSize: 13, height: 1.4),
                 ),
               ),
               const SizedBox(height: 2),
-              Text(_timeLabel(msg['created_at'] ?? ''), style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+              Text(_timeLabel(msg['created_at'] ?? ''), style: TextStyle(color: context.clr.txtMuted, fontSize: 10)),
             ],
           )),
           if (isMe) const SizedBox(width: 4),
@@ -287,19 +286,19 @@ class _AstrologerUserThreadScreenState extends State<AstrologerUserThreadScreen>
   Widget _buildFooter() {
     return Container(
       padding: EdgeInsets.fromLTRB(16, 12, 16, MediaQuery.of(context).viewPadding.bottom + 12),
-      decoration: const BoxDecoration(color: AppColors.surface, border: Border(top: BorderSide(color: AppColors.border))),
+      decoration: BoxDecoration(color: context.clr.surface, border: Border(top: BorderSide(color: context.clr.border))),
       child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        const Icon(Icons.lock_outline_rounded, color: AppColors.textMuted, size: 14),
+        Icon(Icons.lock_outline_rounded, color: context.clr.txtMuted, size: 14),
         const SizedBox(width: 6),
         const Expanded(
-          child: Text('Read-only history. Consult with this user to chat.', style: TextStyle(color: AppColors.textMuted, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+          child: Text('Read-only history. Consult with this user to chat.', style: TextStyle(color: context.clr.txtMuted, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
         ),
         const SizedBox(width: 8),
         GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(color: AppColors.orange, borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(color: context.clr.accent, borderRadius: BorderRadius.circular(10)),
             child: const Text('Back', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
           ),
         ),

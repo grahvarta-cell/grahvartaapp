@@ -122,8 +122,13 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final accent = context.clr.accent;
+    final accentAlt = context.clr.accentAlt;
+    final bgColor = context.clr.bg;
+    final txtPrimary = context.clr.txtPrimary;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: bgColor,
       body: AnimatedBuilder(
         animation: Listenable.merge([_entryController, _rotController, _pulseController]),
         builder: (_, __) => Stack(
@@ -135,8 +140,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   center: Alignment.center,
                   radius: 0.9,
                   colors: [
-                    AppColors.orange.withOpacity(0.10 * _mandalaOpacity.value),
-                    AppColors.background,
+                    accent.withValues(alpha: 0.10 * _mandalaOpacity.value),
+                    bgColor,
                   ],
                 ),
               ),
@@ -147,7 +152,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               opacity: _starsFade.value,
               child: CustomPaint(
                 size: size,
-                painter: _StarsPainter(_stars, _pulseController.value),
+                painter: _StarsPainter(_stars, _pulseController.value, accent),
               ),
             ),
 
@@ -165,7 +170,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                         angle: _rotController.value * 2 * pi,
                         child: CustomPaint(
                           size: const Size(150, 150),
-                          painter: _MandalaPainter(_mandalaReveal.value),
+                          painter: _MandalaPainter(_mandalaReveal.value, accent, accentAlt),
                         ),
                       ),
                     ),
@@ -178,13 +183,13 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                     opacity: _textFade,
                     child: SlideTransition(
                       position: _textSlide,
-                      child: const Text(
+                      child: Text(
                         'Grahvarta',
                         style: TextStyle(
                           fontFamily: 'CinzelDecorative',
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                          color: txtPrimary,
                           letterSpacing: 1.5,
                         ),
                       ),
@@ -196,10 +201,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   // Tagline
                   Opacity(
                     opacity: _taglineFade.value,
-                    child: const Text(
+                    child: Text(
                       'YOUR COSMIC GUIDE',
                       style: TextStyle(
-                        color: AppColors.gold,
+                        color: accentAlt,
                         fontSize: 11,
                         letterSpacing: 4,
                         fontWeight: FontWeight.w400,
@@ -222,7 +227,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                           width: 5,
                           height: 5,
                           decoration: BoxDecoration(
-                            color: AppColors.orange.withOpacity(opacity),
+                            color: accent.withValues(alpha: opacity),
                             shape: BoxShape.circle,
                           ),
                         );
@@ -249,7 +254,8 @@ class _Star {
 class _StarsPainter extends CustomPainter {
   final List<_Star> stars;
   final double tick;
-  const _StarsPainter(this.stars, this.tick);
+  final Color starColor;
+  const _StarsPainter(this.stars, this.tick, this.starColor);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -258,20 +264,22 @@ class _StarsPainter extends CustomPainter {
       canvas.drawCircle(
         Offset(s.x * size.width, s.y * size.height),
         s.size,
-        Paint()..color = Colors.white.withOpacity(brightness * 0.65),
+        Paint()..color = starColor.withValues(alpha: brightness * 0.65),
       );
     }
   }
 
   @override
-  bool shouldRepaint(_StarsPainter old) => old.tick != tick;
+  bool shouldRepaint(_StarsPainter old) => old.tick != tick || old.starColor != starColor;
 }
 
 // ── Mandala ──────────────────────────────────────────────────────────────────
 
 class _MandalaPainter extends CustomPainter {
   final double reveal; // 0..1
-  const _MandalaPainter(this.reveal);
+  final Color accent;
+  final Color accentAlt;
+  const _MandalaPainter(this.reveal, this.accent, this.accentAlt);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -283,14 +291,14 @@ class _MandalaPainter extends CustomPainter {
       c,
       r * 0.92,
       Paint()
-        ..color = AppColors.orange.withOpacity(0.12 * reveal)
+        ..color = accent.withValues(alpha: 0.12 * reveal)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18),
     );
 
     // Concentric rings drawn as arcs (reveal 0→1)
-    _drawArc(canvas, c, r * 0.90, AppColors.orange.withOpacity(0.9), 1.6, reveal);
-    _drawArc(canvas, c, r * 0.70, AppColors.gold.withOpacity(0.55), 1.0, reveal);
-    _drawArc(canvas, c, r * 0.50, AppColors.orange.withOpacity(0.35), 0.8, reveal);
+    _drawArc(canvas, c, r * 0.90, accent.withValues(alpha: 0.9), 1.6, reveal);
+    _drawArc(canvas, c, r * 0.70, accentAlt.withValues(alpha: 0.55), 1.0, reveal);
+    _drawArc(canvas, c, r * 0.50, accent.withValues(alpha: 0.35), 0.8, reveal);
 
     // 12 spokes (zodiac-style), each extending progressively
     for (int i = 0; i < 12; i++) {
@@ -306,7 +314,7 @@ class _MandalaPainter extends CustomPainter {
         inner,
         tip,
         Paint()
-          ..color = AppColors.orange.withOpacity(0.28 * spokeReveal)
+          ..color = accent.withValues(alpha: 0.28 * spokeReveal)
           ..strokeWidth = 0.9
           ..strokeCap = StrokeCap.round,
       );
@@ -316,7 +324,7 @@ class _MandalaPainter extends CustomPainter {
         canvas.drawCircle(
           outer,
           2.2,
-          Paint()..color = AppColors.orange.withOpacity(0.85 * ((spokeReveal - 0.85) / 0.15)),
+          Paint()..color = accent.withValues(alpha: 0.85 * ((spokeReveal - 0.85) / 0.15)),
         );
       }
     }
@@ -329,8 +337,8 @@ class _MandalaPainter extends CustomPainter {
         cr,
         Paint()
           ..shader = RadialGradient(colors: [
-            AppColors.orange.withOpacity(0.85),
-            AppColors.orange.withOpacity(0.0),
+            accent.withValues(alpha: 0.85),
+            accent.withValues(alpha: 0.0),
           ]).createShader(Rect.fromCircle(center: c, radius: cr)),
       );
     }
@@ -338,7 +346,7 @@ class _MandalaPainter extends CustomPainter {
     // 8-point star burst (appears last)
     if (reveal > 0.65) {
       final burst = ((reveal - 0.65) / 0.35).clamp(0.0, 1.0);
-      _drawStarBurst(canvas, c, r * 0.18 * burst, AppColors.gold.withOpacity(0.9 * burst));
+      _drawStarBurst(canvas, c, r * 0.18 * burst, accentAlt.withValues(alpha: 0.9 * burst));
     }
   }
 
@@ -372,5 +380,6 @@ class _MandalaPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_MandalaPainter old) => old.reveal != reveal;
+  bool shouldRepaint(_MandalaPainter old) =>
+      old.reveal != reveal || old.accent != accent || old.accentAlt != accentAlt;
 }

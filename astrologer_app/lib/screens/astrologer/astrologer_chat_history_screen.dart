@@ -49,10 +49,8 @@ class _AstrologerChatHistoryScreenState extends State<AstrologerChatHistoryScree
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
-        title: const Text('Chat History', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+        title: Text('Chat History', style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold)),
       ),
       body: _isLoading
           ? _buildShimmer()
@@ -62,11 +60,11 @@ class _AstrologerChatHistoryScreenState extends State<AstrologerChatHistoryScree
                   ? _buildEmpty()
                   : RefreshIndicator(
                       onRefresh: _load,
-                      color: AppColors.orange,
-                      backgroundColor: AppColors.card,
+                      color: context.clr.accent,
+                      backgroundColor: context.clr.card,
                       child: ListView.separated(
                         itemCount: _threads.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.border, indent: 76),
+                        separatorBuilder: (_, __) => Divider(height: 1, color: context.clr.border, indent: 76),
                         itemBuilder: (_, i) => _ThreadTile(
                           thread: _threads[i],
                           timeLabel: _timeLabel(_threads[i]['last_message_at']),
@@ -78,11 +76,11 @@ class _AstrologerChatHistoryScreenState extends State<AstrologerChatHistoryScree
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.card,
-      highlightColor: AppColors.surface,
+      baseColor: context.clr.card,
+      highlightColor: context.clr.surface,
       child: ListView.separated(
         itemCount: 7,
-        separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.border, indent: 76),
+        separatorBuilder: (_, __) => Divider(height: 1, color: context.clr.border, indent: 76),
         itemBuilder: (_, __) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(children: [
@@ -109,11 +107,11 @@ class _AstrologerChatHistoryScreenState extends State<AstrologerChatHistoryScree
     child: Padding(
       padding: const EdgeInsets.all(32),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.wifi_off_rounded, color: AppColors.textMuted, size: 48),
+        Icon(Icons.wifi_off_rounded, color: context.clr.txtMuted, size: 48),
         const SizedBox(height: 16),
-        const Text('Could not load chats', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
+        Text('Could not load chats', style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
-        Text(_error ?? '', style: const TextStyle(color: AppColors.textMuted, fontSize: 12), textAlign: TextAlign.center),
+        Text(_error ?? '', style: TextStyle(color: context.clr.txtMuted, fontSize: 12), textAlign: TextAlign.center),
         const SizedBox(height: 20),
         ElevatedButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: const Text('Retry')),
       ]),
@@ -124,13 +122,13 @@ class _AstrologerChatHistoryScreenState extends State<AstrologerChatHistoryScree
     child: Column(mainAxisSize: MainAxisSize.min, children: [
       Container(
         width: 80, height: 80,
-        decoration: const BoxDecoration(color: AppColors.card, shape: BoxShape.circle),
-        child: const Icon(Icons.chat_bubble_outline_rounded, color: AppColors.textMuted, size: 36),
+        decoration: BoxDecoration(color: context.clr.card, shape: BoxShape.circle),
+        child: Icon(Icons.chat_bubble_outline_rounded, color: context.clr.txtMuted, size: 36),
       ),
       const SizedBox(height: 16),
-      const Text('No conversations yet', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
+      Text('No conversations yet', style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
       const SizedBox(height: 6),
-      const Text('Your chat sessions with users will appear here', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+      Text('Your chat sessions with users will appear here', style: TextStyle(color: context.clr.txtMuted, fontSize: 13)),
     ]),
   );
 }
@@ -163,11 +161,11 @@ class _ThreadTile extends StatelessWidget {
           Container(
             width: 52, height: 52,
             decoration: BoxDecoration(
-              color: AppColors.orange.withOpacity(0.15),
+              color: context.clr.accent.withValues(alpha: 0.15),
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.orange.withOpacity(0.3)),
+              border: Border.all(color: context.clr.accent.withValues(alpha: 0.3)),
             ),
-            child: Center(child: Text(initials, style: const TextStyle(color: AppColors.orange, fontWeight: FontWeight.w700, fontSize: 16))),
+            child: Center(child: Text(initials, style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.w700, fontSize: 16))),
           ),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -175,19 +173,19 @@ class _ThreadTile extends StatelessWidget {
               Expanded(child: Text(
                 userName,
                 style: TextStyle(
-                  color: AppColors.textPrimary,
+                  color: context.clr.txtPrimary,
                   fontWeight: unread > 0 ? FontWeight.w700 : FontWeight.w500,
                   fontSize: 14,
                 ),
               )),
-              Text(timeLabel, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              Text(timeLabel, style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
             ]),
             const SizedBox(height: 3),
             Row(children: [
               Expanded(child: Text(
                 thread['last_message']?.toString() ?? 'Start a conversation',
                 style: TextStyle(
-                  color: unread > 0 ? AppColors.textSecondary : AppColors.textMuted,
+                  color: unread > 0 ? context.clr.txtSecondary : context.clr.txtMuted,
                   fontSize: 12,
                   fontWeight: unread > 0 ? FontWeight.w500 : FontWeight.normal,
                 ),
@@ -198,7 +196,7 @@ class _ThreadTile extends StatelessWidget {
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(color: AppColors.orange, borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(color: context.clr.accent, borderRadius: BorderRadius.circular(10)),
                   child: Text('$unread', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
                 ),
               ],

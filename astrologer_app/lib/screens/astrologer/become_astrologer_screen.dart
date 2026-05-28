@@ -8,11 +8,10 @@ class BecomeAstrologerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        title: const Text('Become an Astrologer', style: TextStyle(color: AppColors.textPrimary)),
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        backgroundColor: context.clr.surface,
+        title: Text('Become an Astrologer', style: TextStyle(color: context.clr.txtPrimary)),
+        iconTheme: IconThemeData(color: context.clr.txtPrimary),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -22,19 +21,19 @@ class BecomeAstrologerScreen extends StatelessWidget {
             Container(
               width: 96, height: 96,
               decoration: BoxDecoration(
-                color: AppColors.orange.withOpacity(0.15),
+                color: context.clr.accent.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.orange.withOpacity(0.3), width: 2),
+                border: Border.all(color: context.clr.accent.withValues(alpha: 0.3), width: 2),
               ),
-              child: const Icon(Icons.auto_awesome, color: AppColors.orange, size: 44),
+              child: Icon(Icons.auto_awesome, color: context.clr.accent, size: 44),
             ),
             const SizedBox(height: 24),
-            const Text('Share Your Knowledge', style: TextStyle(color: AppColors.textPrimary, fontSize: 26, fontWeight: FontWeight.bold)),
+            Text('Share Your Knowledge', style: TextStyle(color: context.clr.txtPrimary, fontSize: 26, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             const Text(
               'Join our community of expert astrologers and help thousands of people navigate their lives through cosmic wisdom.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 15, height: 1.5),
+              style: TextStyle(color: context.clr.txtSecondary, fontSize: 15, height: 1.5),
             ),
             const SizedBox(height: 32),
             ..._benefits.map(_buildBenefit),
@@ -42,13 +41,13 @@ class BecomeAstrologerScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.orange.withOpacity(0.08),
+                color: context.clr.accent.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.orange.withOpacity(0.2)),
+                border: Border.all(color: context.clr.accent.withValues(alpha: 0.2)),
               ),
               child: const Column(
                 children: [
-                  Text('How It Works', style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text('How It Works', style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
                   SizedBox(height: 12),
                   _Step(num: '1', text: 'Create your astrologer profile'),
                   _Step(num: '2', text: 'Wait for admin approval (24-48hrs)'),
@@ -84,21 +83,21 @@ class BecomeAstrologerScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.clr.card,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.clr.border),
       ),
       child: Row(children: [
         Container(
           width: 44, height: 44,
-          decoration: BoxDecoration(color: AppColors.orange.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
-          child: Icon(b.$3, color: AppColors.orange, size: 22),
+          decoration: BoxDecoration(color: context.clr.accent.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
+          child: Icon(b.$3, color: context.clr.accent, size: 22),
         ),
         const SizedBox(width: 12),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(b.$1, style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
+          Text(b.$1, style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
           const SizedBox(height: 2),
-          Text(b.$2, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, height: 1.3)),
+          Text(b.$2, style: TextStyle(color: context.clr.txtSecondary, fontSize: 12, height: 1.3)),
         ])),
       ]),
     );
@@ -117,11 +116,11 @@ class _Step extends StatelessWidget {
       child: Row(children: [
         Container(
           width: 24, height: 24,
-          decoration: const BoxDecoration(color: AppColors.orange, shape: BoxShape.circle),
+          decoration: BoxDecoration(color: context.clr.accent, shape: BoxShape.circle),
           child: Center(child: Text(num, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold))),
         ),
         const SizedBox(width: 10),
-        Text(text, style: const TextStyle(color: AppColors.textPrimary, fontSize: 13)),
+        Text(text, style: TextStyle(color: context.clr.txtPrimary, fontSize: 13)),
       ]),
     );
   }

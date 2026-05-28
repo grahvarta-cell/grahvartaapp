@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final s = context.s;
     final isAstro = widget.isAstrologerMode;
-    final accentColor = isAstro ? const Color(0xFFFFD700) : AppColors.orange;
+    final accentColor = isAstro ? const Color(0xFFFFD700) : context.clr.accent;
 
     return Scaffold(
       body: Container(
@@ -61,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
           gradient: RadialGradient(
             center: Alignment.topCenter,
             radius: 1.5,
-            colors: [isAstro ? const Color(0xFF1A1500) : const Color(0xFF2A1500), AppColors.background],
+            colors: [context.clr.surface, context.clr.bg],
           ),
         ),
         child: SafeArea(
@@ -72,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 if (Navigator.canPop(context))
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
+                    icon: Icon(Icons.arrow_back_ios, color: context.clr.txtPrimary),
                     onPressed: () => Navigator.pop(context),
                     padding: EdgeInsets.zero,
                   ),
@@ -108,12 +108,12 @@ class _LoginScreenState extends State<LoginScreen> {
         const SizedBox(height: 24),
         Text(
           isAstro ? 'Astrologer Sign In' : s.welcomeBack,
-          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: context.clr.txtPrimary),
         ),
         const SizedBox(height: 8),
         Text(
           isAstro ? 'Sign in to your astrologer account' : s.starsWaiting,
-          style: const TextStyle(fontSize: 15, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 15, color: context.clr.txtSecondary),
         ),
       ],
     );
@@ -130,33 +130,33 @@ class _LoginScreenState extends State<LoginScreen> {
                 margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.error.withOpacity(0.1),
+                  color: context.clr.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                  border: Border.all(color: context.clr.error.withValues(alpha: 0.3)),
                 ),
                 child: Row(children: [
-                  const Icon(Icons.error_outline, color: AppColors.error, size: 16),
+                  Icon(Icons.error_outline, color: context.clr.error, size: 16),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(auth.error!, style: const TextStyle(color: AppColors.error, fontSize: 13))),
+                  Expanded(child: Text(auth.error!, style: TextStyle(color: context.clr.error, fontSize: 13))),
                 ]),
               ),
             TextFormField(
               controller: _emailCtrl,
               keyboardType: TextInputType.emailAddress,
-              style: const TextStyle(color: AppColors.textPrimary),
-              decoration: InputDecoration(labelText: s.email, prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textMuted)),
+              style: TextStyle(color: context.clr.txtPrimary),
+              decoration: InputDecoration(labelText: s.email, prefixIcon: Icon(Icons.email_outlined, color: context.clr.txtMuted)),
               validator: (v) => v!.contains('@') ? null : 'Enter a valid email',
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _passCtrl,
               obscureText: _obscurePassword,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: context.clr.txtPrimary),
               decoration: InputDecoration(
                 labelText: s.password,
-                prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textMuted),
+                prefixIcon: Icon(Icons.lock_outline, color: context.clr.txtMuted),
                 suffixIcon: IconButton(
-                  icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: AppColors.textMuted),
+                  icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: context.clr.txtMuted),
                   onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                 ),
               ),
@@ -187,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(s.dontHaveAccount, style: const TextStyle(color: AppColors.textSecondary)),
+        Text(s.dontHaveAccount, style: TextStyle(color: context.clr.txtSecondary)),
         GestureDetector(
           onTap: () => Navigator.push(
             context,

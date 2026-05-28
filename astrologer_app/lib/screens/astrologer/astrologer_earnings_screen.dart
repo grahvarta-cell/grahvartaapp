@@ -48,7 +48,7 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.card,
+      backgroundColor: context.clr.card,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => Padding(
@@ -60,7 +60,7 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Request Withdrawal', style: TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text('Request Withdrawal', style: TextStyle(color: context.clr.txtPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               _modalField(amountCtrl, 'Amount (₹)', keyboardType: TextInputType.number),
               const SizedBox(height: 12),
@@ -87,12 +87,12 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
                       await _load();
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Withdrawal request submitted!'), backgroundColor: AppColors.success),
+                          SnackBar(content: Text('Withdrawal request submitted!'), backgroundColor: context.clr.success),
                         );
                       }
                     } catch (e) {
                       if (ctx.mounted) {
-                        ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error));
+                        ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error));
                       }
                     } finally {
                       setModalState(() => submitting = false);
@@ -114,15 +114,15 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
     return TextField(
       controller: ctrl,
       keyboardType: keyboardType,
-      style: const TextStyle(color: AppColors.textPrimary),
+      style: TextStyle(color: context.clr.txtPrimary),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: AppColors.textSecondary),
+        labelStyle: TextStyle(color: context.clr.txtSecondary),
         filled: true,
-        fillColor: AppColors.surface,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.border)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.border)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.orange)),
+        fillColor: context.clr.surface,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.border)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.border)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.clr.accent)),
       ),
     );
   }
@@ -132,26 +132,25 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: AppColors.background,
         appBar: AppBar(
-          backgroundColor: AppColors.surface,
-          title: const Text('Earnings & Wallet', style: TextStyle(color: AppColors.textPrimary)),
+          backgroundColor: context.clr.surface,
+          title: Text('Earnings & Wallet', style: TextStyle(color: context.clr.txtPrimary)),
           bottom: const TabBar(
-            indicatorColor: AppColors.orange,
-            labelColor: AppColors.orange,
-            unselectedLabelColor: AppColors.textMuted,
+            indicatorColor: context.clr.accent,
+            labelColor: context.clr.accent,
+            unselectedLabelColor: context.clr.txtMuted,
             tabs: [Tab(text: 'Transactions'), Tab(text: 'Withdrawals')],
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.account_balance_wallet_outlined, color: AppColors.textPrimary),
+              icon: Icon(Icons.account_balance_wallet_outlined, color: context.clr.txtPrimary),
               onPressed: _showWithdrawalSheet,
               tooltip: 'Request Withdrawal',
             ),
           ],
         ),
         body: _loading
-            ? const Center(child: CircularProgressIndicator(color: AppColors.orange))
+            ? Center(child: CircularProgressIndicator(color: context.clr.accent))
             : Column(
                 children: [
                   _buildWalletCard(),
@@ -180,7 +179,7 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.orange, AppColors.orange.withOpacity(0.7)],
+          colors: [context.clr.accent, context.clr.accent.withValues(alpha: 0.7)],
           begin: Alignment.topLeft, end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
@@ -214,7 +213,7 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
 
   Widget _buildTransactionsList() {
     if (_transactions.isEmpty) {
-      return const Center(child: Text('No transactions yet', style: TextStyle(color: AppColors.textMuted)));
+      return Center(child: Text('No transactions yet', style: TextStyle(color: context.clr.txtMuted)));
     }
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -235,24 +234,24 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
         } catch (_) { dateLabel = t['created_at']?.toString() ?? ''; }
         return Container(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
+          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: context.clr.border)),
           child: Row(children: [
             Container(
               width: 40, height: 40,
               decoration: BoxDecoration(
-                color: AppColors.success.withOpacity(0.15),
+                color: context.clr.success.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.arrow_downward, color: AppColors.success, size: 18),
+              child: Icon(Icons.arrow_downward, color: context.clr.success, size: 18),
             ),
             const SizedBox(width: 12),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('$sessionType with $userName$durationLabel', style: const TextStyle(color: AppColors.textPrimary, fontSize: 13)),
+              Text('$sessionType with $userName$durationLabel', style: TextStyle(color: context.clr.txtPrimary, fontSize: 13)),
               const SizedBox(height: 2),
-              Text(dateLabel, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              Text(dateLabel, style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
             ])),
             Text('+₹${amount.toStringAsFixed(0)}',
-              style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.bold, fontSize: 15)),
+              style: TextStyle(color: context.clr.success, fontWeight: FontWeight.bold, fontSize: 15)),
           ]),
         );
       },
@@ -265,9 +264,9 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.account_balance_outlined, color: AppColors.textMuted, size: 48),
+            Icon(Icons.account_balance_outlined, color: context.clr.txtMuted, size: 48),
             const SizedBox(height: 12),
-            const Text('No withdrawal requests', style: TextStyle(color: AppColors.textMuted)),
+            Text('No withdrawal requests', style: TextStyle(color: context.clr.txtMuted)),
             const SizedBox(height: 16),
             ElevatedButton(onPressed: _showWithdrawalSheet, child: const Text('Request Withdrawal')),
           ],
@@ -283,20 +282,20 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
         final status = w['status'] ?? 'pending';
         Color statusColor;
         switch (status) {
-          case 'approved': statusColor = AppColors.success; break;
-          case 'rejected': statusColor = AppColors.error; break;
+          case 'approved': statusColor = context.clr.success; break;
+          case 'rejected': statusColor = context.clr.error; break;
           default: statusColor = const Color(0xFFFFD700);
         }
         return Container(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
+          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(12), border: Border.all(color: context.clr.border)),
           child: Row(children: [
-            const Icon(Icons.account_balance_outlined, color: AppColors.textMuted, size: 24),
+            Icon(Icons.account_balance_outlined, color: context.clr.txtMuted, size: 24),
             const SizedBox(width: 12),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('₹${double.tryParse(w['amount']?.toString() ?? '0')?.toStringAsFixed(0)}',
-                style: const TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
-              Text(w['created_at'] ?? '', style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(w['created_at'] ?? '', style: TextStyle(color: context.clr.txtMuted, fontSize: 11)),
             ])),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'providers/auth_provider.dart';
 import 'providers/locale_provider.dart';
+import 'providers/theme_provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/splash_screen.dart';
 
@@ -170,12 +171,15 @@ class _AstroTalkAppState extends State<AstroTalkApp> {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: Consumer<LocaleProvider>(
-        builder: (_, localeProvider, __) => MaterialApp(
+      child: Consumer2<LocaleProvider, ThemeProvider>(
+        builder: (_, localeProvider, themeProvider, __) => MaterialApp(
           title: 'Grahvarta Astrology',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.darkTheme,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
           navigatorKey: navigatorKey,
           locale: localeProvider.locale,
           supportedLocales: const [

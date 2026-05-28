@@ -33,18 +33,16 @@ class _ListenScreenState extends State<ListenScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary), onPressed: () {}),
+        leading: IconButton(icon: const Icon(Icons.arrow_back_ios, color: Colors.white), onPressed: () {}),
         title: const Text('Listen'),
-        actions: [IconButton(icon: const Icon(Icons.menu, color: AppColors.textPrimary), onPressed: () {})],
+        actions: [IconButton(icon: const Icon(Icons.menu, color: Colors.white), onPressed: () {})],
       ),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(child: _buildHeader()),
           if (_isLoading)
-            const SliverToBoxAdapter(child: Padding(padding: EdgeInsets.all(40), child: Center(child: CircularProgressIndicator(color: AppColors.orange))))
+            SliverToBoxAdapter(child: Padding(padding: EdgeInsets.all(40), child: Center(child: CircularProgressIndicator(color: context.clr.accent))))
           else
             SliverList(
               delegate: SliverChildBuilderDelegate(
@@ -52,23 +50,23 @@ class _ListenScreenState extends State<ListenScreen> {
                 childCount: _stories.isEmpty ? 3 : _stories.length,
               ),
             ),
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
     );
   }
 
   Widget _buildHeader() {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(20, 8, 20, 24),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       child: Column(
         children: [
-          Text('Sleep stories', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-          SizedBox(height: 8),
+          Text('Sleep stories', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: context.clr.txtPrimary)),
+          const SizedBox(height: 8),
           Text(
             'Transits explain the current themes of your life and the where you are being asked to grow and show up.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5),
+            style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, height: 1.5),
           ),
         ],
       ),
@@ -91,9 +89,9 @@ class _ListenScreenState extends State<ListenScreen> {
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.clr.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.clr.border),
       ),
       child: Row(
         children: [
@@ -101,11 +99,11 @@ class _ListenScreenState extends State<ListenScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(color: AppColors.textPrimary, fontSize: 17, fontWeight: FontWeight.bold)),
+                Text(title, style: TextStyle(color: context.clr.txtPrimary, fontSize: 17, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
-                const Text(
+                Text(
                   "I don't have a birth chart, a but if I did, I'd be Mercury ruled curious.",
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 12, height: 1.4),
+                  style: TextStyle(color: context.clr.txtSecondary, fontSize: 12, height: 1.4),
                   maxLines: 2,
                 ),
                 const SizedBox(height: 12),
@@ -113,7 +111,7 @@ class _ListenScreenState extends State<ListenScreen> {
                   onTap: () => setState(() => _playingId = isPlaying ? null : story?.id),
                   child: Container(
                     width: 36, height: 36,
-                    decoration: const BoxDecoration(color: AppColors.orange, shape: BoxShape.circle),
+                    decoration: BoxDecoration(color: context.clr.accent, shape: BoxShape.circle),
                     child: Icon(isPlaying ? Icons.pause : Icons.arrow_forward, color: Colors.white, size: 18),
                   ),
                 ),

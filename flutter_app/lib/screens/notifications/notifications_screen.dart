@@ -58,13 +58,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Color _getIconColor(String? type) {
     switch (type) {
-      case 'daily_horoscope': return AppColors.orange;
-      case 'live_started': return AppColors.error;
-      case 'consultation_ended': return AppColors.success;
-      case 'wallet_credit': return AppColors.gold;
+      case 'daily_horoscope': return context.clr.accent;
+      case 'live_started': return context.clr.error;
+      case 'consultation_ended': return context.clr.success;
+      case 'wallet_credit': return context.clr.accentAlt;
       case 'cosmic_event': return const Color(0xFF9C27B0);
-      case 'review': return AppColors.gold;
-      default: return AppColors.textMuted;
+      case 'review': return context.clr.accentAlt;
+      default: return context.clr.txtMuted;
     }
   }
 
@@ -82,37 +82,35 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final unreadCount = _notifications.where((n) => n['is_read'] == false).length;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
         title: Row(children: [
           const Text('Notifications'),
           if (unreadCount > 0) ...[
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(color: AppColors.orange, borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(color: context.clr.accent, borderRadius: BorderRadius.circular(12)),
               child: Text('$unreadCount', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
             ),
           ],
         ]),
         actions: [
           if (unreadCount > 0)
-            TextButton(onPressed: _markAllRead, child: const Text('Mark all read', style: TextStyle(color: AppColors.orange, fontSize: 12))),
+            TextButton(onPressed: _markAllRead, child: const Text('Mark all read', style: TextStyle(color: Colors.white, fontSize: 12))),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.orange))
+          ? Center(child: CircularProgressIndicator(color: context.clr.accent))
           : _notifications.isEmpty
-              ? const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.notifications_none, size: 64, color: AppColors.textMuted),
-                  SizedBox(height: 12),
-                  Text('No notifications yet', style: TextStyle(color: AppColors.textMuted)),
+              ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.notifications_none, size: 64, color: context.clr.txtMuted),
+                  const SizedBox(height: 12),
+                  Text('No notifications yet', style: TextStyle(color: context.clr.txtMuted)),
                 ]))
               : RefreshIndicator(
                   onRefresh: _load,
-                  color: AppColors.orange,
-                  backgroundColor: AppColors.card,
+                  color: context.clr.accent,
+                  backgroundColor: context.clr.card,
                   child: ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: _notifications.length,
@@ -124,9 +122,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: isUnread ? AppColors.orange.withOpacity(0.05) : AppColors.card,
+                          color: isUnread ? context.clr.accent.withValues(alpha: 0.05) : context.clr.card,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: isUnread ? AppColors.orange.withOpacity(0.2) : AppColors.border),
+                          border: Border.all(color: isUnread ? context.clr.accent.withValues(alpha: 0.2) : context.clr.border),
                         ),
                         child: Row(children: [
                           Container(
@@ -136,16 +134,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           ),
                           const SizedBox(width: 12),
                           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            Text(n['title'] ?? '', style: TextStyle(color: AppColors.textPrimary, fontSize: 13, fontWeight: isUnread ? FontWeight.w600 : FontWeight.normal)),
+                            Text(n['title'] ?? '', style: TextStyle(color: context.clr.txtPrimary, fontSize: 13, fontWeight: isUnread ? FontWeight.w600 : FontWeight.normal)),
                             if (n['body'] != null) ...[
                               const SizedBox(height: 3),
-                              Text(n['body'], style: const TextStyle(color: AppColors.textMuted, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+                              Text(n['body'], style: TextStyle(color: context.clr.txtMuted, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
                             ],
                             const SizedBox(height: 4),
-                            Text(_timeAgo(n['created_at'] ?? ''), style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                            Text(_timeAgo(n['created_at'] ?? ''), style: TextStyle(color: context.clr.txtMuted, fontSize: 10)),
                           ])),
                           if (isUnread)
-                            Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.orange, shape: BoxShape.circle)),
+                            Container(width: 8, height: 8, decoration: BoxDecoration(color: context.clr.accent, shape: BoxShape.circle)),
                         ]),
                       );
                     },

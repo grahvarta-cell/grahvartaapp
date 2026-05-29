@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host: 'mail.grahvarta.com',
+  host: 'smtp.hostinger.com',
   port: 465,
   secure: true,
   auth: {

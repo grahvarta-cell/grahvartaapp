@@ -195,11 +195,14 @@ class _BackgroundSymbols extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // In light mode use a darker shade of accent; in dark mode use accent directly
+    final symbolColor = isDark ? accentColor : Color.lerp(accentColor, const Color(0xFF042B59), 0.4)!;
     return AnimatedBuilder(
       animation: rotation,
       builder: (_, __) => CustomPaint(
         size: MediaQuery.of(context).size,
-        painter: _SymbolsPainter(symbols: symbols, rotation: rotation.value, color: accentColor),
+        painter: _SymbolsPainter(symbols: symbols, rotation: rotation.value, color: symbolColor),
       ),
     );
   }
@@ -403,7 +406,7 @@ class _SymbolsPainter extends CustomPainter {
       final radiusY = size.height * 0.38;
       final x = size.width / 2 + cos(angle) * radiusX;
       final y = size.height / 2 + sin(angle) * radiusY;
-      final opacity = 0.05 + (i % 4) * 0.015;
+      final opacity = 0.15 + (i % 4) * 0.06;
       final fontSize = 12.0 + (i % 3) * 5;
 
       textPainter.text = TextSpan(

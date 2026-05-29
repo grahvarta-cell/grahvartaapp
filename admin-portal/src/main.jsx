@@ -2,12 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { TooltipProvider } from './components/Tooltip';
 import App from './App';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter basename="/admin">
-    <App />
+    <TooltipProvider>
+      <App />
     <Toaster
       position="top-right"
       toastOptions={{
@@ -16,5 +18,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         error: { iconTheme: { primary: '#E53935', secondary: '#fff' } },
       }}
     />
+    </TooltipProvider>
   </BrowserRouter>
 );

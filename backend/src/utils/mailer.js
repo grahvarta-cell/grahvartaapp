@@ -30,10 +30,6 @@ exports.sendAstrologerWelcome = async ({ to, name, email, password, loginUrl }) 
             <p style="margin:0;font-size:20px;font-weight:bold;color:#E8762A;letter-spacing:2px;">${password}</p>
           </div>
           <p style="color:#aaa;font-size:13px;">Please change your password after your first login.</p>
-          <a href="${loginUrl || 'https://astrologer.grahvarta.com'}"
-             style="display:inline-block;background:#E8762A;color:#fff;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:bold;margin-top:16px;">
-            Login to Astrologer App
-          </a>
           <p style="margin-top:28px;color:#666;font-size:12px;">If you have any questions, reply to this email.</p>
         </div>
       </div>

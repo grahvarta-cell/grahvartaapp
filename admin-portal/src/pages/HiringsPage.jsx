@@ -35,6 +35,7 @@ function DetailPanel({ app, onClose, onUpdated }) {
   const [newStatus, setNewStatus] = useState(app.status);
   const [saving, setSaving] = useState(false);
   const [converting, setConverting] = useState(false);
+  const [resending, setResending] = useState(false);
 
   const save = async () => {
     setSaving(true);
@@ -66,6 +67,21 @@ function DetailPanel({ app, onClose, onUpdated }) {
       toast.error(err.response?.data?.message || 'Failed to create astrologer account');
     } finally {
       setConverting(false);
+    }
+  };
+
+  const resendEmail = async () => {
+    if (!window.confirm(`Resend welcome email to ${app.email}? A new temporary password will be generated.`)) return;
+    setResending(true);
+    try {
+      await api.post(`/hirings/${app.id}/resend-email`);
+      toast.success(`Welcome email resent to ${app.email}`);
+      onUpdated();
+      onClose();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to resend email');
+    } finally {
+      setResending(false);
     }
   };
 
@@ -200,10 +216,24 @@ function DetailPanel({ app, onClose, onUpdated }) {
           </div>
         )}
         {app.converted_to_astrologer && (
-          <div className="px-6 pb-0 pt-4 border-t border-border shrink-0">
+          <div className="px-6 pb-0 pt-4 border-t border-border shrink-0 space-y-2">
             <div className="w-full py-2.5 rounded-xl bg-green-900/30 border border-green-700/40 text-green-400 text-sm font-medium text-center">
               ✓ Already added as Astrologer
             </div>
+            {/* Retry email button — only when email failed */}
+            {!app.welcome_email_sent && (
+              <button
+                onClick={resendEmail}
+                disabled={resending}
+                className="w-full py-2.5 rounded-xl bg-orange/90 hover:bg-orange text-white text-sm font-semibold transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+              >
+                {resending ? (
+                  <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Sending…</>
+                ) : (
+                  <>✉ Retry — Resend Welcome Email</>
+                )}
+              </button>
+            )}
           </div>
         )}
 

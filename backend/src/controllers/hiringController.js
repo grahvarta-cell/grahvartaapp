@@ -177,6 +177,43 @@ exports.activateAsAstrologer = async (req, res) => {
   }
 };
 
+// Admin: resend welcome email
+exports.resendWelcomeEmail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const hiring = await db.query('SELECT * FROM agent_hirings WHERE id = $1', [id]);
+    if (!hiring.rows.length) return res.status(404).json({ success: false, message: 'Application not found' });
+
+    const app = hiring.rows[0];
+    if (!app.converted_to_astrologer) return res.status(400).json({ success: false, message: 'Astrologer account not created yet' });
+    if (app.welcome_email_sent) return res.status(409).json({ success: false, message: 'Welcome email already sent' });
+    if (!app.email) return res.status(400).json({ success: false, message: 'No email address on file' });
+
+    // Get the user to generate a new temp password
+    const userResult = await db.query('SELECT id FROM users WHERE id = $1', [app.astrologer_user_id]);
+    if (!userResult.rows.length) return res.status(404).json({ success: false, message: 'Astrologer user account not found' });
+
+    // Generate and set a new temp password
+    const tempPassword = Math.random().toString(36).slice(-8).toUpperCase();
+    const passwordHash = await bcrypt.hash(tempPassword, 10);
+    await db.query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, app.astrologer_user_id]);
+
+    await sendAstrologerWelcome({
+      to: app.email,
+      name: app.name || 'Astrologer',
+      email: app.email,
+      password: tempPassword,
+    });
+
+    await db.query('UPDATE agent_hirings SET welcome_email_sent = TRUE WHERE id = $1', [id]);
+
+    res.json({ success: true, message: `Welcome email resent to ${app.email}` });
+  } catch (err) {
+    console.error('resendWelcomeEmail error:', err);
+    res.status(500).json({ success: false, message: err.message || 'Failed to resend email' });
+  }
+};
+
 // Admin: update status
 exports.updateStatus = async (req, res) => {
   try {

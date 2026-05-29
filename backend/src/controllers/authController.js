@@ -87,9 +87,16 @@ exports.login = async (req, res) => {
         return res.status(403).json({ success: false, message: 'Access denied. Admin credentials required.' });
       }
     } else if (login_as === 'astrologer') {
-      const astroCheck = await db.query('SELECT id FROM astrologers WHERE user_id = $1', [user.id]);
+      const astroCheck = await db.query('SELECT id, is_banned FROM astrologers WHERE user_id = $1', [user.id]);
       if (!astroCheck.rows.length) {
         return res.status(403).json({ success: false, message: 'No astrologer account found for this email.' });
+      }
+      if (astroCheck.rows[0].is_banned) {
+        return res.status(403).json({
+          success: false,
+          message: 'Your account has been banned by admin. Please contact support@grahvarta.com for assistance.',
+          code: 'ACCOUNT_BANNED',
+        });
       }
     } else {
       // login_as === 'user'
@@ -115,7 +122,7 @@ exports.getProfile = async (req, res) => {
   try {
     const result = await db.query(
       `SELECT id, email, name, avatar_url, date_of_birth, time_of_birth, birth_place,
-              sun_sign, moon_sign, rising_sign, subscription_plan, created_at
+              sun_sign, moon_sign, rising_sign, subscription_plan, created_at, must_change_password
        FROM users WHERE id = $1`,
       [req.user.id]
     );
@@ -154,6 +161,34 @@ exports.uploadAvatar = async (req, res) => {
     await db.query('UPDATE astrologers SET avatar_url=$1 WHERE user_id=$2', [avatarUrl, req.user.id]);
 
     res.json({ success: true, avatar_url: avatarUrl });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { current_password, new_password } = req.body;
+    if (!current_password || !new_password) {
+      return res.status(400).json({ success: false, message: 'Both current and new password are required' });
+    }
+    if (new_password.length < 6) {
+      return res.status(400).json({ success: false, message: 'New password must be at least 6 characters' });
+    }
+
+    const result = await db.query('SELECT password_hash FROM users WHERE id = $1', [req.user.id]);
+    const isMatch = await bcrypt.compare(current_password, result.rows[0].password_hash);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Current password is incorrect' });
+    }
+
+    const newHash = await bcrypt.hash(new_password, 10);
+    await db.query(
+      'UPDATE users SET password_hash = $1, must_change_password = FALSE WHERE id = $2',
+      [newHash, req.user.id]
+    );
+
+    res.json({ success: true, message: 'Password changed successfully' });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error' });
   }

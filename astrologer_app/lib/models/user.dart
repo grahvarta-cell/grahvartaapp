@@ -11,6 +11,7 @@ class User {
   final String? risingSign;
   final String subscriptionPlan;
   final String? createdAt;
+  final bool mustChangePassword;
 
   User({
     required this.id,
@@ -25,6 +26,7 @@ class User {
     this.risingSign,
     this.subscriptionPlan = 'free',
     this.createdAt,
+    this.mustChangePassword = false,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,7 @@ class User {
       risingSign: json['rising_sign'],
       subscriptionPlan: json['subscription_plan'] ?? 'free',
       createdAt: json['created_at'],
+      mustChangePassword: json['must_change_password'] == true,
     );
   }
 

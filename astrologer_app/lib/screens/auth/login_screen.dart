@@ -6,6 +6,7 @@ import '../../theme/app_theme.dart';
 import '../home/main_screen.dart';
 import '../astrologer/astrologer_main_screen.dart';
 import '../astrologer/astrologer_setup_profile_screen.dart';
+import 'change_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final bool isAstrologerMode;
@@ -36,7 +37,11 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!success || !mounted) return;
 
     if (widget.isAstrologerMode) {
-      // Astrologer mode: if they have a profile go to dashboard, otherwise setup
+      // Force password change on first login
+      if (auth.user?.mustChangePassword == true) {
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen()), (_) => false);
+        return;
+      }
       if (auth.isAstrologer) {
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const AstrologerMainScreen()), (_) => false);
       } else {

@@ -32,5 +32,6 @@ router.post('/login', [
 router.get('/profile', authenticate, authController.getProfile);
 router.put('/profile', authenticate, authController.updateProfile);
 router.post('/avatar', authenticate, uploadAvatar.single('avatar'), authController.uploadAvatar);
+router.post('/change-password', authenticate, authController.changePassword);
 
 module.exports = router;

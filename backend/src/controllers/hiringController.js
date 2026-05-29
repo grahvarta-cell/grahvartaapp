@@ -113,8 +113,8 @@ exports.activateAsAstrologer = async (req, res) => {
 
     // Create user account
     const userResult = await client.query(
-      `INSERT INTO users (email, password_hash, name, avatar_url, role)
-       VALUES ($1, $2, $3, $4, 'astrologer') RETURNING id`,
+      `INSERT INTO users (email, password_hash, name, avatar_url, role, must_change_password)
+       VALUES ($1, $2, $3, $4, 'astrologer', TRUE) RETURNING id`,
       [app.email, passwordHash, app.name || 'Astrologer', app.profile_picture_url || null]
     );
     const userId = userResult.rows[0].id;

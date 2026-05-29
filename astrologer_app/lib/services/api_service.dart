@@ -61,6 +61,13 @@ class ApiService {
     return User.fromJson((await _handle(r))['data']);
   }
 
+  static Future<void> changePassword(String currentPassword, String newPassword) async {
+    final r = await http.post(Uri.parse('$baseUrl/auth/change-password'),
+        headers: await _headers(auth: true),
+        body: jsonEncode({'current_password': currentPassword, 'new_password': newPassword}));
+    await _handle(r);
+  }
+
   static Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> data) async {
     final r = await http.put(Uri.parse('$baseUrl/auth/profile'), headers: await _headers(auth: true), body: jsonEncode(data));
     return _handle(r);

@@ -50,7 +50,7 @@ class _AstrologerChatHistoryScreenState extends State<AstrologerChatHistoryScree
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat History', style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold)),
+        title: const Text('Chat History', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       body: _isLoading
           ? _buildShimmer()

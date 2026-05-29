@@ -248,7 +248,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
     return Scaffold(
       appBar: AppBar(
         backgroundColor: context.clr.surface,
-        title: Text('Astro Reports', style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold)),
+        title: const Text('Astro Reports', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         iconTheme: IconThemeData(color: context.clr.txtPrimary),
         elevation: 0,
         bottom: TabBar(

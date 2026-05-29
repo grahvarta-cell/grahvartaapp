@@ -10,7 +10,7 @@ class BecomeAstrologerScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: context.clr.surface,
-        title: Text('Become an Astrologer', style: TextStyle(color: context.clr.txtPrimary)),
+        title: const Text('Become an Astrologer', style: TextStyle(color: Colors.white)),
         iconTheme: IconThemeData(color: context.clr.txtPrimary),
       ),
       body: SingleChildScrollView(

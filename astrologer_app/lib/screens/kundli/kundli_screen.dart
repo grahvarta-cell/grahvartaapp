@@ -16,7 +16,7 @@ class KundliScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text('Kundli & Astrology', style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold)),
+        title: const Text('Kundli & Astrology', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),

@@ -145,7 +145,7 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
     return Scaffold(
       appBar: AppBar(
         backgroundColor: context.clr.surface,
-        title: Text('My Profile', style: TextStyle(color: context.clr.txtPrimary)),
+        title: const Text('My Profile', style: TextStyle(color: Colors.white)),
         actions: [
           if (!_editing)
             IconButton(

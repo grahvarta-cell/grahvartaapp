@@ -95,7 +95,7 @@ class _AstrologerSetupProfileScreenState extends State<AstrologerSetupProfileScr
     return Scaffold(
       appBar: AppBar(
         backgroundColor: context.clr.surface,
-        title: Text('Setup Astrologer Profile', style: TextStyle(color: context.clr.txtPrimary)),
+        title: const Text('Setup Astrologer Profile', style: TextStyle(color: Colors.white)),
         iconTheme: IconThemeData(color: context.clr.txtPrimary),
       ),
       body: Form(

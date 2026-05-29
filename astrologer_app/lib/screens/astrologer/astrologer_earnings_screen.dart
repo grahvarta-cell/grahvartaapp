@@ -134,7 +134,7 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: context.clr.surface,
-          title: Text('Earnings & Wallet', style: TextStyle(color: context.clr.txtPrimary)),
+          title: const Text('Earnings & Wallet', style: TextStyle(color: Colors.white)),
           bottom: TabBar(
             indicatorColor: context.clr.accent,
             labelColor: context.clr.accent,

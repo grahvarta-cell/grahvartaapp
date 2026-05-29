@@ -183,7 +183,7 @@ class _AstrologerLiveScreenState extends State<AstrologerLiveScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: context.clr.surface,
-        title: Text('Live Sessions', style: TextStyle(color: context.clr.txtPrimary)),
+        title: const Text('Live Sessions', style: TextStyle(color: Colors.white)),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showCreateSheet,

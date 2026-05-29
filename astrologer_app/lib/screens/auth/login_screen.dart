@@ -52,15 +52,21 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final s = context.s;
     final isAstro = widget.isAstrologerMode;
-    final accentColor = isAstro ? const Color(0xFFFFD700) : context.clr.accent;
+    const astroBlue = Color(0xFF027DFD);
+    final accentColor = isAstro ? astroBlue : context.clr.accent;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.topCenter,
-            radius: 1.5,
-            colors: [context.clr.surface, context.clr.bg],
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isAstro
+                ? isDark
+                    ? [const Color(0xFF0D1A3A), const Color(0xFF0D0D0D)]
+                    : [const Color(0xFFE6F0FF), const Color(0xFFFFFFFF)]
+                : [context.clr.surface, context.clr.bg],
           ),
         ),
         child: SafeArea(

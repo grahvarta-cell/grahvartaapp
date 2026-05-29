@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { body } = require('express-validator');
-const { authenticateAdmin } = require('../middleware/adminAuth');
+const { authenticateAdmin, requirePermission } = require('../middleware/adminAuth');
 const ctrl = require('../controllers/adminController');
 
 // Auth (no middleware)
@@ -11,6 +11,14 @@ router.post('/login', [
 
 // All routes below require admin token
 router.use(authenticateAdmin);
+
+// Helper: require superadmin access
+const requireSuperAdmin = (req, res, next) => {
+  if (req.admin.isSuperAdmin) {
+    return next();
+  }
+  res.status(403).json({ success: false, message: 'Superadmin access required' });
+};
 
 // Dashboard
 router.get('/dashboard', ctrl.getDashboardStats);
@@ -84,5 +92,15 @@ router.get('/recharge-offers', walletCtrl.adminListOffers);
 router.post('/recharge-offers', walletCtrl.adminCreateOffer);
 router.put('/recharge-offers/:id', walletCtrl.adminUpdateOffer);
 router.delete('/recharge-offers/:id', walletCtrl.adminDeleteOffer);
+
+// Sub-admin Management (superadmin only)
+router.get('/sub-admins', requireSuperAdmin, ctrl.listSubAdmins);
+router.post('/sub-admins', requireSuperAdmin, [
+  body('name').notEmpty(),
+  body('email').isEmail(),
+  body('password').isLength({ min: 6 }),
+], ctrl.createSubAdmin);
+router.put('/sub-admins/:id', requireSuperAdmin, ctrl.updateSubAdmin);
+router.delete('/sub-admins/:id', requireSuperAdmin, ctrl.deleteSubAdmin);
 
 module.exports = router;

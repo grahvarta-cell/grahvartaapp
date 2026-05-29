@@ -8,19 +8,47 @@ const admin = require('firebase-admin');
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const result = await db.query(
+    let user = null;
+    let isSubAdmin = false;
+
+    const adminResult = await db.query(
       "SELECT id, email, name, password_hash, role FROM users WHERE email = $1 AND role = 'admin'",
       [email]
     );
-    if (!result.rows.length) {
+    if (adminResult.rows.length) {
+      user = adminResult.rows[0];
+    } else {
+      const subAdminResult = await db.query(
+        "SELECT id, email, name, password_hash, permissions, is_active FROM sub_admins WHERE email = $1 AND is_active = TRUE",
+        [email]
+      );
+      if (subAdminResult.rows.length) {
+        user = subAdminResult.rows[0];
+        isSubAdmin = true;
+      }
+    }
+
+    if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
-    const user = result.rows[0];
+
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.json({ success: true, data: { token, admin: { id: user.id, email: user.email, name: user.name } } });
+    const tokenPayload = isSubAdmin ? { subAdminId: user.id, type: 'subadmin' } : { userId: user.id, type: 'admin' };
+    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+    const adminData = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: isSubAdmin ? 'subadmin' : 'superadmin',
+    };
+    if (isSubAdmin) {
+      adminData.permissions = user.permissions;
+    }
+
+    res.json({ success: true, data: { token, admin: adminData } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -858,6 +886,108 @@ exports.deletePostAdmin = async (req, res) => {
     await db.query('DELETE FROM community_posts WHERE id = $1', [req.params.id]);
     res.json({ success: true });
   } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// ─── Sub-admin Management ──────────────────────────────────────────────────────
+
+exports.listSubAdmins = async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT id, name, email, permissions, is_active, created_at
+      FROM sub_admins
+      ORDER BY created_at DESC
+    `);
+    res.json({ success: true, data: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.createSubAdmin = async (req, res) => {
+  try {
+    const { name, email, password, permissions } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+    const passwordHash = await bcrypt.hash(password, 10);
+    const result = await db.query(`
+      INSERT INTO sub_admins (name, email, password_hash, permissions, created_by)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id, name, email, permissions, is_active, created_at
+    `, [name, email, passwordHash, permissions || [], req.admin.id]);
+    res.json({ success: true, data: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    if (err.message.includes('duplicate')) {
+      return res.status(400).json({ success: false, message: 'Email already exists' });
+    }
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.updateSubAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, password, permissions, is_active } = req.body;
+    let passwordHash = null;
+    if (password) {
+      passwordHash = await bcrypt.hash(password, 10);
+    }
+    const updates = [];
+    const values = [id];
+    let paramIndex = 2;
+
+    if (name !== undefined) {
+      updates.push(`name = $${paramIndex++}`);
+      values.push(name);
+    }
+    if (email !== undefined) {
+      updates.push(`email = $${paramIndex++}`);
+      values.push(email);
+    }
+    if (passwordHash !== null) {
+      updates.push(`password_hash = $${paramIndex++}`);
+      values.push(passwordHash);
+    }
+    if (permissions !== undefined) {
+      updates.push(`permissions = $${paramIndex++}`);
+      values.push(permissions);
+    }
+    if (is_active !== undefined) {
+      updates.push(`is_active = $${paramIndex++}`);
+      values.push(is_active);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ success: false, message: 'No fields to update' });
+    }
+
+    const result = await db.query(`
+      UPDATE sub_admins SET ${updates.join(', ')}, updated_at = NOW()
+      WHERE id = $1
+      RETURNING id, name, email, permissions, is_active, created_at
+    `, values);
+
+    if (!result.rows.length) {
+      return res.status(404).json({ success: false, message: 'Sub-admin not found' });
+    }
+    res.json({ success: true, data: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.deleteSubAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.query('DELETE FROM sub_admins WHERE id = $1', [id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };

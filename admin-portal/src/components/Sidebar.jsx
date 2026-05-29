@@ -1,24 +1,25 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Star, FileText, Wallet, Bell, LogOut, ArrowDownCircle, MessageSquare, UserCheck, Gift } from 'lucide-react';
+import { LayoutDashboard, Users, Star, FileText, Wallet, Bell, LogOut, ArrowDownCircle, MessageSquare, UserCheck, Gift, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 const navItems = [
-  { to: '/',              icon: LayoutDashboard,  label: 'Dashboard',    end: true },
-  { to: '/users',         icon: Users,            label: 'Users' },
-  { to: '/astrologers',   icon: Star,             label: 'Astrologers' },
-  { to: '/withdrawals',   icon: ArrowDownCircle,  label: 'Withdrawals' },
-  { to: '/reports',       icon: FileText,         label: 'Reports' },
-  { to: '/transactions',  icon: Wallet,           label: 'Transactions' },
-  { to: '/community',     icon: MessageSquare,    label: 'Community' },
-  { to: '/notifications', icon: Bell,             label: 'Notifications' },
-  { to: '/hirings',         icon: UserCheck,  label: 'Hirings' },
-  { to: '/recharge-offers', icon: Gift,       label: 'Recharge Offers' },
+  { to: '/',              icon: LayoutDashboard,  label: 'Dashboard',           permission: 'dashboard' },
+  { to: '/users',         icon: Users,            label: 'Users',               permission: 'users' },
+  { to: '/astrologers',   icon: Star,             label: 'Astrologers',         permission: 'astrologers' },
+  { to: '/withdrawals',   icon: ArrowDownCircle,  label: 'Withdrawals',         permission: 'withdrawals' },
+  { to: '/reports',       icon: FileText,         label: 'Reports',             permission: 'reports' },
+  { to: '/transactions',  icon: Wallet,           label: 'Transactions',        permission: 'transactions' },
+  { to: '/community',     icon: MessageSquare,    label: 'Community',           permission: 'community' },
+  { to: '/notifications', icon: Bell,             label: 'Notifications',       permission: 'notifications' },
+  { to: '/hirings',       icon: UserCheck,        label: 'Hirings',             permission: 'hirings' },
+  { to: '/recharge-offers', icon: Gift,           label: 'Recharge Offers',    permission: 'recharge_offers' },
+  { to: '/sub-admins',    icon: ShieldCheck,      label: 'Sub-admins',          permission: null }, // null = superadmin only
 ];
 
 export default function Sidebar() {
-  const { admin, logout } = useAuth();
+  const { admin, logout, hasPermission } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -26,6 +27,13 @@ export default function Sidebar() {
     toast.success('Logged out');
     navigate('/login');
   };
+
+  const visibleNavItems = navItems.filter(item => {
+    if (item.permission === null) {
+      return admin?.role === 'superadmin';
+    }
+    return hasPermission(item.permission);
+  });
 
   return (
     <aside className="w-60 min-h-screen bg-surface border-r border-border flex flex-col shrink-0">
@@ -35,7 +43,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {navItems.map(({ to, icon: Icon, label, end }) => (
+        {visibleNavItems.map(({ to, icon: Icon, label, end }) => (
           <NavLink
             key={to}
             to={to}

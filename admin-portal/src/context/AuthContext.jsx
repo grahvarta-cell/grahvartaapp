@@ -23,6 +23,12 @@ export function AuthProvider({ children }) {
     setAdmin(data.data.admin);
   };
 
+  const hasPermission = (key) => {
+    if (!admin) return false;
+    if (admin.role === 'superadmin') return true;
+    return admin.permissions?.includes(key) ?? false;
+  };
+
   const logout = () => {
     localStorage.removeItem('admin_token');
     localStorage.removeItem('admin_user');
@@ -30,7 +36,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ admin, login, logout, loading }}>
+    <AuthContext.Provider value={{ admin, login, logout, loading, hasPermission }}>
       {children}
     </AuthContext.Provider>
   );

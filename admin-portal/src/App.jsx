@@ -14,11 +14,19 @@ import WithdrawalsPage from './pages/WithdrawalsPage';
 import CommunityPage from './pages/CommunityPage';
 import HiringsPage from './pages/HiringsPage';
 import RechargeOffersPage from './pages/RechargeOffersPage';
+import SubadminsPage from './pages/SubadminsPage';
 
 function ProtectedRoute({ children }) {
   const { admin, loading } = useAuth();
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" /></div>;
   return admin ? children : <Navigate to="/login" replace />;
+}
+
+function SuperAdminRoute({ children }) {
+  const { admin, loading } = useAuth();
+  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="w-8 h-8 border-2 border-orange border-t-transparent rounded-full animate-spin" /></div>;
+  if (!admin) return <Navigate to="/login" replace />;
+  return admin.role === 'superadmin' ? children : <Navigate to="/" replace />;
 }
 
 function AppRoutes() {
@@ -38,6 +46,7 @@ function AppRoutes() {
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="hirings" element={<HiringsPage />} />
         <Route path="recharge-offers" element={<RechargeOffersPage />} />
+        <Route path="sub-admins" element={<SuperAdminRoute><SubadminsPage /></SuperAdminRoute>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

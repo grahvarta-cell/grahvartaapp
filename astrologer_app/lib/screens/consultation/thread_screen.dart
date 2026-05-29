@@ -307,14 +307,14 @@ class _ThreadScreenState extends State<ThreadScreen> {
   Widget _buildReadOnlyFooter() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: context.clr.surface,
         border: Border(top: BorderSide(color: context.clr.border)),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
         Icon(Icons.lock_outline_rounded, color: context.clr.txtMuted, size: 14),
         const SizedBox(width: 6),
-        const Expanded(
+        Expanded(
           child: Text(
             'Read-only history. Start a new consultation to chat.',
             style: TextStyle(color: context.clr.txtMuted, fontSize: 12),

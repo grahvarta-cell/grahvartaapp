@@ -135,11 +135,11 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
         appBar: AppBar(
           backgroundColor: context.clr.surface,
           title: Text('Earnings & Wallet', style: TextStyle(color: context.clr.txtPrimary)),
-          bottom: const TabBar(
+          bottom: TabBar(
             indicatorColor: context.clr.accent,
             labelColor: context.clr.accent,
             unselectedLabelColor: context.clr.txtMuted,
-            tabs: [Tab(text: 'Transactions'), Tab(text: 'Withdrawals')],
+            tabs: const [Tab(text: 'Transactions'), Tab(text: 'Withdrawals')],
           ),
           actions: [
             IconButton(

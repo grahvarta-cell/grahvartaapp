@@ -508,7 +508,7 @@ class _ChatScreenState extends State<ChatScreen> {
         Text('Connecting to ${widget.astrologer.displayName}…',
             style: TextStyle(color: context.clr.txtSecondary, fontSize: 15)),
         const SizedBox(height: 8),
-        const Text('Select a quick reply below to start',
+        Text('Select a quick reply below to start',
             style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
       ]));
     }

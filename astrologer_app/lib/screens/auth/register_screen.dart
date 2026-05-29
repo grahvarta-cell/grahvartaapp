@@ -97,7 +97,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final s = context.s;
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: RadialGradient(
             center: Alignment.topCenter,
             radius: 1.5,

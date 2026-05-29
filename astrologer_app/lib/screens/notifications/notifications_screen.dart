@@ -102,9 +102,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       body: _isLoading
           ? Center(child: CircularProgressIndicator(color: context.clr.accent))
           : _notifications.isEmpty
-              ? const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+              ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Icon(Icons.notifications_none, size: 64, color: context.clr.txtMuted),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Text('No notifications yet', style: TextStyle(color: context.clr.txtMuted)),
                 ]))
               : RefreshIndicator(

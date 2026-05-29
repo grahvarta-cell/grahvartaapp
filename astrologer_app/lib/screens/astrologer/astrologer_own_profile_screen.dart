@@ -380,7 +380,7 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
             child: Icon(Icons.account_balance_wallet_rounded, color: context.clr.accent, size: 22),
           ),
           const SizedBox(width: 14),
-          const Expanded(
+          Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Earnings & Wallet', style: TextStyle(color: context.clr.txtPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
               Text('View transactions & request withdrawal', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),

@@ -121,7 +121,7 @@ class _AstrologerPendingScreenState extends State<AstrologerPendingScreen> {
                   child: OutlinedButton.icon(
                     onPressed: _refreshing ? null : _refresh,
                     icon: _refreshing
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 16, height: 16,
                             child: CircularProgressIndicator(strokeWidth: 2, color: context.clr.accent),
                           )
@@ -137,7 +137,7 @@ class _AstrologerPendingScreenState extends State<AstrologerPendingScreen> {
                 ),
                 if (!isRejected) ...[
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'You\'ll also receive a push notification\nwhen your profile is reviewed.',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: context.clr.txtMuted, fontSize: 12, height: 1.4),

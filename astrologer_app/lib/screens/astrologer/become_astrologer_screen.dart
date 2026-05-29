@@ -30,13 +30,13 @@ class BecomeAstrologerScreen extends StatelessWidget {
             const SizedBox(height: 24),
             Text('Share Your Knowledge', style: TextStyle(color: context.clr.txtPrimary, fontSize: 26, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Join our community of expert astrologers and help thousands of people navigate their lives through cosmic wisdom.',
               textAlign: TextAlign.center,
               style: TextStyle(color: context.clr.txtSecondary, fontSize: 15, height: 1.5),
             ),
             const SizedBox(height: 32),
-            ..._benefits.map(_buildBenefit),
+            ..._benefits.map((b) => _buildBenefit(context, b)),
             const SizedBox(height: 32),
             Container(
               padding: const EdgeInsets.all(16),
@@ -45,7 +45,7 @@ class BecomeAstrologerScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: context.clr.accent.withValues(alpha: 0.2)),
               ),
-              child: const Column(
+              child: Column(
                 children: [
                   Text('How It Works', style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
                   SizedBox(height: 12),
@@ -78,7 +78,7 @@ class BecomeAstrologerScreen extends StatelessWidget {
     ('🔴 Live Sessions', 'Host live astrology sessions and earn tips from viewers', Icons.live_tv_outlined),
   ];
 
-  Widget _buildBenefit((String title, String desc, IconData icon) b) {
+  Widget _buildBenefit(BuildContext context, (String title, String desc, IconData icon) b) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),

@@ -9,11 +9,11 @@ class RoleSelectionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: RadialGradient(
             center: Alignment.topCenter,
             radius: 1.6,
-            colors: [Color(0xFF1A0A00), context.clr.bg],
+            colors: [const Color(0xFF1A0A00), context.clr.bg],
           ),
         ),
         child: SafeArea(
@@ -33,13 +33,13 @@ class RoleSelectionScreen extends StatelessWidget {
                   child: Icon(Icons.auto_awesome, color: context.clr.accent, size: 32),
                 ),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'Welcome to Grahvarta',
                   style: TextStyle(color: context.clr.txtPrimary, fontSize: 28, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
-                const Text(
+                Text(
                   'How would you like to continue?',
                   style: TextStyle(color: context.clr.txtSecondary, fontSize: 16),
                   textAlign: TextAlign.center,

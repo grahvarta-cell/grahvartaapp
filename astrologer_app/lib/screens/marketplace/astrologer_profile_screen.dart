@@ -114,9 +114,9 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
       builder: (ctx) => AlertDialog(
         backgroundColor: context.clr.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(children: [
+        title: Row(children: [
           Icon(Icons.account_balance_wallet, color: context.clr.accent),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text('Low Balance', style: TextStyle(color: context.clr.txtPrimary)),
         ]),
         content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -214,12 +214,12 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
       builder: (_, child) => Opacity(opacity: _heroController.value, child: child),
       child: Container(
         height: 340 + statusBarH,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [context.clr.surface, context.clr.card, context.clr.bg],
-            stops: [0.0, 0.5, 1.0],
+            stops: const [0.0, 0.5, 1.0],
           ),
         ),
         child: Stack(children: [

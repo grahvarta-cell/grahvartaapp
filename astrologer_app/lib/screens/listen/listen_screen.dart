@@ -57,12 +57,12 @@ class _ListenScreenState extends State<ListenScreen> {
   }
 
   Widget _buildHeader() {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(20, 8, 20, 24),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       child: Column(
         children: [
           Text('Sleep stories', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: context.clr.txtPrimary)),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Transits explain the current themes of your life and the where you are being asked to grow and show up.',
             textAlign: TextAlign.center,
@@ -101,7 +101,7 @@ class _ListenScreenState extends State<ListenScreen> {
               children: [
                 Text(title, style: TextStyle(color: context.clr.txtPrimary, fontSize: 17, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
-                const Text(
+                Text(
                   "I don't have a birth chart, a but if I did, I'd be Mercury ruled curious.",
                   style: TextStyle(color: context.clr.txtSecondary, fontSize: 12, height: 1.4),
                   maxLines: 2,

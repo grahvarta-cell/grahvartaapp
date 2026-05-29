@@ -290,7 +290,7 @@ class _AstrologerUserThreadScreenState extends State<AstrologerUserThreadScreen>
       child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
         Icon(Icons.lock_outline_rounded, color: context.clr.txtMuted, size: 14),
         const SizedBox(width: 6),
-        const Expanded(
+        Expanded(
           child: Text('Read-only history. Consult with this user to chat.', style: TextStyle(color: context.clr.txtMuted, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
         ),
         const SizedBox(width: 8),

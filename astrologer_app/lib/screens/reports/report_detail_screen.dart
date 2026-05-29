@@ -176,8 +176,8 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
             if (unlock.aiContent != null)
               _buildAiContent(unlock.aiContent!)
             else
-              const Center(child: Padding(
-                padding: EdgeInsets.all(32),
+              Center(child: Padding(
+                padding: const EdgeInsets.all(32),
                 child: Text('Report content is being generated...', style: TextStyle(color: context.clr.txtSecondary)),
               )),
             const SizedBox(height: 32),
@@ -267,9 +267,9 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
 
   Widget _buildRateButton() {
     if (_hasRated) {
-      return const Center(child: Row(mainAxisSize: MainAxisSize.min, children: [
+      return Center(child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(Icons.check_circle, color: context.clr.success, size: 18),
-        SizedBox(width: 6),
+        const SizedBox(width: 6),
         Text('Thanks for your rating!', style: TextStyle(color: context.clr.success, fontWeight: FontWeight.w600)),
       ]));
     }

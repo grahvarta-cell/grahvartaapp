@@ -277,7 +277,7 @@ class _CallScreenState extends State<CallScreen> {
 
   Widget _buildVoiceBackground() {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: RadialGradient(center: Alignment.topCenter, radius: 1.5, colors: [context.clr.surface, context.clr.bg]),
       ),
       child: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [

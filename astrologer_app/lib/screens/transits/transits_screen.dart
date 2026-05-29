@@ -73,8 +73,8 @@ class _TransitsScreenState extends State<TransitsScreen> {
   }
 
   Widget _buildInspirationSection() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Text('Inspiration', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: context.clr.txtPrimary)),
     );
   }
@@ -111,8 +111,8 @@ class _TransitsScreenState extends State<TransitsScreen> {
   }
 
   Widget _buildDescription() {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       child: Text(
         'Transits in astrology are one of the a most powerful tools for the understanding the evolving themes of your life. They represent the ongoing movement of planets in the sky in relation to your natal chart, highlighting the areas of life where growth, challenges, and opportunities are currently unfolding.',
         style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, height: 1.6),

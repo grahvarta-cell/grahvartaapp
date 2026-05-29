@@ -107,7 +107,7 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
         child: SizedBox(
           width: size, height: size,
           child: CustomPaint(
-            painter: _NorthIndianKundaliPainter(houses: _houses),
+            painter: _NorthIndianKundaliPainter(houses: _houses, accentColor: context.clr.accent),
           ),
         ),
       ),
@@ -155,8 +155,8 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
 
   Widget _buildPlanetList() {
     if (_planets.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(32),
+      return Padding(
+        padding: const EdgeInsets.all(32),
         child: Center(child: Text('No planet data available', style: TextStyle(color: context.clr.txtMuted))),
       );
     }
@@ -197,15 +197,16 @@ class _BirthChartScreenState extends State<BirthChartScreen> {
 // ── North Indian Kundali Chart (CustomPainter) ────────────────────────────────
 class _NorthIndianKundaliPainter extends CustomPainter {
   final List<List<String>> houses;
+  final Color accentColor;
 
-  _NorthIndianKundaliPainter({required this.houses});
+  _NorthIndianKundaliPainter({required this.houses, required this.accentColor});
 
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
     final linePaint = Paint()
-      ..color = context.clr.accent.withValues(alpha: 0.5)
+      ..color = accentColor.withValues(alpha: 0.5)
       ..strokeWidth = 1.2
       ..style = PaintingStyle.stroke;
 
@@ -246,7 +247,7 @@ class _NorthIndianKundaliPainter extends CustomPainter {
       Offset(cx * 0.45, cy * 0.55),   // 12 - inner top-left
     ];
 
-    final houseNumStyle = TextStyle(color: context.clr.accent.withValues(alpha: 0.4), fontSize: w * 0.03, fontWeight: FontWeight.bold);
+    final houseNumStyle = TextStyle(color: accentColor.withValues(alpha: 0.4), fontSize: w * 0.03, fontWeight: FontWeight.bold);
     final planetStyle = TextStyle(color: Colors.white, fontSize: w * 0.035, fontWeight: FontWeight.w600);
 
     for (int i = 0; i < 12; i++) {
@@ -268,5 +269,5 @@ class _NorthIndianKundaliPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _NorthIndianKundaliPainter old) => old.houses != houses;
+  bool shouldRepaint(covariant _NorthIndianKundaliPainter old) => old.houses != houses || old.accentColor != accentColor;
 }

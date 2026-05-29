@@ -176,7 +176,7 @@ class _MemberCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          _avatar(),
+          _avatar(context),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -197,9 +197,9 @@ class _MemberCard extends StatelessWidget {
                 if (member.relationship != null)
                   Text(member.relationship!, style: TextStyle(color: context.clr.accentAlt, fontSize: 12)),
                 const SizedBox(height: 6),
-                _infoRow(Icons.cake_outlined, _formatDate(member.dateOfBirth)),
-                if (member.timeOfBirth != null) _infoRow(Icons.access_time_outlined, member.timeOfBirth!),
-                if (member.birthPlace != null) _infoRow(Icons.location_on_outlined, member.birthPlace!),
+                _infoRow(context, Icons.cake_outlined, _formatDate(member.dateOfBirth)),
+                if (member.timeOfBirth != null) _infoRow(context, Icons.access_time_outlined, member.timeOfBirth!),
+                if (member.birthPlace != null) _infoRow(context, Icons.location_on_outlined, member.birthPlace!),
               ],
             ),
           ),
@@ -214,7 +214,7 @@ class _MemberCard extends StatelessWidget {
     );
   }
 
-  Widget _avatar() {
+  Widget _avatar(BuildContext context) {
     final initials = member.name.split(' ').map((w) => w.isNotEmpty ? w[0] : '').take(2).join().toUpperCase();
     return CircleAvatar(
       radius: 28,
@@ -223,7 +223,7 @@ class _MemberCard extends StatelessWidget {
     );
   }
 
-  Widget _infoRow(IconData icon, String text) {
+  Widget _infoRow(BuildContext context, IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.only(top: 3),
       child: Row(

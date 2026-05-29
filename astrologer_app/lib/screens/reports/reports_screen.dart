@@ -365,12 +365,12 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
         children: [
           const Text('🎁', style: TextStyle(fontSize: 28)),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('1 Free Report Unlock!', style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.bold, fontSize: 15)),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text('Tap any report to use your free unlock', style: TextStyle(color: context.clr.txtSecondary, fontSize: 12)),
               ],
             ),
@@ -717,15 +717,15 @@ class _LoadingDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Dialog(
+    return Dialog(
       backgroundColor: context.clr.card,
       child: Padding(
-        padding: EdgeInsets.all(28),
+        padding: const EdgeInsets.all(28),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           CircularProgressIndicator(color: context.clr.accent),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text('Generating your report...', style: TextStyle(color: context.clr.txtPrimary, fontWeight: FontWeight.w600)),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text('This may take a few seconds', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
         ]),
       ),

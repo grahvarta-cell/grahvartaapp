@@ -242,8 +242,8 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
         Container(
           decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.clr.border)),
           child: recent.isEmpty
-              ? const Padding(
-                  padding: EdgeInsets.all(24),
+              ? Padding(
+                  padding: const EdgeInsets.all(24),
                   child: Center(child: Text('No consultations yet', style: TextStyle(color: context.clr.txtMuted))),
                 )
               : ListView.separated(

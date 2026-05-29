@@ -309,36 +309,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ]),
       ),
 
-      // Email & login instructions card
-      if (emailSent) ...[
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
-          ),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.12), shape: BoxShape.circle),
-              child: const Icon(Icons.mark_email_read_outlined, color: AppColors.primary, size: 22),
-            ),
-            const SizedBox(width: 14),
-            const Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Check Your Email', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15)),
-                SizedBox(height: 6),
-                Text(
-                  'You have received a mail with your login credentials. Login with Grahvarta Astrologer app and start receiving consultations.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5),
-                ),
-              ]),
-            ),
-          ]),
+      // Email & login instructions card — always shown when activated
+      const SizedBox(height: 12),
+      Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
         ),
-      ],
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.12), shape: BoxShape.circle),
+            child: Icon(
+              emailSent ? Icons.mark_email_read_outlined : Icons.email_outlined,
+              color: AppColors.primary,
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(
+                emailSent ? 'Check Your Email' : 'Email Coming Soon',
+                style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                emailSent
+                    ? 'You have received a mail with your login credentials. Login with Grahvarta Astrologer app and start receiving consultations.'
+                    : 'You will receive a mail with your login credentials. Login with Grahvarta Astrologer app and start receiving consultations.',
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5),
+              ),
+            ]),
+          ),
+        ]),
+      ),
     ]);
   }
 

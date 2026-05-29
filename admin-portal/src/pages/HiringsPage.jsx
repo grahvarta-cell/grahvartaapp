@@ -312,25 +312,37 @@ export default function HiringsPage() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex flex-col gap-1">
-                    <span className={statusBadge(h.status)}>{STATUS_LABELS[h.status] || h.status}</span>
+                    <span className={statusBadge(h.status)} title="Current application stage">{STATUS_LABELS[h.status] || h.status}</span>
                     {h.status === 'activated' && (
                       <>
                         {h.converted_to_astrologer ? (
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/15 text-green-400 w-fit">
+                          <span
+                            className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/15 text-green-400 w-fit cursor-default"
+                            title="A user account with role 'astrologer' has been created and the astrologer profile is live in the marketplace."
+                          >
                             ✓ Added as Astrologer
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-500/15 text-yellow-400 w-fit">
+                          <span
+                            className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-500/15 text-yellow-400 w-fit cursor-default"
+                            title="This agent is activated but has NOT been added to the astrologer panel yet. Open the application and click 'Add as Astrologer' to create their account."
+                          >
                             ⚠ Not Added Yet
                           </span>
                         )}
                         {h.converted_to_astrologer && (
                           h.welcome_email_sent ? (
-                            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/15 text-blue-400 w-fit">
+                            <span
+                              className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/15 text-blue-400 w-fit cursor-default"
+                              title={`Welcome email with login credentials was successfully sent to ${h.email}.`}
+                            >
                               ✉ Email Sent
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/15 text-red-400 w-fit">
+                            <span
+                              className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/15 text-red-400 w-fit cursor-default"
+                              title={`Welcome email to ${h.email} failed to send. The astrologer account exists but the agent does not have their credentials yet. Please contact them manually.`}
+                            >
                               ✉ Email Not Sent
                             </span>
                           )

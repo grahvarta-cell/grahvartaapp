@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
-import 'register_screen.dart';
 import '../home/main_screen.dart';
 import '../astrologer/astrologer_main_screen.dart';
 import '../astrologer/astrologer_setup_profile_screen.dart';
@@ -83,7 +82,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 24),
                 _buildLoginButton(s, accentColor),
                 const SizedBox(height: 20),
-                _buildRegisterLink(s, isAstro, accentColor),
+                Text(
+                  'Your account is created by Grahvarta admin.\nContact support@grahvarta.com for help.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: context.clr.txtMuted, fontSize: 12, height: 1.5),
+                ),
               ],
             ),
           ),
@@ -183,19 +186,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildRegisterLink(AppStrings s, bool isAstro, Color accentColor) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(s.dontHaveAccount, style: TextStyle(color: context.clr.txtSecondary)),
-        GestureDetector(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => RegisterScreen(isAstrologerMode: isAstro)),
-          ),
-          child: Text(s.signUp, style: TextStyle(color: accentColor, fontWeight: FontWeight.w600)),
-        ),
-      ],
-    );
-  }
 }

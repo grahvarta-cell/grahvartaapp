@@ -190,7 +190,12 @@ exports.listAstrologers = async (req, res) => {
     const params = [];
     let where = 'WHERE 1=1';
 
-    if (status) { params.push(status); where += ` AND a.status = $${params.length}`; }
+    if (status === 'banned') {
+      where += ` AND a.is_banned = TRUE`;
+    } else if (status) {
+      params.push(status);
+      where += ` AND a.status = $${params.length} AND (a.is_banned = FALSE OR a.is_banned IS NULL)`;
+    }
 
     params.push(limit, offset);
     const result = await db.query(`
@@ -331,6 +336,35 @@ exports.toggleAstrologerOnline = async (req, res) => {
     );
     if (!result.rows.length) return res.status(404).json({ success: false, message: 'Astrologer not found' });
     res.json({ success: true, data: { is_online: result.rows[0].is_online } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.banAstrologer = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+    const result = await db.query(
+      `UPDATE astrologers SET is_banned = TRUE, ban_reason = $1, is_online = FALSE, is_available = FALSE WHERE id = $2 RETURNING id, display_name`,
+      [reason || null, id]
+    );
+    if (!result.rows.length) return res.status(404).json({ success: false, message: 'Astrologer not found' });
+    res.json({ success: true, message: `${result.rows[0].display_name} has been banned` });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.unbanAstrologer = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db.query(
+      `UPDATE astrologers SET is_banned = FALSE, ban_reason = NULL WHERE id = $1 RETURNING id, display_name`,
+      [id]
+    );
+    if (!result.rows.length) return res.status(404).json({ success: false, message: 'Astrologer not found' });
+    res.json({ success: true, message: `${result.rows[0].display_name} has been unbanned` });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error' });
   }

@@ -27,6 +27,8 @@ router.post('/astrologers/:id/approve', ctrl.approveAstrologer);
 router.post('/astrologers/:id/reject', ctrl.rejectAstrologer);
 router.put('/astrologers/:id/rates', ctrl.setAstrologerRates);
 router.post('/astrologers/:id/toggle-online', ctrl.toggleAstrologerOnline);
+router.post('/astrologers/:id/ban', ctrl.banAstrologer);
+router.post('/astrologers/:id/unban', ctrl.unbanAstrologer);
 router.get('/astrologers/:id/earnings', ctrl.getAstrologerEarnings);
 
 // Reports Management

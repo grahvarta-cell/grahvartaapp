@@ -22,6 +22,7 @@ const migrations = [
   '016_hiring_about_me.sql',
   '017_hiring_converted.sql',
   '018_hiring_email_sent.sql',
+  '019_astrologer_ban.sql',
 ];
 
 async function runAll() {

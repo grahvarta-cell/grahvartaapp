@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Check, X, Edit2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, X, Edit2, Ban, ShieldCheck } from 'lucide-react';
+import { Tooltip } from '../components/Tooltip';
 import { format } from 'date-fns';
 import api from '../services/api';
 import PageHeader from '../components/PageHeader';
@@ -85,6 +86,25 @@ export default function AstrologersPage() {
     catch { toast.error('Failed'); }
   };
 
+  const ban = async (a) => {
+    const reason = prompt(`Reason for banning ${a.display_name}? (optional)`);
+    if (reason === null) return; // cancelled
+    try {
+      await api.post(`/astrologers/${a.id}/ban`, { reason });
+      toast.success(`${a.display_name} has been banned`);
+      fetchAstrologers();
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+  };
+
+  const unban = async (a) => {
+    if (!window.confirm(`Unban ${a.display_name}? They will become visible to users again.`)) return;
+    try {
+      await api.post(`/astrologers/${a.id}/unban`);
+      toast.success(`${a.display_name} has been unbanned`);
+      fetchAstrologers();
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+  };
+
   const totalPages = Math.ceil(total / limit);
 
   const statusBadge = (s) => {
@@ -99,14 +119,18 @@ export default function AstrologersPage() {
 
       <PageHeader title="Astrologers" subtitle={`${total} total`} />
 
-      <div className="flex gap-3 mb-6">
-        {['', 'pending', 'approved', 'rejected'].map((s) => (
+      <div className="flex gap-3 mb-6 flex-wrap">
+        {['', 'pending', 'approved', 'rejected', 'banned'].map((s) => (
           <button
             key={s}
             onClick={() => { setStatusFilter(s); setPage(1); }}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${statusFilter === s ? 'bg-orange text-white' : 'bg-surface-light text-text-secondary hover:text-white'}`}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+              statusFilter === s
+                ? s === 'banned' ? 'bg-red-600 text-white' : 'bg-orange text-white'
+                : 'bg-surface-light text-text-secondary hover:text-white'
+            }`}
           >
-            {s === '' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
+            {s === '' ? 'All' : s === 'banned' ? '🚫 Banned' : s.charAt(0).toUpperCase() + s.slice(1)}
           </button>
         ))}
       </div>
@@ -131,40 +155,75 @@ export default function AstrologersPage() {
             ) : astrologers.length === 0 ? (
               <tr><td colSpan={8} className="text-center py-12 text-text-muted">No astrologers found</td></tr>
             ) : astrologers.map((a) => (
-              <tr key={a.id} className="border-b border-divider hover:bg-surface-light/50">
+              <tr key={a.id} className={`border-b border-divider hover:bg-surface-light/50 ${a.is_banned ? 'opacity-60' : ''}`}>
                 <td className="px-4 py-3">
-                  <p className="font-medium text-white">{a.display_name}</p>
-                  <p className="text-text-muted text-xs">{a.email}</p>
+                  <div className="flex items-center gap-2">
+                    {a.is_banned && <span className="text-red-400 text-xs font-bold">🚫</span>}
+                    <div>
+                      <p className="font-medium text-white">{a.display_name}</p>
+                      <p className="text-text-muted text-xs">{a.email}</p>
+                      {a.is_banned && a.ban_reason && (
+                        <p className="text-red-400 text-xs mt-0.5">Reason: {a.ban_reason}</p>
+                      )}
+                    </div>
+                  </div>
                 </td>
                 <td className="px-4 py-3 text-text-secondary text-xs">{(a.specializations || []).slice(0, 2).join(', ') || '—'}</td>
                 <td className="px-4 py-3 text-right text-text-secondary">{fmt(a.total_earnings)}</td>
                 <td className="px-4 py-3 text-right text-text-secondary">{a.total_consultations}</td>
-                <td className="px-4 py-3"><span className={statusBadge(a.status)}>{a.status ? a.status.charAt(0).toUpperCase() + a.status.slice(1) : '—'}</span></td>
                 <td className="px-4 py-3">
-                  <button onClick={() => toggleOnline(a.id)} className={`w-10 h-5 rounded-full transition-colors ${a.is_online ? 'bg-success' : 'bg-border'} relative`}>
+                  {a.is_banned
+                    ? <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/15 text-red-400">Banned</span>
+                    : <span className={statusBadge(a.status)}>{a.status ? a.status.charAt(0).toUpperCase() + a.status.slice(1) : '—'}</span>
+                  }
+                </td>
+                <td className="px-4 py-3">
+                  <button disabled={a.is_banned} onClick={() => toggleOnline(a.id)} className={`w-10 h-5 rounded-full transition-colors ${a.is_online ? 'bg-success' : 'bg-border'} relative disabled:opacity-40`}>
                     <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${a.is_online ? 'left-5' : 'left-0.5'}`} />
                   </button>
                 </td>
                 <td className="px-4 py-3 text-text-muted text-xs">{format(new Date(a.created_at), 'MMM d, yyyy')}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-1.5">
-                    <button onClick={() => setRatesModal(a)} className="p-1.5 rounded-lg bg-surface-light hover:bg-border transition-colors" title="Set rates">
-                      <Edit2 size={14} className="text-text-secondary" />
-                    </button>
-                    {a.status === 'pending' && (
+                    <Tooltip content="Set per-minute rates" side="left">
+                      <button onClick={() => setRatesModal(a)} className="p-1.5 rounded-lg bg-surface-light hover:bg-border transition-colors">
+                        <Edit2 size={14} className="text-text-secondary" />
+                      </button>
+                    </Tooltip>
+                    {!a.is_banned && a.status === 'pending' && (
                       <>
-                        <button onClick={() => approve(a.id)} className="p-1.5 rounded-lg bg-success/15 hover:bg-success/25 transition-colors" title="Approve">
-                          <Check size={14} className="text-success" />
-                        </button>
-                        <button onClick={() => reject(a.id)} className="p-1.5 rounded-lg bg-error/15 hover:bg-error/25 transition-colors" title="Reject">
-                          <X size={14} className="text-error" />
-                        </button>
+                        <Tooltip content="Approve astrologer" side="left">
+                          <button onClick={() => approve(a.id)} className="p-1.5 rounded-lg bg-success/15 hover:bg-success/25 transition-colors">
+                            <Check size={14} className="text-success" />
+                          </button>
+                        </Tooltip>
+                        <Tooltip content="Reject application" side="left">
+                          <button onClick={() => reject(a.id)} className="p-1.5 rounded-lg bg-error/15 hover:bg-error/25 transition-colors">
+                            <X size={14} className="text-error" />
+                          </button>
+                        </Tooltip>
                       </>
                     )}
-                    {a.status === 'rejected' && (
-                      <button onClick={() => approve(a.id)} className="p-1.5 rounded-lg bg-success/15 hover:bg-success/25 transition-colors" title="Re-approve">
-                        <Check size={14} className="text-success" />
-                      </button>
+                    {!a.is_banned && a.status === 'rejected' && (
+                      <Tooltip content="Re-approve astrologer" side="left">
+                        <button onClick={() => approve(a.id)} className="p-1.5 rounded-lg bg-success/15 hover:bg-success/25 transition-colors">
+                          <Check size={14} className="text-success" />
+                        </button>
+                      </Tooltip>
+                    )}
+                    {/* Ban / Unban */}
+                    {a.is_banned ? (
+                      <Tooltip content="Remove ban — astrologer will be visible to users again" side="left">
+                        <button onClick={() => unban(a)} className="p-1.5 rounded-lg bg-green-500/15 hover:bg-green-500/25 transition-colors">
+                          <ShieldCheck size={14} className="text-green-400" />
+                        </button>
+                      </Tooltip>
+                    ) : (
+                      <Tooltip content="Ban astrologer — immediately hidden from all users" side="left">
+                        <button onClick={() => ban(a)} className="p-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 transition-colors">
+                          <Ban size={14} className="text-red-400" />
+                        </button>
+                      </Tooltip>
                     )}
                   </div>
                 </td>

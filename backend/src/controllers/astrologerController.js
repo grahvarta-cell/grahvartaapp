@@ -11,7 +11,7 @@ exports.listAstrologers = async (req, res) => {
              (SELECT COUNT(*) FROM astrologer_reviews ar WHERE ar.astrologer_id = a.id) AS review_count_live
       FROM astrologers a
       JOIN users u ON a.user_id = u.id
-      WHERE 1=1
+      WHERE a.is_banned = FALSE OR a.is_banned IS NULL
     `;
     const params = [];
 
@@ -25,7 +25,7 @@ exports.listAstrologers = async (req, res) => {
 
     const result = await db.query(query, params);
 
-    const countResult = await db.query('SELECT COUNT(*) FROM astrologers a WHERE 1=1');
+    const countResult = await db.query('SELECT COUNT(*) FROM astrologers a WHERE a.is_banned = FALSE OR a.is_banned IS NULL');
     res.json({ success: true, data: result.rows, total: parseInt(countResult.rows[0].count), page: parseInt(page), limit: parseInt(limit) });
   } catch (err) {
     console.error(err);

@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_theme.dart';
 import '../auth/login_screen.dart';
+import '../auth/change_password_screen.dart';
 import 'astrologer_earnings_screen.dart';
 
 const _specializations = ['Vedic Astrology', 'Tarot', 'Numerology', 'KP Astrology', 'Western Astrology', 'Face Reading', 'Vastu', 'Prashna'];
@@ -176,6 +177,8 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
             if (_editing) _buildEditForm() else _buildViewMode(profile),
             const SizedBox(height: 24),
             _buildEarningsCard(),
+            const SizedBox(height: 24),
+            _buildSettingsCard(),
             const SizedBox(height: 24),
             _buildLogoutButton(),
           ],
@@ -389,6 +392,48 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
           Icon(Icons.chevron_right_rounded, color: context.clr.txtMuted),
         ]),
       ),
+    );
+  }
+
+  Widget _buildSettingsCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: context.clr.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: context.clr.border),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('Settings', style: TextStyle(color: context.clr.txtSecondary, fontSize: 12, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8),
+        _buildSettingsTile(
+          icon: Icons.lock_outline_rounded,
+          title: 'Change Password',
+          subtitle: 'Update your account password',
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen(isSettings: true))),
+        ),
+      ]),
+    );
+  }
+
+  Widget _buildSettingsTile({required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(children: [
+        Container(
+          width: 44, height: 44,
+          decoration: BoxDecoration(color: context.clr.accent.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
+          child: Icon(icon, color: context.clr.accent, size: 22),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(title, style: TextStyle(color: context.clr.txtPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
+            Text(subtitle, style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
+          ]),
+        ),
+        Icon(Icons.chevron_right_rounded, color: context.clr.txtMuted),
+      ]),
     );
   }
 

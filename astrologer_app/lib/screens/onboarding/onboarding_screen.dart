@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../theme/app_theme.dart';
-import '../auth/role_selection_screen.dart';
+import '../auth/login_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -87,7 +87,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_done', true);
     if (!mounted) return;
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const RoleSelectionScreen()));
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen(isAstrologerMode: true)));
   }
 
   List<Color> _gradientForPage(int index, bool isDark) {

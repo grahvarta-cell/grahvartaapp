@@ -21,6 +21,7 @@ const migrations = [
   '014_fix_wallet_orders_userid.sql',
   '016_hiring_about_me.sql',
   '017_hiring_converted.sql',
+  '018_hiring_email_sent.sql',
 ];
 
 async function runAll() {

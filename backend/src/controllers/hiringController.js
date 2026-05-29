@@ -143,7 +143,8 @@ exports.activateAsAstrologer = async (req, res) => {
 
     await client.query('COMMIT');
 
-    // Send welcome email (non-fatal)
+    // Send welcome email (non-fatal — DB changes already committed)
+    let emailSent = false;
     try {
       await sendAstrologerWelcome({
         to: app.email,
@@ -151,11 +152,22 @@ exports.activateAsAstrologer = async (req, res) => {
         email: app.email,
         password: tempPassword,
       });
+      emailSent = true;
+      await db.query(
+        'UPDATE agent_hirings SET welcome_email_sent = TRUE WHERE id = $1',
+        [id]
+      );
     } catch (mailErr) {
       console.error('Welcome email failed (non-fatal):', mailErr.message);
     }
 
-    res.json({ success: true, message: 'Astrologer account created and welcome email sent', tempPassword });
+    res.json({
+      success: true,
+      message: emailSent
+        ? 'Astrologer account created and welcome email sent'
+        : 'Astrologer account created but email failed — please resend manually',
+      email_sent: emailSent,
+    });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('activateAsAstrologer error:', err);

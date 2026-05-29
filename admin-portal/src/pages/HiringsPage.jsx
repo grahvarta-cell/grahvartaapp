@@ -54,7 +54,11 @@ function DetailPanel({ app, onClose, onUpdated }) {
     setConverting(true);
     try {
       const res = await api.post(`/hirings/${app.id}/activate-as-astrologer`);
-      toast.success('Astrologer account created! Welcome email sent.');
+      if (res.data.email_sent) {
+        toast.success('Astrologer account created! Welcome email sent.');
+      } else {
+        toast('Astrologer account created, but email failed. Please resend manually.', { icon: '⚠️' });
+      }
       onUpdated();
       onClose();
     } catch (err) {
@@ -307,7 +311,33 @@ export default function HiringsPage() {
                   {Array.isArray(h.skills) ? h.skills.slice(0, 2).join(', ') + (h.skills.length > 2 ? ` +${h.skills.length - 2}` : '') : '—'}
                 </td>
                 <td className="px-4 py-3">
-                  <span className={statusBadge(h.status)}>{STATUS_LABELS[h.status] || h.status}</span>
+                  <div className="flex flex-col gap-1">
+                    <span className={statusBadge(h.status)}>{STATUS_LABELS[h.status] || h.status}</span>
+                    {h.status === 'activated' && (
+                      <>
+                        {h.converted_to_astrologer ? (
+                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/15 text-green-400 w-fit">
+                            ✓ Added as Astrologer
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-500/15 text-yellow-400 w-fit">
+                            ⚠ Not Added Yet
+                          </span>
+                        )}
+                        {h.converted_to_astrologer && (
+                          h.welcome_email_sent ? (
+                            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/15 text-blue-400 w-fit">
+                              ✉ Email Sent
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/15 text-red-400 w-fit">
+                              ✉ Email Not Sent
+                            </span>
+                          )
+                        )}
+                      </>
+                    )}
+                  </div>
                 </td>
                 <td className="px-4 py-3 text-text-muted text-xs">
                   {format(new Date(h.created_at), 'MMM d, yyyy')}

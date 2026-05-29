@@ -1,0 +1,1 @@
+ALTER TABLE agent_hirings ADD COLUMN IF NOT EXISTS welcome_email_sent BOOLEAN DEFAULT FALSE;

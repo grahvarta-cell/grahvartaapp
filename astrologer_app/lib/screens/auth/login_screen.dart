@@ -88,10 +88,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 24),
                 _buildLoginButton(s, accentColor),
                 const SizedBox(height: 20),
-                Text(
-                  'Your account is created by Grahvarta admin.\nContact support@grahvarta.com for help.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: context.clr.txtMuted, fontSize: 12, height: 1.5),
+                SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    'Your account is created by Grahvarta admin.\nContact support@grahvarta.com for help.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: context.clr.txtMuted, fontSize: 12, height: 1.5),
+                  ),
                 ),
               ],
             ),

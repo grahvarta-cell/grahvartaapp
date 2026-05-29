@@ -103,7 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         if (status == 'rejected') _buildRejected(adminNotes) else _buildStepper(status),
                         if (status == 'activated') ...[
                           const SizedBox(height: 16),
-                          _buildActivatedBanner(),
+                          _buildActivatedBanner(_data?['welcome_email_sent'] == true),
                         ],
                         const SizedBox(height: 32),
                       ],
@@ -287,25 +287,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildActivatedBanner() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [AppColors.success, AppColors.success.withValues(alpha:0.7)]),
-        borderRadius: BorderRadius.circular(20),
+  Widget _buildActivatedBanner(bool emailSent) {
+    return Column(children: [
+      // Activation success card
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [AppColors.success, AppColors.success.withValues(alpha: 0.7)]),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(children: [
+          const Icon(Icons.verified_rounded, color: Colors.white, size: 40),
+          const SizedBox(width: 16),
+          const Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('Profile Activated!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17)),
+              SizedBox(height: 4),
+              Text('Welcome to the Grahvarta astrologer family.', style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4)),
+            ]),
+          ),
+        ]),
       ),
-      child: const Row(children: [
-        Icon(Icons.verified_rounded, color: Colors.white, size: 40),
-        SizedBox(width: 16),
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Profile Activated!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17)),
-            SizedBox(height: 4),
-            Text('Welcome to the Grahvarta astrologer family. You can now receive consultations.', style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4)),
+
+      // Email & login instructions card
+      if (emailSent) ...[
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+          ),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.12), shape: BoxShape.circle),
+              child: const Icon(Icons.mark_email_read_outlined, color: AppColors.primary, size: 22),
+            ),
+            const SizedBox(width: 14),
+            const Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('Check Your Email', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15)),
+                SizedBox(height: 6),
+                Text(
+                  'You have received a mail with your login credentials. Login with Grahvarta Astrologer app and start receiving consultations.',
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5),
+                ),
+              ]),
+            ),
           ]),
         ),
-      ]),
-    );
+      ],
+    ]);
   }
 
   Widget _buildError() => Center(

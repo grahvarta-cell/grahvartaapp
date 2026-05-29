@@ -64,7 +64,7 @@ exports.getStatus = async (req, res) => {
     const { phone } = req.query;
     if (!phone) return res.status(400).json({ success: false, message: 'Phone required' });
     const r = await db.query(
-      'SELECT name, phone, token_no, status, profile_picture_url, admin_notes FROM agent_hirings WHERE phone = $1',
+      'SELECT name, phone, token_no, status, profile_picture_url, admin_notes, welcome_email_sent, converted_to_astrologer FROM agent_hirings WHERE phone = $1',
       [phone]
     );
     if (!r.rows.length) return res.status(404).json({ success: false, message: 'Application not found' });

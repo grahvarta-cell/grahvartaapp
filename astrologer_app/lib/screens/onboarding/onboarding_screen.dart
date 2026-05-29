@@ -30,24 +30,24 @@ class _OnboardingData {
 const _pages = [
   _OnboardingData(
     icon: '🔮',
-    title: 'Discover Your\nCosmic Path',
-    subtitle: 'Get personalized horoscopes, birth chart readings, and daily predictions tailored to your unique celestial blueprint.',
+    title: 'Share Your\nCosmic Wisdom',
+    subtitle: 'Turn your astrology expertise into a thriving practice. Help seekers navigate life with your guidance on Grahvarta.',
     symbols: ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'],
-    pills: ['Daily Horoscope', 'Birth Chart', 'Compatibility'],
+    pills: ['Vedic', 'Tarot', 'Numerology', 'KP'],
   ),
   _OnboardingData(
-    icon: '🌟',
-    title: 'Talk to Expert\nAstrologers',
-    subtitle: 'Connect instantly with 500+ verified astrologers via live chat, voice, or video call. First 3 minutes free!',
+    icon: '💬',
+    title: 'Connect &\nConsult Instantly',
+    subtitle: 'Receive consultation requests via live chat, voice, or video call. Set your own availability and earn on your schedule.',
     symbols: ['✨', '⭐', '🌙', '☀️', '💫', '🪐', '🌟', '⚡', '🔥', '💎', '🌈', '✦'],
-    pills: ['500+ Astrologers', 'Live Chat', 'Voice & Video'],
+    pills: ['Live Chat', 'Voice Call', 'Video Call'],
   ),
   _OnboardingData(
-    icon: '💫',
-    title: 'Live, Learn &\nGrow Together',
-    subtitle: 'Join live astrology sessions, explore cosmic events, and become part of a thriving spiritual community.',
+    icon: '💰',
+    title: 'Grow Your\nAstrology Career',
+    subtitle: 'Build your reputation, go live to reach thousands, earn per minute, and withdraw your earnings anytime.',
     symbols: ['🌕', '🌗', '🌑', '🌓', '☿', '♀', '♂', '♃', '♄', '⛎', '☽', '☿'],
-    pills: ['Live Sessions', 'Community', 'Cosmic Events'],
+    pills: ['Earn Per Minute', 'Go Live', 'Instant Withdrawal'],
   ),
 ];
 
@@ -376,7 +376,7 @@ class _BottomControls extends StatelessWidget {
             GestureDetector(
               onTap: onSkip,
               child: Text(
-                'Already have an account? Sign in',
+                'Already registered? Sign in',
                 style: TextStyle(color: context.clr.txtMuted, fontSize: 13),
               ),
             ),

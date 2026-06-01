@@ -76,6 +76,17 @@ class ApiService {
     return _handle(r);
   }
 
+  static Future<String> uploadChatImage(File imageFile) async {
+    final token = await getToken();
+    final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/consultations/upload-image'));
+    if (token != null) request.headers['Authorization'] = 'Bearer $token';
+    request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+    final streamed = await request.send();
+    final r = await http.Response.fromStream(streamed);
+    final data = await _handle(r);
+    return (data['data']?['url'] ?? data['url']) as String;
+  }
+
   // ── Dashboard ─────────────────────────────────────────────────
   static Future<Map<String, dynamic>> getDashboard() async {
     final r = await http.get(Uri.parse('$baseUrl/dashboard'), headers: await _headers(auth: true));

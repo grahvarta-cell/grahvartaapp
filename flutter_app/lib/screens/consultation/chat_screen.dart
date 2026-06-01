@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../../blocs/chat/chat_bloc.dart';
 import '../../l10n/app_strings.dart';
@@ -129,6 +131,7 @@ class _ChatScreenState extends State<ChatScreen> {
           content: data['content'] ?? '',
           senderType: data['sender_type'],
           timestamp: DateTime.now(),
+          type: data['message_type'] ?? data['type'] ?? 'text',
         )));
         _scrollToBottom();
       }
@@ -190,6 +193,72 @@ class _ChatScreenState extends State<ChatScreen> {
     _socket.sendTypingStop(state.consultationId!);
     _messageCtrl.clear();
     _scrollToBottom();
+  }
+
+  CameraDevice _cameraDevice = CameraDevice.front;
+
+  void _showImageOptions() {
+    final state = _bloc.state;
+    if (state.consultationId == null) return;
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => SafeArea(
+        child: StatefulBuilder(
+          builder: (ctx, setSheet) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Container(width: 40, height: 4, margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+              const Text('Send Image', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: CircleAvatar(backgroundColor: context.clr.accent, child: const Icon(Icons.photo_library, color: Colors.white)),
+                title: const Text('Choose from Gallery'),
+                onTap: () { Navigator.pop(context); _pickAndSendImage(ImageSource.gallery); },
+              ),
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: context.clr.accent,
+                  child: Icon(_cameraDevice == CameraDevice.front ? Icons.camera_front : Icons.camera_rear, color: Colors.white),
+                ),
+                title: Text(_cameraDevice == CameraDevice.front ? 'Take Selfie (Front Camera)' : 'Take Photo (Rear Camera)'),
+                trailing: IconButton(
+                  tooltip: 'Switch Camera',
+                  icon: Icon(Icons.switch_camera, color: context.clr.accent),
+                  onPressed: () { setSheet(() => _cameraDevice = _cameraDevice == CameraDevice.front ? CameraDevice.rear : CameraDevice.front); setState(() {}); },
+                ),
+                onTap: () { Navigator.pop(context); _pickAndSendImage(ImageSource.camera); },
+              ),
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickAndSendImage(ImageSource source) async {
+    final picked = await ImagePicker().pickImage(
+      source: source,
+      preferredCameraDevice: source == ImageSource.camera ? _cameraDevice : CameraDevice.rear,
+      imageQuality: 80,
+    );
+    if (picked == null || !mounted) return;
+    final state = _bloc.state;
+    if (state.consultationId == null) return;
+
+    final localId = DateTime.now().millisecondsSinceEpoch.toString();
+    _bloc.add(ChatMessageSent('__uploading__', type: 'image_uploading', id: localId));
+    _scrollToBottom();
+
+    try {
+      final url = await ApiService.uploadChatImage(File(picked.path));
+      _bloc.add(ChatImageUploaded(localId, url));
+      _socket.sendMessage(state.consultationId!, url, type: 'image');
+      _scrollToBottom();
+    } catch (_) {
+      _bloc.add(ChatImageUploadFailed(localId));
+    }
   }
 
   void _scrollToBottom() {
@@ -534,6 +603,10 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  void _openFullscreen(String imageUrl) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => _FullscreenImageScreen(url: imageUrl)));
+  }
+
   Widget _buildMessageBubble(ChatMessage msg) {
     if (msg.senderType == 'system') {
       return Padding(
@@ -547,6 +620,56 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     final isUser = msg.senderType == 'user';
+    final isImage = msg.type == 'image';
+    final isUploading = msg.type == 'image_uploading';
+    final borderRadius = BorderRadius.only(
+      topLeft: const Radius.circular(18),
+      topRight: const Radius.circular(18),
+      bottomLeft: Radius.circular(isUser ? 18 : 4),
+      bottomRight: Radius.circular(isUser ? 4 : 18),
+    );
+
+    Widget bubbleContent;
+    if (isUploading) {
+      bubbleContent = Container(
+        width: 180, height: 140,
+        decoration: BoxDecoration(color: isUser ? context.clr.accent : context.clr.card, borderRadius: borderRadius),
+        child: const Center(child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)),
+      );
+    } else if (isImage) {
+      bubbleContent = GestureDetector(
+        onTap: () => _openFullscreen(msg.content),
+        child: ClipRRect(
+          borderRadius: borderRadius,
+          child: Image.network(
+            msg.content,
+            width: 200, height: 160, fit: BoxFit.cover,
+            loadingBuilder: (_, child, progress) => progress == null
+                ? child
+                : Container(width: 200, height: 160, color: context.clr.card,
+                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2))),
+            errorBuilder: (_, __, ___) => Container(
+              width: 200, height: 80,
+              decoration: BoxDecoration(color: context.clr.card, borderRadius: borderRadius),
+              child: Icon(Icons.broken_image, color: context.clr.txtMuted),
+            ),
+          ),
+        ),
+      );
+    } else {
+      bubbleContent = Container(
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(color: isUser ? context.clr.accent : context.clr.card, borderRadius: borderRadius),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          Text(msg.content, style: TextStyle(color: isUser ? Colors.white : context.clr.txtPrimary, fontSize: 14)),
+          const SizedBox(height: 3),
+          Text(DateFormat('h:mm a').format(msg.timestamp),
+              style: TextStyle(color: isUser ? Colors.white60 : context.clr.txtMuted, fontSize: 10)),
+        ]),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -561,26 +684,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             const SizedBox(width: 8),
           ],
-          Flexible(child: Container(
-            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: isUser ? context.clr.accent : context.clr.card,
-              borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(18),
-                topRight: const Radius.circular(18),
-                bottomLeft: Radius.circular(isUser ? 18 : 4),
-                bottomRight: Radius.circular(isUser ? 4 : 18),
-              ),
-            ),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              Text(msg.content,
-                  style: TextStyle(color: isUser ? Colors.white : context.clr.txtPrimary, fontSize: 14)),
-              const SizedBox(height: 3),
-              Text(DateFormat('h:mm a').format(msg.timestamp),
-                  style: TextStyle(color: isUser ? Colors.white60 : context.clr.txtMuted, fontSize: 10)),
-            ]),
-          )),
+          Flexible(child: bubbleContent),
         ],
       ),
     );
@@ -618,7 +722,7 @@ class _ChatScreenState extends State<ChatScreen> {
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10)],
       ),
       child: Row(children: [
-        IconButton(icon: Icon(Icons.add_circle_outline, color: context.clr.txtMuted), onPressed: () {}),
+        IconButton(icon: Icon(Icons.add_circle_outline, color: context.clr.txtMuted), onPressed: _showImageOptions),
         Expanded(child: TextField(
           controller: _messageCtrl,
           style: TextStyle(color: context.clr.txtPrimary, fontSize: 14),
@@ -772,4 +876,32 @@ class _AstroBgPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_) => false;
+}
+
+class _FullscreenImageScreen extends StatelessWidget {
+  final String url;
+  const _FullscreenImageScreen({required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Center(
+        child: InteractiveViewer(
+          child: Image.network(
+            url,
+            fit: BoxFit.contain,
+            loadingBuilder: (_, child, progress) => progress == null
+                ? child
+                : const Center(child: CircularProgressIndicator(color: Colors.white)),
+            errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, color: Colors.white, size: 64),
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -124,9 +124,6 @@ export default function AboutPage() {
       <section className="py-16 px-6 text-center border-t border-border">
         <h2 className="text-2xl font-bold mb-4">Join Our Growing Community</h2>
         <p className="text-text-secondary mb-8">Be part of India's most trusted astrology platform.</p>
-        <button onClick={() => navigate('/register')} className="btn-primary w-auto px-8 flex items-center gap-2 mx-auto">
-          Join as Astrologer <ChevronRight size={18} />
-        </button>
       </section>
 
       {/* Footer */}

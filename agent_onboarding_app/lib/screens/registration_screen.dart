@@ -95,8 +95,84 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     }
   }
 
-  Future<void> _pickPhoto() async {
+  CameraDevice _cameraDevice = CameraDevice.front;
+
+  void _showPhotoOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => SafeArea(
+        child: StatefulBuilder(
+          builder: (ctx, setSheetState) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40, height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+                ),
+                const Text('Upload Profile Photo', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 20),
+                ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: AppColors.primary,
+                    child: Icon(Icons.photo_library, color: Colors.white),
+                  ),
+                  title: const Text('Choose from Gallery'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickFromGallery();
+                  },
+                ),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: AppColors.primary,
+                    child: Icon(
+                      _cameraDevice == CameraDevice.front ? Icons.camera_front : Icons.camera_rear,
+                      color: Colors.white,
+                    ),
+                  ),
+                  title: Text(_cameraDevice == CameraDevice.front ? 'Take Selfie (Front Camera)' : 'Take Photo (Rear Camera)'),
+                  trailing: IconButton(
+                    tooltip: 'Switch Camera',
+                    icon: const Icon(Icons.switch_camera, color: AppColors.primary),
+                    onPressed: () {
+                      setSheetState(() {
+                        _cameraDevice = _cameraDevice == CameraDevice.front
+                            ? CameraDevice.rear
+                            : CameraDevice.front;
+                      });
+                      setState(() {});
+                    },
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickFromCamera();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickFromGallery() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 80);
+    if (picked != null) setState(() => _profilePhoto = File(picked.path));
+  }
+
+  Future<void> _pickFromCamera() async {
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+      preferredCameraDevice: _cameraDevice,
+      imageQuality: 80,
+    );
     if (picked != null) setState(() => _profilePhoto = File(picked.path));
   }
 
@@ -273,7 +349,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       const SizedBox(height: 10),
       Center(
         child: GestureDetector(
-          onTap: _pickPhoto,
+          onTap: _showPhotoOptions,
           child: Stack(children: [
             CircleAvatar(
               radius: 55,

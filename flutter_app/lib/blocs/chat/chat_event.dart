@@ -18,7 +18,20 @@ class ChatMessageReceived extends ChatEvent {
 
 class ChatMessageSent extends ChatEvent {
   final String text;
-  ChatMessageSent(this.text);
+  final String type;
+  final String? id;
+  ChatMessageSent(this.text, {this.type = 'text', this.id});
+}
+
+class ChatImageUploaded extends ChatEvent {
+  final String localId;
+  final String url;
+  ChatImageUploaded(this.localId, this.url);
+}
+
+class ChatImageUploadFailed extends ChatEvent {
+  final String localId;
+  ChatImageUploadFailed(this.localId);
 }
 
 class ChatTypingChanged extends ChatEvent {

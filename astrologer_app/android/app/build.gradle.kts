@@ -23,7 +23,7 @@ android {
     defaultConfig {
         applicationId = "com.grahvartaastrology.app"
         minSdk = 24
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -31,6 +31,14 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86_64")
         }
     }
 }

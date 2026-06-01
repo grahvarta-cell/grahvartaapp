@@ -30,12 +30,33 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     on<ChatMessageSent>((event, emit) {
       final msg = ChatMessage(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: event.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
         content: event.text,
         senderType: 'user',
         timestamp: DateTime.now(),
+        type: event.type,
       );
       emit(state.copyWith(messages: [...state.messages, msg]));
+    });
+
+    on<ChatImageUploaded>((event, emit) {
+      final updated = state.messages.map((m) {
+        if (m.id == event.localId) {
+          return ChatMessage(id: event.localId, content: event.url, senderType: 'user', timestamp: m.timestamp, type: 'image');
+        }
+        return m;
+      }).toList();
+      emit(state.copyWith(messages: updated));
+    });
+
+    on<ChatImageUploadFailed>((event, emit) {
+      final updated = state.messages.map((m) {
+        if (m.id == event.localId) {
+          return ChatMessage(id: event.localId, content: '⚠️ Image failed to send', senderType: 'user', timestamp: m.timestamp, type: 'text');
+        }
+        return m;
+      }).toList();
+      emit(state.copyWith(messages: updated));
     });
 
     on<ChatTypingChanged>((event, emit) {

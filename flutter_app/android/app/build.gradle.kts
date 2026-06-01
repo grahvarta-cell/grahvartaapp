@@ -32,7 +32,7 @@ android {
     defaultConfig {
         applicationId = "com.grahvarta.user"
         minSdk = 24
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -57,7 +57,9 @@ android {
 
     splits {
         abi {
-            isEnable = false
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86_64")
         }
     }
 }

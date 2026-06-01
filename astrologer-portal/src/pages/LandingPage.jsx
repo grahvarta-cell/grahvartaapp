@@ -104,12 +104,6 @@ export default function LandingPage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
-              onClick={() => navigate('/register')}
-              className="btn-primary w-auto px-8 py-3.5 text-base flex items-center gap-2"
-            >
-              Join as Astrologer <ChevronRight size={18} />
-            </button>
-            <button
               onClick={() => navigate('/login')}
               className="btn-outline w-auto px-8 py-3.5 text-base"
             >

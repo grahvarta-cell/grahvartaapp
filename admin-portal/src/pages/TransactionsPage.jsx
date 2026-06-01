@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Minus, RotateCcw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Minus, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
 import api from '../services/api';
 import PageHeader from '../components/PageHeader';
@@ -57,6 +57,110 @@ function ManualModal({ type, onClose, onDone }) {
   );
 }
 
+function groupByUser(transactions) {
+  const map = new Map();
+  for (const t of transactions) {
+    const key = t.user_id || t.user_email || t.user_name;
+    if (!map.has(key)) {
+      map.set(key, {
+        user_id: t.user_id,
+        user_name: t.user_name,
+        user_email: t.user_email,
+        transactions: [],
+      });
+    }
+    map.get(key).transactions.push(t);
+  }
+  return Array.from(map.values()).map((group) => {
+    const total = group.transactions.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+    const latest = group.transactions.reduce((a, b) =>
+      new Date(a.created_at) > new Date(b.created_at) ? a : b
+    );
+    const gateways = [...new Set(group.transactions.map((t) => t.payment_gateway).filter(Boolean))];
+    return { ...group, total, latest_date: latest.created_at, gateways };
+  });
+}
+
+const typeBadge = (t) => {
+  if (t === 'credit') return 'badge-success';
+  if (t === 'debit') return 'badge-error';
+  if (t === 'refund') return 'badge-warning';
+  return 'badge-gray';
+};
+
+function UserGroup({ group, onRefund }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      {/* Summary row */}
+      <tr
+        className="border-b border-divider hover:bg-surface-light/50 cursor-pointer select-none"
+        onClick={() => setOpen((o) => !o)}
+      >
+        <td className="px-4 py-3">
+          <p className="text-white font-medium">{group.user_name}</p>
+          <p className="text-text-muted text-xs">{group.user_email}</p>
+        </td>
+        <td className="px-4 py-3 text-right font-semibold text-white">{fmt(group.total)}</td>
+        <td className="px-4 py-3 text-text-muted text-xs">
+          {format(new Date(group.latest_date), 'MMM d, yyyy')}
+        </td>
+        <td className="px-4 py-3 text-text-muted text-xs capitalize">
+          {group.gateways.length ? group.gateways.join(', ') : '—'}
+        </td>
+        <td className="px-4 py-3 text-text-muted text-xs">
+          {group.transactions.length} txn{group.transactions.length !== 1 ? 's' : ''}
+        </td>
+        <td className="px-4 py-3 text-right">
+          <button
+            className="p-1.5 rounded-lg bg-surface-light hover:bg-border transition-colors"
+            onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+          >
+            {open ? <ChevronUp size={16} className="text-text-secondary" /> : <ChevronDown size={16} className="text-text-secondary" />}
+          </button>
+        </td>
+      </tr>
+
+      {/* Detail rows */}
+      {open && group.transactions.map((t) => (
+        <tr key={t.id} className="border-b border-divider/40 bg-surface-light/30">
+          <td className="px-4 py-2 pl-8 text-text-muted text-xs">#{t.id?.toString().slice(0, 8) || '—'}</td>
+          <td className="px-4 py-2 text-right text-xs">
+            <span className={typeBadge(t.type)}>{t.type.charAt(0).toUpperCase() + t.type.slice(1)}</span>
+            <span className="ml-2 font-semibold text-white">{fmt(t.amount)}</span>
+          </td>
+          <td className="px-4 py-2 text-text-muted text-xs">{format(new Date(t.created_at), 'MMM d, HH:mm')}</td>
+          <td className="px-4 py-2 text-text-secondary text-xs capitalize">{t.payment_gateway || '—'}</td>
+          <td className="px-4 py-2">
+            <span className={t.status === 'success' ? 'badge-success' : t.status === 'refunded' ? 'badge-warning' : 'badge-error'}>
+              {t.status.charAt(0).toUpperCase() + t.status.slice(1)}
+            </span>
+          </td>
+          <td className="px-4 py-2 text-right">
+            {t.type === 'debit' && t.status !== 'refunded' && (
+              <button
+                onClick={() => onRefund(t.id)}
+                className="p-1.5 rounded-lg bg-surface-light hover:bg-border transition-colors"
+                title="Refund"
+              >
+                <RotateCcw size={13} className="text-text-secondary" />
+              </button>
+            )}
+          </td>
+        </tr>
+      ))}
+      {open && (
+        <tr className="border-b border-divider">
+          <td className="px-4 py-1.5 pl-8 text-xs text-text-muted italic" colSpan={6}>
+            {group.transactions[0]?.description || ''}
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}
+
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState([]);
   const [total, setTotal] = useState(0);
@@ -64,7 +168,7 @@ export default function TransactionsPage() {
   const [typeFilter, setTypeFilter] = useState('');
   const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState(null);
-  const limit = 20;
+  const limit = 50;
 
   const fetchTx = useCallback(() => {
     setLoading(true);
@@ -87,14 +191,8 @@ export default function TransactionsPage() {
     }
   };
 
+  const groups = groupByUser(transactions);
   const totalPages = Math.ceil(total / limit);
-
-  const typeBadge = (t) => {
-    if (t === 'credit') return 'badge-success';
-    if (t === 'debit') return 'badge-error';
-    if (t === 'refund') return 'badge-warning';
-    return 'badge-gray';
-  };
 
   return (
     <div className="p-8">
@@ -132,44 +230,20 @@ export default function TransactionsPage() {
           <thead>
             <tr className="border-b border-border text-text-muted text-xs uppercase">
               <th className="px-4 py-3 text-left">User</th>
-              <th className="px-4 py-3 text-left">Type</th>
-              <th className="px-4 py-3 text-right">Amount</th>
-              <th className="px-4 py-3 text-left">Description</th>
-              <th className="px-4 py-3 text-left">Gateway</th>
-              <th className="px-4 py-3 text-left">Status</th>
+              <th className="px-4 py-3 text-right">Total Amount</th>
               <th className="px-4 py-3 text-left">Date</th>
+              <th className="px-4 py-3 text-left">Gateway</th>
+              <th className="px-4 py-3 text-left">Transactions</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <TableShimmer rows={8} cols={8} />
-            ) : transactions.length === 0 ? (
-              <tr><td colSpan={8} className="text-center py-12 text-text-muted">No transactions</td></tr>
-            ) : transactions.map((t) => (
-              <tr key={t.id} className="border-b border-divider hover:bg-surface-light/50">
-                <td className="px-4 py-3">
-                  <p className="text-white font-medium">{t.user_name}</p>
-                  <p className="text-text-muted text-xs">{t.user_email}</p>
-                </td>
-                <td className="px-4 py-3"><span className={typeBadge(t.type)}>{t.type.charAt(0).toUpperCase() + t.type.slice(1)}</span></td>
-                <td className="px-4 py-3 text-right font-semibold text-white">{fmt(t.amount)}</td>
-                <td className="px-4 py-3 text-text-secondary text-xs max-w-xs truncate">{t.description || '—'}</td>
-                <td className="px-4 py-3 text-text-muted text-xs capitalize">{t.payment_gateway || '—'}</td>
-                <td className="px-4 py-3">
-                  <span className={t.status === 'success' ? 'badge-success' : t.status === 'refunded' ? 'badge-warning' : 'badge-error'}>
-                    {t.status.charAt(0).toUpperCase() + t.status.slice(1)}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-text-muted text-xs">{format(new Date(t.created_at), 'MMM d, HH:mm')}</td>
-                <td className="px-4 py-3">
-                  {t.type === 'debit' && t.status !== 'refunded' && (
-                    <button onClick={() => refund(t.id)} className="p-1.5 rounded-lg bg-surface-light hover:bg-border transition-colors" title="Refund">
-                      <RotateCcw size={14} className="text-text-secondary" />
-                    </button>
-                  )}
-                </td>
-              </tr>
+              <TableShimmer rows={8} cols={6} />
+            ) : groups.length === 0 ? (
+              <tr><td colSpan={6} className="text-center py-12 text-text-muted">No transactions</td></tr>
+            ) : groups.map((group) => (
+              <UserGroup key={group.user_id || group.user_email} group={group} onRefund={refund} />
             ))}
           </tbody>
         </table>

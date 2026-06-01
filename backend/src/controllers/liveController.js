@@ -36,21 +36,27 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT_ASTROLOGER) {
   }
 }
 
+const _channelIdByApp = {
+  user_app: 'grahvarta_high_importance',
+  astrologer_app: 'grahvarta_astrology_high_importance',
+};
+
 async function _sendToTokens(messagingInstance, tokenList, title, body, data, appLabel) {
   if (!messagingInstance || !tokenList.length) {
     console.log(`[FCM][${appLabel}] Skipping — no instance or no tokens (tokens=${tokenList.length}, instance=${!!messagingInstance})`);
     return;
   }
+  const channelId = _channelIdByApp[appLabel] || 'grahvarta_high_importance';
   const stringData = {};
-  for (const [k, v] of Object.entries({ ...data, click_action: 'FLUTTER_NOTIFICATION_CLICK' })) {
+  for (const [k, v] of Object.entries({ ...data })) {
     stringData[k] = v == null ? '' : String(v);
   }
   const payload = {
     tokens: tokenList,
     notification: { title, body },
     data: stringData,
-    android: { priority: 'high', notification: { channelId: 'grahvarta_high_importance', priority: 'high' } },
-    apns: { payload: { aps: { sound: 'default' } } },
+    android: { priority: 'high', notification: { channelId, priority: 'high', sound: 'default' } },
+    apns: { payload: { aps: { sound: 'default', contentAvailable: true } } },
   };
   console.log(`[FCM][${appLabel}] Sending to ${tokenList.length} token(s): title="${title}" data=${JSON.stringify(stringData)}`);
   try {

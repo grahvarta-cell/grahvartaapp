@@ -26,6 +26,25 @@ const AndroidNotificationChannel _channel = AndroidNotificationChannel(
 @pragma('vm:entry-point')
 Future<void> _firebaseBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
+  // Data-only messages: FCM won't auto-show a notification, so we do it manually.
+  if (message.notification == null && message.data.isNotEmpty) {
+    final plugin = FlutterLocalNotificationsPlugin();
+    await plugin.initialize(const InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    ));
+    await plugin.show(
+      message.hashCode,
+      message.data['title'] ?? 'Grahvarta Astrology',
+      message.data['body'] ?? '',
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channel.id, _channel.name,
+          importance: Importance.high, priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+      ),
+    );
+  }
 }
 
 Future<void> _initLocalNotifications() async {
@@ -99,11 +118,14 @@ void _listenForegroundMessages(BuildContext context) {
       return;
     }
 
-    if (notification == null) return;
+    // Show notification for both notification-messages and data-only messages
+    final title = notification?.title ?? message.data['title'];
+    final body = notification?.body ?? message.data['body'];
+    if (title == null && body == null) return;
     localNotifs.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
+      message.hashCode,
+      title,
+      body,
       NotificationDetails(
         android: AndroidNotificationDetails(
           _channel.id,
@@ -133,6 +155,25 @@ void main() async {
     await Firebase.initializeApp();
     FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundHandler);
     await _initLocalNotifications();
+
+    // Request notification permission (Android 13+)
+    await FirebaseMessaging.instance.requestPermission(
+      alert: true, badge: true, sound: true, provisional: false,
+    );
+
+    // Ensure FCM auto-init is enabled so token is refreshed after re-install
+    await FirebaseMessaging.instance.setAutoInitEnabled(true);
+
+    // Handle notification tap when app was fully terminated
+    final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    if (initialMessage != null) {
+      final type = initialMessage.data['type'] as String?;
+      if (type == 'astrologer_approved' || type == 'astrologer_rejected') {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _handleAstrologerStatusNotification(type!, initialMessage.data['reason'], null);
+        });
+      }
+    }
   } catch (e) {
     debugPrint('Firebase init failed (non-fatal): $e');
   }

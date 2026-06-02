@@ -440,56 +440,54 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
   }
 
   void _showFilterSheet(MarketplaceLoaded? loaded) {
+    final cubit = context.read<MarketplaceCubit>();
+    final selectedSort = loaded?.sortBy ?? 'rating';
     showModalBottomSheet(
       context: context,
       backgroundColor: context.clr.surface,
       isScrollControlled: true,
       useSafeArea: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (_) => BlocBuilder<MarketplaceCubit, MarketplaceState>(
-        builder: (ctx, state) {
-          final current = state is MarketplaceLoaded ? state : loaded;
-          final selectedSort = current?.sortBy ?? 'rating';
-          return SizedBox(
-            width: double.infinity,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(context.s.filterSort, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: context.clr.txtPrimary)),
-                const SizedBox(height: 20),
-                Text(context.s.sortBy, style: TextStyle(color: context.clr.txtSecondary, fontSize: 13)),
-                const SizedBox(height: 10),
-                GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 3.2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: _sortOptions.map((s) {
-                    final isSel = s['key'] == selectedSort;
-                    return GestureDetector(
-                      onTap: () {
-                        context.read<MarketplaceCubit>().changeSortBy(s['key']!);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: isSel ? context.clr.accent : context.clr.card,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: isSel ? context.clr.accent : context.clr.border),
-                        ),
-                        child: Text(s['label']!, style: TextStyle(color: isSel ? Colors.white : context.clr.txtSecondary, fontSize: 13, fontWeight: isSel ? FontWeight.w600 : FontWeight.normal)),
+      builder: (sheetCtx) => StatefulBuilder(
+        builder: (_, setSheet) => SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(context.s.filterSort, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: context.clr.txtPrimary)),
+              const SizedBox(height: 20),
+              Text(context.s.sortBy, style: TextStyle(color: context.clr.txtSecondary, fontSize: 13)),
+              const SizedBox(height: 10),
+              GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 3.2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                children: _sortOptions.map((s) {
+                  final isSel = s['key'] == selectedSort;
+                  return GestureDetector(
+                    onTap: () {
+                      cubit.changeSortBy(s['key']!);
+                      Navigator.pop(sheetCtx);
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: isSel ? context.clr.accent : context.clr.card,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: isSel ? context.clr.accent : context.clr.border),
                       ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 20),
-              ]),
-            ),
-          );
-        },
+                      child: Text(s['label']!, style: TextStyle(color: isSel ? Colors.white : context.clr.txtSecondary, fontSize: 13, fontWeight: isSel ? FontWeight.w600 : FontWeight.normal)),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
+            ]),
+          ),
+        ),
       ),
     );
   }

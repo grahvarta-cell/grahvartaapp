@@ -25,22 +25,22 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
   ];
 
   static const _specialColors = [
-    Color(0xFF027DFD),
+    Color(0xFF111111),
     Color(0xFFF25D50),
     Color(0xFF6200EE),
     Color(0xFF1CDAC5),
-    Color(0xFF0553B1),
+    Color(0xFF333333),
     Color(0xFFE8762A),
   ];
   Color _cardAccent(int index) => _specialColors[index % _specialColors.length];
 
   static const _categoryColors = <String, Color>{
-    'Vedic':        Color(0xFF027DFD),
+    'Vedic':        Color(0xFF111111),
     'Tarot':        Color(0xFF6200EE),
     'Numerology':   Color(0xFFF25D50),
     'Palmistry':    Color(0xFF1CDAC5),
     'Vastu':        Color(0xFFE8762A),
-    'KP System':    Color(0xFF0553B1),
+    'KP System':    Color(0xFF333333),
     'Western':      Color(0xFF9C27B0),
     'Face Reading': Color(0xFFF25D50),
   };
@@ -416,7 +416,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
       const SizedBox(width: 8),
       Expanded(child: _consultBtn(Icons.phone_outlined, 'Call', const Color(0xFF4CAF50), () => _startConsultation(astrologer, 'voice'))),
       const SizedBox(width: 8),
-      Expanded(child: _consultBtn(Icons.videocam_outlined, 'Video', const Color(0xFF2196F3), () => _startConsultation(astrologer, 'video'))),
+      Expanded(child: _consultBtn(Icons.videocam_outlined, 'Video', const Color(0xFF111111), () => _startConsultation(astrologer, 'video'))),
     ]);
   }
 

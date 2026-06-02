@@ -457,7 +457,7 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
       const SizedBox(height: 8),
       _AnimatedRateCard(icon: Icons.phone_outlined, label: 'Voice Call', sublabel: 'Audio consultation', rate: a.perMinuteRateCall, color: context.clr.success, delay: 80),
       const SizedBox(height: 8),
-      _AnimatedRateCard(icon: Icons.videocam_outlined, label: 'Video Call', sublabel: 'Face-to-face session', rate: a.perMinuteRateVideo, color: const Color(0xFF2196F3), delay: 160),
+      _AnimatedRateCard(icon: Icons.videocam_outlined, label: 'Video Call', sublabel: 'Face-to-face session', rate: a.perMinuteRateVideo, color: const Color(0xFF111111), delay: 160),
     ]);
   }
 
@@ -506,7 +506,7 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
             const SizedBox(width: 10),
             _ConsultIconBtn(
               icon: Icons.videocam_rounded,
-              color: const Color(0xFF2196F3),
+              color: const Color(0xFF111111),
               tooltip: '₹${a.perMinuteRateVideo.toInt()}/min',
               onTap: () => _startConsultation('video'),
             ),
@@ -693,7 +693,7 @@ class _ReviewCardState extends State<_ReviewCard> with SingleTickerProviderState
   @override
   Widget build(BuildContext context) {
     final r = widget.review;
-    final colors = [context.clr.accent, const Color(0xFF9C27B0), const Color(0xFF2196F3), context.clr.success];
+    final colors = [context.clr.accent, const Color(0xFF9C27B0), const Color(0xFF111111), context.clr.success];
     final avatarColor = colors[widget.index % colors.length];
 
     return FadeTransition(

@@ -443,9 +443,34 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
       );
     }
 
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Padding(padding: const EdgeInsets.only(bottom: 8), child: content),
+    final senderName = isMe ? 'You' : widget.userName;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(
+              left: isMe ? 0 : 4,
+              right: isMe ? 4 : 0,
+              bottom: 3,
+            ),
+            child: Text(
+              senderName,
+              style: TextStyle(
+                color: context.clr.txtMuted,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Align(
+            alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+            child: content,
+          ),
+        ],
+      ),
     );
   }
 

@@ -675,21 +675,43 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     }
 
+    final senderName = isUser ? 'You' : widget.astrologer.displayName;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
+      child: Column(
+        crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          if (!isUser) ...[
-            CircleAvatar(
-              radius: 14,
-              backgroundColor: context.clr.accent.withValues(alpha: 0.2),
-              child: Text(widget.astrologer.displayName[0], style: TextStyle(color: context.clr.accent, fontSize: 11)),
+          Padding(
+            padding: EdgeInsets.only(
+              left: isUser ? 0 : 36,
+              right: isUser ? 4 : 0,
+              bottom: 3,
             ),
-            const SizedBox(width: 8),
-          ],
-          Flexible(child: bubbleContent),
+            child: Text(
+              senderName,
+              style: TextStyle(
+                color: context.clr.txtMuted,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (!isUser) ...[
+                CircleAvatar(
+                  radius: 14,
+                  backgroundColor: context.clr.accent.withValues(alpha: 0.2),
+                  child: Text(widget.astrologer.displayName[0], style: TextStyle(color: context.clr.accent, fontSize: 11)),
+                ),
+                const SizedBox(width: 8),
+              ],
+              Flexible(child: bubbleContent),
+            ],
+          ),
         ],
       ),
     );

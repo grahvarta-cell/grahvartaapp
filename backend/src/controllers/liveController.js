@@ -355,7 +355,7 @@ exports.registerPushToken = async (req, res) => {
     await db.query(
       `INSERT INTO push_tokens (user_id, token, platform, app_type)
        VALUES ($1, $2, $3, $4)
-       ON CONFLICT (user_id, token) DO UPDATE SET platform = $3, app_type = $4, created_at = NOW()`,
+       ON CONFLICT (user_id, token, app_type) DO UPDATE SET platform = $3`,
       [req.user.id, token, platform, app_type]
     );
     console.log(`[PUSH TOKEN] Registered for user=${req.user.id} app_type=${app_type} token=${token.substring(0, 20)}...`);

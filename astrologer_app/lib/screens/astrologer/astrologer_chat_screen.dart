@@ -53,7 +53,11 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
           final old = List<dynamic>.from(data['messages'] ?? []);
           if (old.isNotEmpty && mounted) {
             setState(() {
-              _messages.addAll(old.map((m) => Map<String, dynamic>.from(m as Map)));
+              _messages.addAll(old.map((m) {
+                final map = Map<String, dynamic>.from(m as Map);
+                map['type'] = map['message_type'] ?? map['type'] ?? 'text';
+                return map;
+              }));
               _messages.add({'sender_type': 'system', 'content': '─── Current session ───', 'created_at': DateTime.now().toIso8601String()});
             });
           }
@@ -63,7 +67,11 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
       final msgs = await ApiService.getAstrologerConsultationMessages(widget.consultationId);
       if (mounted) {
         setState(() {
-          _messages.addAll(msgs.map((m) => Map<String, dynamic>.from(m as Map)));
+          _messages.addAll(msgs.map((m) {
+            final map = Map<String, dynamic>.from(m as Map);
+            map['type'] = map['message_type'] ?? map['type'] ?? 'text';
+            return map;
+          }));
           _loading = false;
         });
         _scrollBottom();

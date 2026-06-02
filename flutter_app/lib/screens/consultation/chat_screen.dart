@@ -74,7 +74,7 @@ class _ChatScreenState extends State<ChatScreen> {
       final raw = List<dynamic>.from(data['messages'] ?? []);
       if (raw.isEmpty) return;
       final history = raw.map((m) {
-        final msgType = m['message_type'] as String? ?? 'text';
+        final msgType = m['message_type'] as String? ?? m['type'] as String? ?? 'text';
         final isSession = msgType == 'session_start' || msgType == 'session_end';
         return ChatMessage(
           id: m['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
@@ -83,6 +83,7 @@ class _ChatScreenState extends State<ChatScreen> {
               : (m['message'] as String? ?? m['content'] as String? ?? ''),
           senderType: isSession ? 'system' : (m['sender_type'] as String? ?? m['sender_role'] as String? ?? 'user'),
           timestamp: m['created_at'] != null ? DateTime.tryParse(m['created_at'].toString()) ?? DateTime.now() : DateTime.now(),
+          type: isSession ? 'text' : msgType,
         );
       }).toList();
       if (mounted) _bloc.add(ChatHistoryLoaded(history));

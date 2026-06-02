@@ -3,11 +3,12 @@
  * Deducts from user wallet every 60 seconds and credits astrologer.
  */
 class BillingEngine {
-  constructor(consultationId, ratePerMinute, db, io) {
+  constructor(consultationId, ratePerMinute, db, io, sendPushNotification) {
     this.consultationId = consultationId;
     this.ratePerMinute = parseFloat(ratePerMinute);
     this.db = db;
     this.io = io;
+    this.sendPush = sendPushNotification || (() => Promise.resolve());
     this.interval = null;
     this.secondsElapsed = 0;
     this.totalCharged = 0;
@@ -58,6 +59,7 @@ class BillingEngine {
         duration,
         total_amount: total,
       });
+      await this._notifyBothParties(duration, total);
       return;
     }
 
@@ -96,6 +98,7 @@ class BillingEngine {
           duration: this.secondsElapsed,
           total_amount: this.totalCharged,
         });
+        await this._notifyBothParties(this.secondsElapsed, this.totalCharged);
         return;
       }
 
@@ -214,6 +217,35 @@ class BillingEngine {
     );
 
     console.log(`Billing stopped: ${this.consultationId}, charged ₹${this.totalCharged}, ${this.secondsElapsed}s`);
+  }
+
+  async _notifyBothParties(durationSeconds, totalCharged) {
+    try {
+      const durationMin = Math.ceil((durationSeconds || 0) / 60);
+      const amount = parseFloat(totalCharged || 0).toFixed(2);
+      const earned = (parseFloat(totalCharged || 0) * 0.8).toFixed(2);
+
+      // Notify user
+      await this.sendPush(
+        [this.userId],
+        'Consultation Ended',
+        `Your consultation has ended. Duration: ${durationMin} min | ₹${amount} charged.`,
+        { type: 'call_ended', consultation_id: this.consultationId }
+      );
+
+      // Notify astrologer
+      const astroUser = await this.db.query('SELECT user_id FROM astrologers WHERE id = $1', [this.astrologerId]);
+      if (astroUser.rows.length) {
+        await this.sendPush(
+          [astroUser.rows[0].user_id],
+          'Session Completed',
+          `Session ended. Duration: ${durationMin} min | ₹${earned} earned.`,
+          { type: 'session_ended', consultation_id: this.consultationId }
+        );
+      }
+    } catch (err) {
+      console.error('[BillingEngine] Push notification error:', err.message);
+    }
   }
 }
 

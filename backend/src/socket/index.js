@@ -234,7 +234,7 @@ function initSocket(io) {
         });
 
         // Start billing engine
-        const billing = new BillingEngine(consultation_id, consult.rows[0].per_minute_rate, db, io);
+        const billing = new BillingEngine(consultation_id, consult.rows[0].per_minute_rate, db, io, sendPushNotification);
         billing.start(consult.rows[0].user_id, consult.rows[0].astrologer_id);
         billingEngines.set(consultation_id, billing);
 
@@ -367,6 +367,20 @@ function initSocket(io) {
             `Your consultation has ended. Duration: ${durationMin} min | ₹${amount} charged.`,
             { type: 'call_ended', consultation_id }
           );
+        }
+
+        // Notify astrologer
+        if (consult.astrologer_id) {
+          const astroUser = await db.query('SELECT user_id FROM astrologers WHERE id = $1', [consult.astrologer_id]);
+          if (astroUser.rows.length) {
+            const earned = (parseFloat(consult.total_amount || 0) * 0.8).toFixed(2);
+            await sendPushNotification(
+              [astroUser.rows[0].user_id],
+              'Session Completed',
+              `Session ended. Duration: ${durationMin} min | ₹${earned} earned.`,
+              { type: 'session_ended', consultation_id }
+            );
+          }
         }
       }
     });

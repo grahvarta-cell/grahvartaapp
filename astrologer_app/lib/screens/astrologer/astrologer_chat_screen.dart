@@ -312,7 +312,7 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.userName, style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(widget.userName.split(' ').map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}').join(' '), style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
             if (_elapsed > 0)
               Text('Duration: ${_formatTime(_elapsed)}', style: TextStyle(color: context.clr.accent, fontSize: 12)),
           ],
@@ -443,7 +443,7 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
       );
     }
 
-    final senderName = isMe ? 'You' : widget.userName;
+    final senderName = isMe ? 'You' : widget.userName.split(' ').map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}').join(' ');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),

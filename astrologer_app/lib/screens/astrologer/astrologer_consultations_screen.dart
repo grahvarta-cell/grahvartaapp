@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../services/api_service.dart';
-import '../../services/socket_service.dart';
+
 import '../../theme/app_theme.dart';
 import 'astrologer_chat_screen.dart';
 import 'astrologer_call_screen.dart';
@@ -11,6 +11,12 @@ class AstrologerConsultationsScreen extends StatefulWidget {
 
   @override
   State<AstrologerConsultationsScreen> createState() => _AstrologerConsultationsScreenState();
+}
+
+// Allow parent to trigger a refresh via GlobalKey
+class AstrologerConsultationsKey extends GlobalKey<_AstrologerConsultationsScreenState> {
+  const AstrologerConsultationsKey() : super.constructor();
+  void refresh() => currentState?._loadConsultations();
 }
 
 class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsScreen>
@@ -28,13 +34,10 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
     super.initState();
     _tabCtrl = TabController(length: 3, vsync: this);
     _loadConsultations();
-    _setupSocket();
   }
 
   @override
   void dispose() {
-    SocketService.instance.off('consultation_started');
-    SocketService.instance.off('consultation_ended');
     _tabCtrl.dispose();
     super.dispose();
   }
@@ -56,17 +59,6 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
     }
   }
 
-  void _setupSocket() {
-    final socket = SocketService.instance;
-    socket.on('consultation_started', (data) {
-      if (!mounted) return;
-      _loadConsultations();
-    });
-    socket.on('consultation_ended', (data) {
-      if (!mounted) return;
-      _loadConsultations();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

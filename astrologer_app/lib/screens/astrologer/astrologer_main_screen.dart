@@ -31,18 +31,20 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
   late final Animation<double> _overlayScale;
   late final Animation<double> _overlayFade;
   Timer? _heartbeatTimer;
+  final _consultationsKey = AstrologerConsultationsKey();
 
-  final List<Widget> _screens = const [
-    AstrologerDashboardScreen(),
-    AstrologerConsultationsScreen(),
-    AstrologerChatHistoryScreen(),
-    AstrologerLiveScreen(),
-    AstrologerCommunityScreen(),
-  ];
+  late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
+    _screens = [
+      const AstrologerDashboardScreen(),
+      AstrologerConsultationsScreen(key: _consultationsKey),
+      const AstrologerChatHistoryScreen(),
+      const AstrologerLiveScreen(),
+      const AstrologerCommunityScreen(),
+    ];
     _overlayCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 350));
     _overlayScale = CurvedAnimation(parent: _overlayCtrl, curve: Curves.elasticOut);
     _overlayFade = CurvedAnimation(parent: _overlayCtrl, curve: Curves.easeOut);
@@ -54,6 +56,8 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
     _heartbeatTimer?.cancel();
     _overlayCtrl.dispose();
     SocketService.instance.off('new_consultation_request');
+    SocketService.instance.off('consultation_started');
+    SocketService.instance.off('consultation_ended');
     _ringtonePlayer.dispose();
     super.dispose();
   }
@@ -66,6 +70,15 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
       setState(() => _incomingRequest = Map<String, dynamic>.from(data as Map));
       _overlayCtrl.forward(from: 0);
       _playRingtone();
+    });
+
+    socket.on('consultation_started', (data) {
+      if (!mounted) return;
+      _consultationsKey.refresh();
+    });
+    socket.on('consultation_ended', (data) {
+      if (!mounted) return;
+      _consultationsKey.refresh();
     });
 
     // Re-emit set_role every 30s so server map stays fresh after restarts

@@ -191,18 +191,18 @@ function initSocket(io) {
         if (!notified) {
           // Retry after 2s (astrologer may still be completing set_role)
           setTimeout(() => notifyAstrologer(2), 2000);
+        }
 
-          // Also send push notification so astrologer gets it even if offline
-          const astroUserResult = await db.query('SELECT user_id FROM astrologers WHERE id = $1', [astrologer_id]);
-          if (astroUserResult.rows.length) {
-            const typeLabel = type === 'chat' ? 'Chat' : type === 'voice' ? 'Voice Call' : 'Video Call';
-            await sendPushNotification(
-              [astroUserResult.rows[0].user_id],
-              `New ${typeLabel} Request`,
-              `${socket.user.name} is requesting a ${typeLabel.toLowerCase()} consultation`,
-              { type: 'consultation_request', consultation_id: consultationId }
-            );
-          }
+        // Always send push notification so astrologer is notified even if app is closed
+        const astroUserResult = await db.query('SELECT user_id FROM astrologers WHERE id = $1', [astrologer_id]);
+        if (astroUserResult.rows.length) {
+          const typeLabel = type === 'chat' ? 'Chat' : type === 'voice' ? 'Voice Call' : 'Video Call';
+          await sendPushNotification(
+            [astroUserResult.rows[0].user_id],
+            `New ${typeLabel} Request 🔔`,
+            `${socket.user.name} is requesting a ${typeLabel.toLowerCase()} consultation. Open the app to accept.`,
+            { type: 'consultation_request', consultation_id: consultationId }
+          );
         }
 
         await db.query('UPDATE astrologers SET queue_count = queue_count + 1 WHERE id = $1', [astrologer_id]);

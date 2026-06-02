@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../cubits/own_profile_cubit.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
+import '../../providers/theme_provider.dart';
 import '../../theme/app_theme.dart';
 import '../auth/login_screen.dart';
 import '../auth/change_password_screen.dart';
@@ -384,6 +385,7 @@ class _AstrologerOwnProfileViewState extends State<_AstrologerOwnProfileView> {
   }
 
   Widget _buildSettingsCard(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.clr.border)),
@@ -397,6 +399,24 @@ class _AstrologerOwnProfileViewState extends State<_AstrologerOwnProfileView> {
           subtitle: 'Update your account password',
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen(isSettings: true))),
         ),
+        const SizedBox(height: 4),
+        Row(children: [
+          Container(
+            width: 44, height: 44,
+            decoration: BoxDecoration(color: context.clr.accent.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
+            child: Icon(themeProvider.isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded, color: context.clr.accent, size: 22),
+          ),
+          const SizedBox(width: 14),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Theme', style: TextStyle(color: context.clr.txtPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
+            Text(themeProvider.isDark ? 'Dark mode' : 'Light mode', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
+          ])),
+          Switch(
+            value: themeProvider.isDark,
+            onChanged: (_) => themeProvider.toggle(),
+            activeThumbColor: context.clr.accent,
+          ),
+        ]),
       ]),
     );
   }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, X, Phone, Mail, Smartphone, Globe, Calendar, Users, Eye, EyeOff, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import api from '../services/api';
@@ -37,24 +37,18 @@ function DetailPanel({ app, onClose, onUpdated }) {
   const [converting, setConverting] = useState(false);
   const [resending, setResending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [resettingPassword, setResettingPassword] = useState(false);
   const [livePassword, setLivePassword] = useState(app.temp_password || null);
+  const autoReset = useRef(false);
 
-  const resetPassword = async () => {
-    if (!window.confirm(`Generate a new password for ${app.name}? This will update their login credentials.`)) return;
-    setResettingPassword(true);
-    try {
-      const res = await api.post(`/hirings/${app.id}/reset-password`);
-      setLivePassword(res.data.data.password);
-      setShowPassword(true);
-      toast.success('Password reset successfully');
-      onUpdated();
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to reset password');
-    } finally {
-      setResettingPassword(false);
+  // Auto-generate password on open if agent is onboarded but has no stored password
+  useEffect(() => {
+    if (app.converted_to_astrologer && !app.temp_password && !autoReset.current) {
+      autoReset.current = true;
+      api.post(`/hirings/${app.id}/reset-password`)
+        .then(res => { setLivePassword(res.data.data.password); onUpdated(); })
+        .catch(() => {});
     }
-  };
+  }, []);
 
   const save = async () => {
     setSaving(true);
@@ -170,13 +164,7 @@ function DetailPanel({ app, onClose, onUpdated }) {
                     )}
                   </>
                 ) : (
-                  <button
-                    onClick={resetPassword}
-                    disabled={resettingPassword}
-                    className="px-2 py-0.5 rounded-lg bg-orange/10 text-orange text-xs hover:bg-orange/20 transition-colors disabled:opacity-40"
-                  >
-                    {resettingPassword ? 'Resetting…' : 'Reset to view'}
-                  </button>
+                  <span className="text-text-muted text-xs italic">Generating…</span>
                 )}
               </div>
             )}

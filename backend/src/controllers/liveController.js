@@ -62,13 +62,25 @@ async function _sendToTokens(messagingInstance, tokenList, title, body, data, ap
   try {
     const result = await messagingInstance.sendEachForMulticast(payload);
     console.log(`[FCM][${appLabel}] Result: successCount=${result.successCount} failureCount=${result.failureCount}`);
+    const staleTokens = [];
     result.responses.forEach((r, i) => {
       if (r.success) {
         console.log(`[FCM][${appLabel}] token[${i}] OK — messageId=${r.messageId}`);
       } else {
         console.error(`[FCM][${appLabel}] token[${i}] FAILED — code=${r.error?.code} msg=${r.error?.message}`);
+        // Remove tokens FCM says are invalid/unregistered
+        const code = r.error?.code || '';
+        if (code === 'messaging/registration-token-not-registered' ||
+            code === 'messaging/invalid-registration-token' ||
+            code === 'messaging/invalid-argument') {
+          staleTokens.push(tokenList[i]);
+        }
       }
     });
+    if (staleTokens.length) {
+      await db.query('DELETE FROM push_tokens WHERE token = ANY($1)', [staleTokens]);
+      console.log(`[FCM][${appLabel}] Removed ${staleTokens.length} stale token(s) from DB`);
+    }
   } catch (err) {
     console.error(`[FCM][${appLabel}] sendEachForMulticast threw:`, err.message || err);
   }
@@ -336,12 +348,17 @@ exports.markAllRead = async (req, res) => {
 exports.registerPushToken = async (req, res) => {
   try {
     const { token, platform, app_type = 'user_app' } = req.body;
+    if (!token) return res.status(400).json({ success: false, message: 'Token required' });
+
+    // Remove all old tokens for this user+app_type, then insert fresh
+    await db.query('DELETE FROM push_tokens WHERE user_id = $1 AND app_type = $2', [req.user.id, app_type]);
     await db.query(
       `INSERT INTO push_tokens (user_id, token, platform, app_type)
        VALUES ($1, $2, $3, $4)
-       ON CONFLICT DO NOTHING`,
+       ON CONFLICT (user_id, token) DO UPDATE SET platform = $3, app_type = $4, created_at = NOW()`,
       [req.user.id, token, platform, app_type]
     );
+    console.log(`[PUSH TOKEN] Registered for user=${req.user.id} app_type=${app_type} token=${token.substring(0, 20)}...`);
     res.json({ success: true });
   } catch (err) {
     console.error('[PUSH TOKEN] DB error:', err.message);

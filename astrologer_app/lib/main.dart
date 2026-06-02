@@ -218,9 +218,9 @@ class _AstroTalkAppState extends State<AstroTalkApp> {
         builder: (_, localeProvider, themeProvider, __) => MaterialApp(
           title: 'Grahvarta Astrology',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
+          theme: AppTheme.darkTheme,
           darkTheme: AppTheme.darkTheme,
-          themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
+          themeMode: ThemeMode.dark,
           navigatorKey: navigatorKey,
           locale: localeProvider.locale,
           supportedLocales: const [

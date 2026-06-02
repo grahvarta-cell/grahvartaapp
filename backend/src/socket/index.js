@@ -171,19 +171,28 @@ function initSocket(io) {
           astrologer: astro,
         });
 
-        // Notify astrologer via socket (if online)
-        const astroSocketId = onlineAstrologers.get(astrologer_id);
-        if (astroSocketId) {
-          io.to(astroSocketId).emit('new_consultation_request', {
-            consultation_id: consultationId,
-            user: socket.user,
-            type,
-            rate: astro.rate,
-          });
-        }
+        // Notify astrologer via socket (if online) — retry once after 2s in case set_role is still resolving
+        const notifyAstrologer = async (attempt = 1) => {
+          const astroSocketId = onlineAstrologers.get(astrologer_id);
+          console.log(`[notify attempt ${attempt}] astrologer_id=${astrologer_id} socketId=${astroSocketId || 'NOT FOUND'}`);
+          if (astroSocketId) {
+            io.to(astroSocketId).emit('new_consultation_request', {
+              consultation_id: consultationId,
+              user: socket.user,
+              type,
+              rate: astro.rate,
+            });
+            return true;
+          }
+          return false;
+        };
 
-        // Push notification to astrologer if not online on socket
-        if (!astroSocketId) {
+        const notified = await notifyAstrologer(1);
+        if (!notified) {
+          // Retry after 2s (astrologer may still be completing set_role)
+          setTimeout(() => notifyAstrologer(2), 2000);
+
+          // Also send push notification so astrologer gets it even if offline
           const astroUserResult = await db.query('SELECT user_id FROM astrologers WHERE id = $1', [astrologer_id]);
           if (astroUserResult.rows.length) {
             const typeLabel = type === 'chat' ? 'Chat' : type === 'voice' ? 'Voice Call' : 'Video Call';
@@ -311,12 +320,15 @@ function initSocket(io) {
 
     // ─── WEBRTC SIGNALING ────────────────────────────────────────
     socket.on('webrtc_offer', ({ consultation_id, sdp }) => {
+      billingEngines.get(consultation_id)?.resetActivity();
       socket.to(`consultation:${consultation_id}`).emit('webrtc_offer', { sdp, from: userId });
     });
     socket.on('webrtc_answer', ({ consultation_id, sdp }) => {
+      billingEngines.get(consultation_id)?.resetActivity();
       socket.to(`consultation:${consultation_id}`).emit('webrtc_answer', { sdp, from: userId });
     });
     socket.on('webrtc_ice_candidate', ({ consultation_id, candidate }) => {
+      billingEngines.get(consultation_id)?.resetActivity();
       socket.to(`consultation:${consultation_id}`).emit('webrtc_ice_candidate', { candidate, from: userId });
     });
 
@@ -326,9 +338,15 @@ function initSocket(io) {
       if (engine) {
         await engine.stop();
         billingEngines.delete(consultation_id);
+      } else {
+        // No billing engine — update DB directly so session doesn't stay active
+        await db.query(
+          `UPDATE consultations SET status='completed', ended_at=NOW()
+           WHERE id=$1 AND status NOT IN ('completed','cancelled')`,
+          [consultation_id]
+        );
       }
-      const room = activeRooms.get(consultation_id);
-      if (room) activeRooms.delete(consultation_id);
+      activeRooms.delete(consultation_id);
 
       const result = await db.query('SELECT * FROM consultations WHERE id = $1', [consultation_id]);
       if (result.rows.length) {
@@ -342,13 +360,14 @@ function initSocket(io) {
           total_amount: consult.total_amount,
         });
 
-        // Push notification to user that call ended
-        await sendPushNotification(
-          [consult.user_id],
-          'Call Ended',
-          `Your consultation has ended. Duration: ${durationMin} min | ₹${amount} deducted.`,
-          { type: 'call_ended', consultation_id }
-        );
+        if (consult.user_id) {
+          await sendPushNotification(
+            [consult.user_id],
+            'Consultation Ended',
+            `Your consultation has ended. Duration: ${durationMin} min | ₹${amount} charged.`,
+            { type: 'call_ended', consultation_id }
+          );
+        }
       }
     });
 

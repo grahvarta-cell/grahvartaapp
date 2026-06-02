@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
@@ -29,6 +30,7 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
   late final AnimationController _overlayCtrl;
   late final Animation<double> _overlayScale;
   late final Animation<double> _overlayFade;
+  Timer? _heartbeatTimer;
 
   final List<Widget> _screens = const [
     AstrologerDashboardScreen(),
@@ -49,6 +51,7 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
 
   @override
   void dispose() {
+    _heartbeatTimer?.cancel();
     _overlayCtrl.dispose();
     SocketService.instance.off('new_consultation_request');
     _ringtonePlayer.dispose();
@@ -63,6 +66,13 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
       setState(() => _incomingRequest = Map<String, dynamic>.from(data as Map));
       _overlayCtrl.forward(from: 0);
       _playRingtone();
+    });
+
+    // Re-emit set_role every 30s so server map stays fresh after restarts
+    _heartbeatTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (SocketService.instance.isConnected) {
+        SocketService.instance.emit('set_role', {'role': 'astrologer'});
+      }
     });
   }
 

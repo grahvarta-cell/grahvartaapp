@@ -103,14 +103,17 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
       setState(() => _isPeerTyping = (data as Map)['is_typing'] == true);
     });
     socket.on('consultation_ended', (data) {
-      if (!mounted || _isEnded) return;
+      if (!mounted) return;
+      final alreadyEnded = _isEnded;
       setState(() => _isEnded = true);
-      final d = Map<String, dynamic>.from(data as Map);
-      _showEndDialog(d);
-      // Auto-close screen after dialog is dismissed
-      Future.delayed(const Duration(seconds: 6), () {
-        if (mounted) Navigator.of(context).popUntil((r) => r.isFirst || !r.isCurrent);
-      });
+      // If we didn't end it ourselves, show summary and auto-close
+      if (!alreadyEnded) {
+        final d = Map<String, dynamic>.from(data as Map);
+        _showEndDialog(d);
+        Future.delayed(const Duration(seconds: 6), () {
+          if (mounted) Navigator.of(context).popUntil((r) => r.isFirst);
+        });
+      }
     });
   }
 
@@ -253,10 +256,15 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
           TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel', style: TextStyle(color: context.clr.txtSecondary))),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(context); // close confirm dialog
               if (!_isEnded) {
                 setState(() => _isEnded = true);
                 SocketService.instance.astrologerEndConsultation(widget.consultationId);
+                // Navigate back immediately — server will echo consultation_ended
+                // but _isEnded guard would skip it, so we close here directly
+                Future.delayed(const Duration(milliseconds: 300), () {
+                  if (mounted) Navigator.of(context).popUntil((r) => r.isFirst);
+                });
               }
             },
             child: const Text('End'),

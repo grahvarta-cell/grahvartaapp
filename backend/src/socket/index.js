@@ -71,6 +71,21 @@ function initSocket(io) {
         console.log(`[request_consultation] user=${userId} astrologer_id=${astrologer_id} type=${type}`);
         console.log(`[onlineAstrologers] map size=${onlineAstrologers.size}`, [...onlineAstrologers.entries()]);
 
+        // If user has a recently completed consultation with this astrologer (within 10 min),
+        // silently ignore the re-request — prevents reconnect after lock/unlock creating a new session
+        const recentlyEnded = await db.query(
+          `SELECT id FROM consultations
+           WHERE user_id = $1 AND astrologer_id = $2
+             AND status IN ('completed', 'cancelled')
+             AND ended_at > NOW() - INTERVAL '10 minutes'
+           ORDER BY ended_at DESC LIMIT 1`,
+          [userId, astrologer_id]
+        );
+        if (recentlyEnded.rows.length) {
+          console.log(`[request_consultation] Ignored — consultation recently ended for user=${userId} astrologer=${astrologer_id}`);
+          return;
+        }
+
         // Reuse existing active/queued consultation if one exists
         const existing = await db.query(
           `SELECT * FROM consultations

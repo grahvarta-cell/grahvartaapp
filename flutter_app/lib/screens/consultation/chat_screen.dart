@@ -94,12 +94,14 @@ class _ChatScreenState extends State<ChatScreen> {
     _socket.connect(
       onConnected: widget.consultationId == null ? _requestConsultation : null,
       onReconnect: () {
-        // Re-request if we had an active consultation
         final state = _bloc.state;
+        // Never re-request if the session has already ended
+        if (state.isEnded) return;
+
         if (state.consultationId == null) {
           _requestConsultation();
         } else {
-          // Rejoin existing consultation room
+          // Rejoin existing active consultation room only
           _socket.emit('request_consultation', {
             'astrologer_id': widget.astrologer.id,
             'type': 'chat',

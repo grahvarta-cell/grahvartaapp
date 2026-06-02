@@ -1,3 +1,6 @@
+String _toTitleCase(String s) =>
+    s.split(' ').map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}').join(' ');
+
 class Astrologer {
   final String id;
   final String userId;
@@ -51,7 +54,7 @@ class Astrologer {
     return Astrologer(
       id: json['id'] ?? '',
       userId: json['user_id'] ?? '',
-      displayName: json['display_name'] ?? json['name'] ?? '',
+      displayName: _toTitleCase(json['display_name'] ?? json['name'] ?? ''),
       bio: json['bio'],
       avatarUrl: json['avatar_url'],
       experienceYears: json['experience_years'] ?? 0,

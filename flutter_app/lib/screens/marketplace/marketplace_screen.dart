@@ -339,7 +339,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
   Widget _buildAstrologerInfo(Astrologer astrologer) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
-        Text(astrologer.displayName.toUpperCase(), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.clr.txtPrimary)),
+        Text(astrologer.displayName, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.clr.txtPrimary)),
         const SizedBox(width: 4),
         if (astrologer.isVerified) Icon(Icons.verified, color: context.clr.accent, size: 14),
       ]),

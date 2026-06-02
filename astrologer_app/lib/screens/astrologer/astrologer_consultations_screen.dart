@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../services/api_service.dart';
-
+import '../../cubits/consultations_cubit.dart';
 import '../../theme/app_theme.dart';
 import 'astrologer_chat_screen.dart';
 import 'astrologer_call_screen.dart';
@@ -16,89 +16,76 @@ class AstrologerConsultationsScreen extends StatefulWidget {
 // Allow parent to trigger a refresh via GlobalKey
 class AstrologerConsultationsKey extends GlobalKey<_AstrologerConsultationsScreenState> {
   const AstrologerConsultationsKey() : super.constructor();
-  void refresh() => currentState?._loadConsultations();
+  void refresh() => currentState?._refresh();
 }
 
 class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabCtrl;
-  final Map<String, List<Map<String, dynamic>>> _consultations = {
-    'active': [],
-    'completed': [],
-    'all': [],
-  };
-  bool _loading = true;
+  late ConsultationsCubit _cubit;
 
   @override
   void initState() {
     super.initState();
     _tabCtrl = TabController(length: 3, vsync: this);
-    _loadConsultations();
+    _cubit = ConsultationsCubit()..load();
   }
 
   @override
   void dispose() {
     _tabCtrl.dispose();
+    _cubit.close();
     super.dispose();
   }
 
-  Future<void> _loadConsultations() async {
-    setState(() => _loading = true);
-    try {
-      final all = await ApiService.getAstrologerConsultations();
-      if (!mounted) return;
-      final items = all.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-      setState(() {
-        _consultations['all'] = items;
-        _consultations['active'] = items.where((c) => ['active', 'accepted'].contains(c['status'])).toList();
-        _consultations['completed'] = items.where((c) => ['completed', 'cancelled', 'missed'].contains(c['status'])).toList();
-        _loading = false;
-      });
-    } catch (_) {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
+  void _refresh() => _cubit.load();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: context.clr.surface,
-        title: const Text('Consultations', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh_rounded, color: context.clr.txtPrimary),
-            onPressed: _loadConsultations,
-          ),
-        ],
-        bottom: TabBar(
-          controller: _tabCtrl,
-          indicatorColor: context.clr.accent,
-          labelColor: context.clr.accent,
-          unselectedLabelColor: context.clr.txtMuted,
-          labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          tabs: [
-            Tab(text: 'Active (${_consultations['active']!.length})'),
-            const Tab(text: 'Completed'),
-            const Tab(text: 'All'),
-          ],
-        ),
-      ),
-      body: _loading
-          ? _buildShimmer()
-          : TabBarView(
-              controller: _tabCtrl,
-              children: [
-                _buildList(_consultations['active']!),
-                _buildList(_consultations['completed']!),
-                _buildList(_consultations['all']!),
+    return BlocProvider.value(
+      value: _cubit,
+      child: BlocBuilder<ConsultationsCubit, ConsultationsState>(
+        builder: (context, state) {
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: context.clr.surface,
+              title: const Text('Consultations', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.refresh_rounded, color: context.clr.txtPrimary),
+                  onPressed: () => _cubit.load(),
+                ),
               ],
+              bottom: TabBar(
+                controller: _tabCtrl,
+                indicatorColor: context.clr.accent,
+                labelColor: context.clr.accent,
+                unselectedLabelColor: context.clr.txtMuted,
+                labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                tabs: [
+                  Tab(text: 'Active (${state.active.length})'),
+                  const Tab(text: 'Completed'),
+                  const Tab(text: 'All'),
+                ],
+              ),
             ),
+            body: state.loading
+                ? _buildShimmer(context)
+                : TabBarView(
+                    controller: _tabCtrl,
+                    children: [
+                      _buildList(context, state.active),
+                      _buildList(context, state.completed),
+                      _buildList(context, state.all),
+                    ],
+                  ),
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildShimmer() {
+  Widget _buildShimmer(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: context.clr.card,
       highlightColor: context.clr.surface,
@@ -131,7 +118,7 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
     );
   }
 
-  Widget _buildList(List<Map<String, dynamic>> items) {
+  Widget _buildList(BuildContext context, List<Map<String, dynamic>> items) {
     if (items.isEmpty) {
       return Center(
         child: Column(
@@ -145,17 +132,17 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
       );
     }
     return RefreshIndicator(
-      onRefresh: _loadConsultations,
+      onRefresh: _cubit.load,
       color: context.clr.accent,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: items.length,
-        itemBuilder: (_, i) => _buildCard(items[i]),
+        itemBuilder: (_, i) => _buildCard(context, items[i]),
       ),
     );
   }
 
-  Widget _buildCard(Map<String, dynamic> c) {
+  Widget _buildCard(BuildContext context, Map<String, dynamic> c) {
     final status = c['status'] ?? 'completed';
     final type = c['type'] ?? 'chat';
     final userName = ((c['user_name'] ?? c['user']?['name'] ?? 'User') as String)
@@ -168,7 +155,7 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
     final isActive = ['active', 'accepted'].contains(status);
 
     return GestureDetector(
-      onTap: isActive ? () => _openActiveConsultation(c) : null,
+      onTap: isActive ? () => _openActiveConsultation(context, c) : null,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
@@ -218,13 +205,13 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
                         child: Text(userName,
                           style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
                       ),
-                      _statusBadge(status),
+                      _statusBadge(context, status),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      _typeIcon(type),
+                      _typeIcon(context, type),
                       const SizedBox(width: 4),
                       Text(_typeLabel(type),
                         style: TextStyle(color: context.clr.txtSecondary, fontSize: 12)),
@@ -267,7 +254,7 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
     );
   }
 
-  void _openActiveConsultation(Map<String, dynamic> c) {
+  void _openActiveConsultation(BuildContext context, Map<String, dynamic> c) {
     final type = c['type'] ?? 'chat';
     final consultationId = c['id'] ?? '';
     final userId = c['user']?['id']?.toString() ?? c['user_id']?.toString();
@@ -276,7 +263,7 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
     if (type == 'chat') {
       Navigator.push(context, MaterialPageRoute(
         builder: (_) => AstrologerChatScreen(consultationId: consultationId, userName: userName, userId: userId),
-      )).then((_) => _loadConsultations());
+      )).then((_) => _cubit.load());
     } else {
       Navigator.push(context, MaterialPageRoute(
         builder: (_) => AstrologerCallScreen(
@@ -285,11 +272,11 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
           type: type,
           onEnd: () => Navigator.pop(context),
         ),
-      )).then((_) => _loadConsultations());
+      )).then((_) => _cubit.load());
     }
   }
 
-  Widget _statusBadge(String status) {
+  Widget _statusBadge(BuildContext context, String status) {
     Color color;
     String label;
     switch (status) {
@@ -303,15 +290,15 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.4)),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Text(label, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w600)),
     );
   }
 
-  Widget _typeIcon(String type) {
+  Widget _typeIcon(BuildContext context, String type) {
     IconData icon;
     Color color;
     switch (type) {

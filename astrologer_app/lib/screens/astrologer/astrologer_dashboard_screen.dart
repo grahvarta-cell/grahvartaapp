@@ -1,149 +1,139 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../cubits/dashboard_cubit.dart';
 import '../../providers/auth_provider.dart';
-import '../../services/api_service.dart';
 import '../../theme/app_theme.dart';
 import 'astrologer_own_profile_screen.dart';
 import 'astrologer_earnings_screen.dart';
 
-class AstrologerDashboardScreen extends StatefulWidget {
+class AstrologerDashboardScreen extends StatelessWidget {
   const AstrologerDashboardScreen({super.key});
 
   @override
-  State<AstrologerDashboardScreen> createState() => _AstrologerDashboardScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => DashboardCubit()..load(),
+      child: const _AstrologerDashboardView(),
+    );
+  }
 }
 
-class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
-  Map<String, dynamic>? _dashboard;
-  bool _loading = true;
-  bool _toggling = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadDashboard();
-  }
-
-  Future<void> _loadDashboard() async {
-    if (mounted) setState(() => _loading = true);
-    try {
-      final data = await ApiService.getAstrologerDashboard();
-      if (mounted) setState(() { _dashboard = data['data']; _loading = false; });
-    } catch (_) {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  Future<void> _toggleAvailability() async {
-    final auth = context.read<AuthProvider>();
-    final current = auth.astrologerProfile?.isAvailable ?? true;
-    setState(() => _toggling = true);
-    try {
-      await ApiService.updateAvailability(!current);
-      await auth.refreshAstrologerProfile();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(!current ? 'You are now available' : 'You are now offline'), backgroundColor: context.clr.success),
-        );
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update availability'), backgroundColor: context.clr.error),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _toggling = false);
-    }
-  }
+class _AstrologerDashboardView extends StatelessWidget {
+  const _AstrologerDashboardView();
 
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final astrologer = auth.astrologerProfile;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: context.clr.surface,
-        leadingWidth: 64,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16),
-          child: GestureDetector(
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AstrologerOwnProfileScreen())),
-            child: CircleAvatar(
-              radius: 20,
-              backgroundImage: astrologer?.avatarUrl != null ? NetworkImage(astrologer!.avatarUrl!) : null,
-              backgroundColor: context.clr.accent.withValues(alpha: 0.2),
-              child: astrologer?.avatarUrl == null
-                  ? Text(
-                      (auth.user?.name?.isNotEmpty == true ? auth.user!.name[0].toUpperCase() : 'A'),
-                      style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold),
-                    )
-                  : null,
-            ),
-          ),
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Welcome, ${auth.user?.name?.split(' ').first ?? ''} ✨',
-              style: TextStyle(color: context.clr.txtPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
-            Text('Performance Overview', style: TextStyle(color: context.clr.txtSecondary, fontSize: 12)),
-          ],
-        ),
-        actions: [
-          if (astrologer != null)
-            GestureDetector(
-              onTap: _toggling ? null : _toggleAvailability,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: astrologer.isAvailable ? context.clr.success.withValues(alpha: 0.2) : context.clr.surface,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: astrologer.isAvailable ? context.clr.success : context.clr.border),
-                ),
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(astrologer.isAvailable ? Icons.toggle_on_rounded : Icons.toggle_off_rounded,
-                    color: astrologer.isAvailable ? context.clr.success : context.clr.txtMuted, size: 18),
-                  const SizedBox(width: 4),
-                  Text(astrologer.isAvailable ? 'Online' : 'Offline',
-                    style: TextStyle(
-                      color: astrologer.isAvailable ? context.clr.success : context.clr.txtMuted,
-                      fontSize: 12, fontWeight: FontWeight.w600)),
-                ]),
-              ),
-            ),
-          IconButton(
-            icon: Icon(Icons.account_balance_wallet_outlined, color: context.clr.txtPrimary),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AstrologerEarningsScreen())),
-            tooltip: 'Wallet',
-          ),
-        ],
-      ),
-      body: _loading
-          ? _buildShimmer()
-          : RefreshIndicator(
-              onRefresh: _loadDashboard,
-              color: context.clr.accent,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildStats(astrologer),
-                    const SizedBox(height: 20),
-                    _buildRecentConsultations(),
-                  ],
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        final cubit = context.read<DashboardCubit>();
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: context.clr.surface,
+            leadingWidth: 64,
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: GestureDetector(
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AstrologerOwnProfileScreen())),
+                child: CircleAvatar(
+                  radius: 20,
+                  backgroundImage: astrologer?.avatarUrl != null ? NetworkImage(astrologer!.avatarUrl!) : null,
+                  backgroundColor: context.clr.accent.withValues(alpha: 0.2),
+                  child: astrologer?.avatarUrl == null
+                      ? Text(
+                          (auth.user?.name?.isNotEmpty == true ? auth.user!.name[0].toUpperCase() : 'A'),
+                          style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold),
+                        )
+                      : null,
                 ),
               ),
             ),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Welcome, ${auth.user?.name?.split(' ').first ?? ''} ✨',
+                  style: TextStyle(color: context.clr.txtPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('Performance Overview', style: TextStyle(color: context.clr.txtSecondary, fontSize: 12)),
+              ],
+            ),
+            actions: [
+              if (astrologer != null)
+                GestureDetector(
+                  onTap: state.toggling ? null : () async {
+                    final current = astrologer.isAvailable;
+                    final success = await cubit.toggleAvailability(current);
+                    if (success) {
+                      await auth.refreshAstrologerProfile();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(!current ? 'You are now available' : 'You are now offline'),
+                            backgroundColor: context.clr.success,
+                          ),
+                        );
+                      }
+                    } else {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to update availability'), backgroundColor: context.clr.error),
+                        );
+                      }
+                    }
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: astrologer.isAvailable ? context.clr.success.withValues(alpha: 0.2) : context.clr.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: astrologer.isAvailable ? context.clr.success : context.clr.border),
+                    ),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(astrologer.isAvailable ? Icons.toggle_on_rounded : Icons.toggle_off_rounded,
+                        color: astrologer.isAvailable ? context.clr.success : context.clr.txtMuted, size: 18),
+                      const SizedBox(width: 4),
+                      Text(astrologer.isAvailable ? 'Online' : 'Offline',
+                        style: TextStyle(
+                          color: astrologer.isAvailable ? context.clr.success : context.clr.txtMuted,
+                          fontSize: 12, fontWeight: FontWeight.w600)),
+                    ]),
+                  ),
+                ),
+              IconButton(
+                icon: Icon(Icons.account_balance_wallet_outlined, color: context.clr.txtPrimary),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AstrologerEarningsScreen())),
+                tooltip: 'Wallet',
+              ),
+            ],
+          ),
+          body: state.loading
+              ? _buildShimmer(context)
+              : RefreshIndicator(
+                  onRefresh: cubit.load,
+                  color: context.clr.accent,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildStats(context, astrologer, state.data),
+                        const SizedBox(height: 20),
+                        _buildRecentConsultations(context, state.data),
+                      ],
+                    ),
+                  ),
+                ),
+        );
+      },
     );
   }
 
-  Widget _buildShimmer() {
+  Widget _buildShimmer(BuildContext context) {
     final base = context.clr.card;
     final highlight = context.clr.surface;
     return Shimmer.fromColors(
@@ -152,7 +142,6 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          // Stat cards grid — 2×2
           GridView.count(
             crossAxisCount: 2,
             crossAxisSpacing: 12,
@@ -165,10 +154,8 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
             )),
           ),
           const SizedBox(height: 20),
-          // Section title
           Container(height: 16, width: 180, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6))),
           const SizedBox(height: 12),
-          // Recent consultation rows
           Container(
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
             child: Column(children: List.generate(4, (i) => Padding(
@@ -190,8 +177,8 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
     );
   }
 
-  Widget _buildStats(AstrologerProfile? astrologer) {
-    final stats = _dashboard?['stats'] ?? {};
+  Widget _buildStats(BuildContext context, AstrologerProfile? astrologer, Map<String, dynamic>? data) {
+    final stats = data?['stats'] ?? {};
     return GridView.count(
       crossAxisCount: 2,
       crossAxisSpacing: 12,
@@ -200,15 +187,15 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
       physics: const NeverScrollableScrollPhysics(),
       childAspectRatio: 1.4,
       children: [
-        _statCard(Icons.people_rounded, 'Consultations', '${stats['total'] ?? 0}', context.clr.accent),
-        _statCard(Icons.star_rounded, 'Rating', '${(double.tryParse(astrologer?.rating.toString() ?? '0') ?? 0).toStringAsFixed(1)} (${astrologer?.reviewCount ?? 0})', const Color(0xFFFFD700)),
-        _statCard(Icons.trending_up_rounded, 'Total Earnings', '₹${(double.tryParse(stats['total_revenue']?.toString() ?? '0') ?? 0).toStringAsFixed(0)}', context.clr.success),
-        _statCard(Icons.access_time_rounded, 'Avg Duration', '${((double.tryParse(stats['avg_duration']?.toString() ?? '0') ?? 0) / 60).round()}m', Colors.blue),
+        _statCard(context, Icons.people_rounded, 'Consultations', '${stats['total'] ?? 0}', context.clr.accent),
+        _statCard(context, Icons.star_rounded, 'Rating', '${(double.tryParse(astrologer?.rating.toString() ?? '0') ?? 0).toStringAsFixed(1)} (${astrologer?.reviewCount ?? 0})', const Color(0xFFFFD700)),
+        _statCard(context, Icons.trending_up_rounded, 'Total Earnings', '₹${(double.tryParse(stats['total_revenue']?.toString() ?? '0') ?? 0).toStringAsFixed(0)}', context.clr.success),
+        _statCard(context, Icons.access_time_rounded, 'Avg Duration', '${((double.tryParse(stats['avg_duration']?.toString() ?? '0') ?? 0) / 60).round()}m', Colors.blue),
       ],
     );
   }
 
-  Widget _statCard(IconData icon, String label, String value, Color color) {
+  Widget _statCard(BuildContext context, IconData icon, String label, String value, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -221,7 +208,7 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
         children: [
           Container(
             width: 36, height: 36,
-            decoration: BoxDecoration(color: color.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
             child: Icon(icon, color: color, size: 18),
           ),
           const Spacer(),
@@ -232,8 +219,8 @@ class _AstrologerDashboardScreenState extends State<AstrologerDashboardScreen> {
     );
   }
 
-  Widget _buildRecentConsultations() {
-    final recent = (_dashboard?['recent_consultations'] as List?) ?? [];
+  Widget _buildRecentConsultations(BuildContext context, Map<String, dynamic>? data) {
+    final recent = (data?['recent_consultations'] as List?) ?? [];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

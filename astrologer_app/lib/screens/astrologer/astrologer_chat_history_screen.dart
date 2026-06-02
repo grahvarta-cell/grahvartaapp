@@ -1,36 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../services/api_service.dart';
+import '../../cubits/chat_history_cubit.dart';
 import '../../theme/app_theme.dart';
 import 'astrologer_user_thread_screen.dart';
 
-class AstrologerChatHistoryScreen extends StatefulWidget {
+class AstrologerChatHistoryScreen extends StatelessWidget {
   const AstrologerChatHistoryScreen({super.key});
 
   @override
-  State<AstrologerChatHistoryScreen> createState() => _AstrologerChatHistoryScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => ChatHistoryCubit()..load(),
+      child: const _AstrologerChatHistoryView(),
+    );
+  }
 }
 
-class _AstrologerChatHistoryScreenState extends State<AstrologerChatHistoryScreen> {
-  List<dynamic> _threads = [];
-  bool _isLoading = true;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    setState(() { _isLoading = true; _error = null; });
-    try {
-      final data = await ApiService.getAstrologerChatThreads();
-      if (mounted) setState(() { _threads = data; _isLoading = false; });
-    } catch (e) {
-      if (mounted) setState(() { _isLoading = false; _error = e.toString(); });
-    }
-  }
+class _AstrologerChatHistoryView extends StatelessWidget {
+  const _AstrologerChatHistoryView();
 
   String _timeLabel(String? iso) {
     if (iso == null) return '';
@@ -43,38 +31,45 @@ class _AstrologerChatHistoryScreenState extends State<AstrologerChatHistoryScree
       if (diff.inDays == 1) return 'Yesterday';
       if (diff.inDays < 7) return '${diff.inDays}d ago';
       return '${dt.day}/${dt.month}/${dt.year}';
-    } catch (_) { return ''; }
+    } catch (_) {
+      return '';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chat History', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-      ),
-      body: _isLoading
-          ? _buildShimmer()
-          : _error != null
-              ? _buildError()
-              : _threads.isEmpty
-                  ? _buildEmpty()
-                  : RefreshIndicator(
-                      onRefresh: _load,
-                      color: context.clr.accent,
-                      backgroundColor: context.clr.card,
-                      child: ListView.separated(
-                        itemCount: _threads.length,
-                        separatorBuilder: (_, __) => Divider(height: 1, color: context.clr.border, indent: 76),
-                        itemBuilder: (_, i) => _ThreadTile(
-                          thread: _threads[i],
-                          timeLabel: _timeLabel(_threads[i]['last_message_at']),
+    return BlocBuilder<ChatHistoryCubit, ChatHistoryState>(
+      builder: (context, state) {
+        final cubit = context.read<ChatHistoryCubit>();
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Chat History', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+          body: state.loading
+              ? _buildShimmer(context)
+              : state.error != null
+                  ? _buildError(context, state.error!, cubit)
+                  : state.threads.isEmpty
+                      ? _buildEmpty(context)
+                      : RefreshIndicator(
+                          onRefresh: cubit.load,
+                          color: context.clr.accent,
+                          backgroundColor: context.clr.card,
+                          child: ListView.separated(
+                            itemCount: state.threads.length,
+                            separatorBuilder: (_, __) => Divider(height: 1, color: context.clr.border, indent: 76),
+                            itemBuilder: (_, i) => _ThreadTile(
+                              thread: state.threads[i],
+                              timeLabel: _timeLabel(state.threads[i]['last_message_at']),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+        );
+      },
     );
   }
 
-  Widget _buildShimmer() {
+  Widget _buildShimmer(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: context.clr.card,
       highlightColor: context.clr.surface,
@@ -103,7 +98,7 @@ class _AstrologerChatHistoryScreenState extends State<AstrologerChatHistoryScree
     );
   }
 
-  Widget _buildError() => Center(
+  Widget _buildError(BuildContext context, String error, ChatHistoryCubit cubit) => Center(
     child: Padding(
       padding: const EdgeInsets.all(32),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -111,14 +106,14 @@ class _AstrologerChatHistoryScreenState extends State<AstrologerChatHistoryScree
         const SizedBox(height: 16),
         Text('Could not load chats', style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
-        Text(_error ?? '', style: TextStyle(color: context.clr.txtMuted, fontSize: 12), textAlign: TextAlign.center),
+        Text(error, style: TextStyle(color: context.clr.txtMuted, fontSize: 12), textAlign: TextAlign.center),
         const SizedBox(height: 20),
-        ElevatedButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: const Text('Retry')),
+        ElevatedButton.icon(onPressed: cubit.load, icon: const Icon(Icons.refresh_rounded), label: const Text('Retry')),
       ]),
     ),
   );
 
-  Widget _buildEmpty() => Center(
+  Widget _buildEmpty(BuildContext context) => Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
       Container(
         width: 80, height: 80,
@@ -150,10 +145,7 @@ class _ThreadTile extends StatelessWidget {
     return InkWell(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => AstrologerUserThreadScreen(
-          userId: userId,
-          userName: userName,
-        )),
+        MaterialPageRoute(builder: (_) => AstrologerUserThreadScreen(userId: userId, userName: userName)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

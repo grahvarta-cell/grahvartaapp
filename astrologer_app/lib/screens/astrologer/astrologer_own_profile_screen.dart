@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
+import '../../cubits/own_profile_cubit.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_theme.dart';
@@ -9,29 +10,29 @@ import '../auth/login_screen.dart';
 import '../auth/change_password_screen.dart';
 import 'astrologer_earnings_screen.dart';
 
-const _specializations = ['Vedic Astrology', 'Tarot', 'Numerology', 'KP Astrology', 'Western Astrology', 'Face Reading', 'Vastu', 'Prashna'];
-const _languages = ['Hindi', 'English', 'Tamil', 'Telugu', 'Kannada', 'Malayalam', 'Bengali', 'Marathi', 'Gujarati'];
 
-class AstrologerOwnProfileScreen extends StatefulWidget {
+class AstrologerOwnProfileScreen extends StatelessWidget {
   const AstrologerOwnProfileScreen({super.key});
 
   @override
-  State<AstrologerOwnProfileScreen> createState() => _AstrologerOwnProfileScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => OwnProfileCubit(),
+      child: const _AstrologerOwnProfileView(),
+    );
+  }
 }
 
-class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen> {
-  bool _editing = false;
-  bool _uploadingAvatar = false;
+class _AstrologerOwnProfileView extends StatefulWidget {
+  const _AstrologerOwnProfileView();
 
-  // Edit form state
+  @override
+  State<_AstrologerOwnProfileView> createState() => _AstrologerOwnProfileViewState();
+}
+
+class _AstrologerOwnProfileViewState extends State<_AstrologerOwnProfileView> {
   late TextEditingController _bioCtrl;
   late TextEditingController _expCtrl;
-  late List<String> _selectedSpecializations;
-  late List<String> _selectedLanguages;
-  double _chatRate = 10;
-  double _callRate = 15;
-  double _videoRate = 20;
-  bool _saving = false;
 
   @override
   void initState() {
@@ -43,11 +44,6 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
     final p = context.read<AuthProvider>().astrologerProfile;
     _bioCtrl = TextEditingController(text: p?.bio ?? '');
     _expCtrl = TextEditingController(text: p?.experienceYears.toString() ?? '');
-    _selectedSpecializations = List.from(p?.specializations ?? []);
-    _selectedLanguages = List.from(p?.languages ?? []);
-    _chatRate = p?.perMinuteRateChat ?? 10;
-    _callRate = p?.perMinuteRateCall ?? 15;
-    _videoRate = p?.perMinuteRateVideo ?? 20;
   }
 
   @override
@@ -57,30 +53,29 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
     super.dispose();
   }
 
-  Future<void> _saveChanges() async {
-    setState(() => _saving = true);
+  Future<void> _saveChanges(OwnProfileCubit cubit) async {
+    cubit.setSaving(true);
+    final auth = context.read<AuthProvider>();
     try {
-      // Note: update profile uses the astrologer update endpoint
-      // For now we update user profile fields that are supported
-      await ApiService.updateProfile({
-        'bio': _bioCtrl.text.trim(),
-      });
-      await context.read<AuthProvider>().refreshAstrologerProfile();
+      await ApiService.updateProfile({'bio': _bioCtrl.text.trim()});
+      await auth.refreshAstrologerProfile();
       if (mounted) {
-        setState(() { _editing = false; _saving = false; });
+        cubit.doneEditing();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Profile updated!'), backgroundColor: context.clr.success),
+          SnackBar(content: const Text('Profile updated!'), backgroundColor: context.clr.success),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error));
-        setState(() => _saving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error),
+        );
+        cubit.setSaving(false);
       }
     }
   }
 
-  Future<void> _pickAndUploadAvatar() async {
+  Future<void> _pickAndUploadAvatar(OwnProfileCubit cubit) async {
     final picker = ImagePicker();
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
@@ -110,13 +105,14 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
     final picked = await picker.pickImage(source: source, imageQuality: 80, maxWidth: 512);
     if (picked == null || !mounted) return;
 
-    setState(() => _uploadingAvatar = true);
+    final auth = context.read<AuthProvider>();
+    cubit.setUploadingAvatar(true);
     try {
       await ApiService.uploadAvatar(File(picked.path));
-      await context.read<AuthProvider>().refreshAstrologerProfile();
+      await auth.refreshAstrologerProfile();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Profile photo updated!'), backgroundColor: context.clr.success),
+          SnackBar(content: const Text('Profile photo updated!'), backgroundColor: context.clr.success),
         );
       }
     } catch (e) {
@@ -126,7 +122,7 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
         );
       }
     } finally {
-      if (mounted) setState(() => _uploadingAvatar = false);
+      if (mounted) cubit.setUploadingAvatar(false);
     }
   }
 
@@ -143,52 +139,60 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
     final user = auth.user;
     final profile = auth.astrologerProfile;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: context.clr.surface,
-        title: const Text('My Profile', style: TextStyle(color: Colors.white)),
-        actions: [
-          if (!_editing)
-            IconButton(
-              icon: Icon(Icons.edit_outlined, color: context.clr.txtPrimary),
-              onPressed: () => setState(() => _editing = true),
-            )
-          else ...[
-            TextButton(
-              onPressed: () { setState(() { _editing = false; _initEditFields(); }); },
-              child: Text('Cancel', style: TextStyle(color: context.clr.txtSecondary)),
+    return BlocBuilder<OwnProfileCubit, OwnProfileState>(
+      builder: (context, state) {
+        final cubit = context.read<OwnProfileCubit>();
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: context.clr.surface,
+            title: const Text('My Profile', style: TextStyle(color: Colors.white)),
+            actions: [
+              if (!state.editing)
+                IconButton(
+                  icon: Icon(Icons.edit_outlined, color: context.clr.txtPrimary),
+                  onPressed: cubit.startEditing,
+                )
+              else ...[
+                TextButton(
+                  onPressed: () {
+                    cubit.cancelEditing();
+                    _initEditFields();
+                  },
+                  child: Text('Cancel', style: TextStyle(color: context.clr.txtSecondary)),
+                ),
+                TextButton(
+                  onPressed: state.saving ? null : () => _saveChanges(cubit),
+                  child: state.saving
+                      ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: context.clr.accent))
+                      : Text('Save', style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ],
+          ),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  _buildHeader(context, state, cubit, user, profile),
+                  const SizedBox(height: 16),
+                  if (state.editing) _buildEditForm(context) else _buildViewMode(context, profile),
+                  const SizedBox(height: 24),
+                  _buildEarningsCard(context),
+                  const SizedBox(height: 24),
+                  _buildSettingsCard(context),
+                  const SizedBox(height: 24),
+                  _buildLogoutButton(context),
+                ],
+              ),
             ),
-            TextButton(
-              onPressed: _saving ? null : _saveChanges,
-              child: _saving
-                  ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: context.clr.accent))
-                  : Text('Save', style: TextStyle(color: context.clr.accent, fontWeight: FontWeight.bold)),
-            ),
-          ],
-        ],
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _buildHeader(user, profile),
-            const SizedBox(height: 16),
-            if (_editing) _buildEditForm() else _buildViewMode(profile),
-            const SizedBox(height: 24),
-            _buildEarningsCard(),
-            const SizedBox(height: 24),
-            _buildSettingsCard(),
-            const SizedBox(height: 24),
-            _buildLogoutButton(),
-          ],
-        ),
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildHeader(user, profile) {
+  Widget _buildHeader(BuildContext context, OwnProfileState state, OwnProfileCubit cubit, user, profile) {
     final name = profile?.displayName ?? user?.name ?? '';
     final initials = name.isNotEmpty ? name[0].toUpperCase() : 'A';
     final avatarUrl = profile?.avatarUrl ?? user?.avatarUrl;
@@ -197,9 +201,9 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
       decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(20), border: Border.all(color: context.clr.border)),
       child: Column(children: [
         GestureDetector(
-          onTap: _editing ? _pickAndUploadAvatar : null,
+          onTap: state.editing ? () => _pickAndUploadAvatar(cubit) : null,
           child: Stack(alignment: Alignment.bottomRight, children: [
-            _uploadingAvatar
+            state.uploadingAvatar
                 ? Container(
                     width: 80, height: 80,
                     decoration: BoxDecoration(shape: BoxShape.circle, color: context.clr.accent.withValues(alpha: 0.2)),
@@ -211,7 +215,7 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
                     backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
                     child: avatarUrl == null ? Text(initials, style: TextStyle(color: context.clr.accent, fontSize: 28, fontWeight: FontWeight.bold)) : null,
                   ),
-            if (_editing)
+            if (state.editing)
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(color: context.clr.accent, shape: BoxShape.circle),
@@ -227,7 +231,7 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
               decoration: BoxDecoration(
-                color: profile.isApproved ? context.clr.success.withValues(alpha: 0.15) : const Color(0xFFFFD700).withOpacity(0.15),
+                color: profile.isApproved ? context.clr.success.withValues(alpha: 0.15) : const Color(0xFFFFD700).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -238,18 +242,18 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
           ]),
           const SizedBox(height: 12),
           Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-            _headerStat('${profile.rating.toStringAsFixed(1)}', 'Rating', Icons.star, const Color(0xFFFFD700)),
-            _vDivider(),
-            _headerStat('${profile.totalConsultations}', 'Consults', Icons.people_rounded, context.clr.accent),
-            _vDivider(),
-            _headerStat('${profile.reviewCount}', 'Reviews', Icons.comment_outlined, Colors.blue),
+            _headerStat(context, '${profile.rating.toStringAsFixed(1)}', 'Rating', Icons.star, const Color(0xFFFFD700)),
+            _vDivider(context),
+            _headerStat(context, '${profile.totalConsultations}', 'Consults', Icons.people_rounded, context.clr.accent),
+            _vDivider(context),
+            _headerStat(context, '${profile.reviewCount}', 'Reviews', Icons.comment_outlined, Colors.blue),
           ]),
         ],
       ]),
     );
   }
 
-  Widget _headerStat(String value, String label, IconData icon, Color color) {
+  Widget _headerStat(BuildContext context, String value, String label, IconData icon, Color color) {
     return Column(children: [
       Icon(icon, color: color, size: 18),
       const SizedBox(height: 4),
@@ -258,34 +262,20 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
     ]);
   }
 
-  Widget _vDivider() => Container(height: 40, width: 1, color: context.clr.border);
+  Widget _vDivider(BuildContext context) => Container(height: 40, width: 1, color: context.clr.border);
 
-  Widget _buildViewMode(AstrologerProfile? profile) {
+  Widget _buildViewMode(BuildContext context, AstrologerProfile? profile) {
     if (profile == null) return const SizedBox();
     return Column(children: [
-      if (profile.bio != null && profile.bio!.isNotEmpty)
-        _infoCard('Bio', profile.bio!),
-      if (profile.specializations.isNotEmpty)
-        _chipCard('Specializations', profile.specializations),
-      if (profile.languages.isNotEmpty)
-        _chipCard('Languages', profile.languages),
-      if (profile.expertiseAreas.isNotEmpty)
-        _chipCard('Expertise Areas', profile.expertiseAreas),
-      _ratesCard(profile),
+      if (profile.bio != null && profile.bio!.isNotEmpty) _infoCard(context, 'Bio', profile.bio!),
+      if (profile.specializations.isNotEmpty) _chipCard(context, 'Specializations', profile.specializations),
+      if (profile.languages.isNotEmpty) _chipCard(context, 'Languages', profile.languages),
+      if (profile.expertiseAreas.isNotEmpty) _chipCard(context, 'Expertise Areas', profile.expertiseAreas),
+      _ratesCard(context, profile),
     ]);
   }
 
-  Widget _infoCard(String title, String content, {int? scrollableLines}) {
-    final textStyle = TextStyle(color: context.clr.txtPrimary, fontSize: 14, height: 1.5);
-    final contentWidget = scrollableLines != null
-        ? ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: 14 * 1.5 * scrollableLines),
-            child: SingleChildScrollView(
-              child: Text(content, style: textStyle),
-            ),
-          )
-        : Text(content, style: textStyle);
-
+  Widget _infoCard(BuildContext context, String title, String content) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -293,12 +283,12 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(title, style: TextStyle(color: context.clr.txtSecondary, fontSize: 12, fontWeight: FontWeight.w600)),
         const SizedBox(height: 6),
-        contentWidget,
+        Text(content, style: TextStyle(color: context.clr.txtPrimary, fontSize: 14, height: 1.5)),
       ]),
     );
   }
 
-  Widget _chipCard(String title, List<String> items) {
+  Widget _chipCard(BuildContext context, String title, List<String> items) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 12),
@@ -310,7 +300,11 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
         Wrap(spacing: 6, runSpacing: 6, children: items.map((i) =>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(color: context.clr.accent.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20), border: Border.all(color: context.clr.accent.withValues(alpha: 0.3))),
+            decoration: BoxDecoration(
+              color: context.clr.accent.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: context.clr.accent.withValues(alpha: 0.3)),
+            ),
             child: Text(i, style: TextStyle(color: context.clr.accent, fontSize: 12)),
           )
         ).toList()),
@@ -318,7 +312,7 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
     );
   }
 
-  Widget _ratesCard(AstrologerProfile profile) {
+  Widget _ratesCard(BuildContext context, AstrologerProfile profile) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -327,22 +321,22 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
         Text('Per Minute Rates', style: TextStyle(color: context.clr.txtSecondary, fontSize: 12, fontWeight: FontWeight.w600)),
         const SizedBox(height: 12),
         Row(children: [
-          _rateItem('Chat', profile.perMinuteRateChat),
-          _rateItem('Call', profile.perMinuteRateCall),
-          _rateItem('Video', profile.perMinuteRateVideo),
+          _rateItem(context, 'Chat', profile.perMinuteRateChat),
+          _rateItem(context, 'Call', profile.perMinuteRateCall),
+          _rateItem(context, 'Video', profile.perMinuteRateVideo),
         ]),
       ]),
     );
   }
 
-  Widget _rateItem(String label, double rate) {
+  Widget _rateItem(BuildContext context, String label, double rate) {
     return Expanded(child: Column(children: [
       Text('₹${rate.toStringAsFixed(0)}/min', style: TextStyle(color: context.clr.accent, fontSize: 15, fontWeight: FontWeight.bold)),
       Text(label, style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
     ]));
   }
 
-  Widget _buildEditForm() {
+  Widget _buildEditForm(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.clr.border)),
@@ -366,16 +360,12 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
     );
   }
 
-  Widget _buildEarningsCard() {
+  Widget _buildEarningsCard(BuildContext context) {
     return GestureDetector(
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AstrologerEarningsScreen())),
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: context.clr.card,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: context.clr.border),
-        ),
+        decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.clr.border)),
         child: Row(children: [
           Container(
             width: 44, height: 44,
@@ -383,30 +373,25 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
             child: Icon(Icons.account_balance_wallet_rounded, color: context.clr.accent, size: 22),
           ),
           const SizedBox(width: 14),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Earnings & Wallet', style: TextStyle(color: context.clr.txtPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
-              Text('View transactions & request withdrawal', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
-            ]),
-          ),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Earnings & Wallet', style: TextStyle(color: context.clr.txtPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
+            Text('View transactions & request withdrawal', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
+          ])),
           Icon(Icons.chevron_right_rounded, color: context.clr.txtMuted),
         ]),
       ),
     );
   }
 
-  Widget _buildSettingsCard() {
+  Widget _buildSettingsCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.clr.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.clr.border),
-      ),
+      decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.clr.border)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('Settings', style: TextStyle(color: context.clr.txtSecondary, fontSize: 12, fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
         _buildSettingsTile(
+          context,
           icon: Icons.lock_outline_rounded,
           title: 'Change Password',
           subtitle: 'Update your account password',
@@ -416,7 +401,7 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
     );
   }
 
-  Widget _buildSettingsTile({required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
+  Widget _buildSettingsTile(BuildContext context, {required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Row(children: [
@@ -426,18 +411,16 @@ class _AstrologerOwnProfileScreenState extends State<AstrologerOwnProfileScreen>
           child: Icon(icon, color: context.clr.accent, size: 22),
         ),
         const SizedBox(width: 14),
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: TextStyle(color: context.clr.txtPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
-            Text(subtitle, style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
-          ]),
-        ),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(title, style: TextStyle(color: context.clr.txtPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
+          Text(subtitle, style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
+        ])),
         Icon(Icons.chevron_right_rounded, color: context.clr.txtMuted),
       ]),
     );
   }
 
-  Widget _buildLogoutButton() {
+  Widget _buildLogoutButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(

@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../services/api_service.dart';
+import '../../cubits/chat_cubit.dart';
 import '../../services/socket_service.dart';
 import '../../theme/app_theme.dart';
 
@@ -20,16 +21,14 @@ class AstrologerChatScreen extends StatefulWidget {
 class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
   final _ctrl = TextEditingController();
   final _scroll = ScrollController();
-  final List<Map<String, dynamic>> _messages = [];
-  bool _loading = true;
-  bool _isEnded = false;
-  bool _isPeerTyping = false;
-  int _elapsed = 0;
+  late final ChatCubit _cubit;
+  CameraDevice _cameraDevice = CameraDevice.front;
 
   @override
   void initState() {
     super.initState();
-    _loadHistory();
+    _cubit = ChatCubit(consultationId: widget.consultationId, userId: widget.userId);
+    _cubit.loadHistory().then((_) => _scrollBottom());
     _setupSocket();
   }
 
@@ -41,72 +40,34 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
     SocketService.instance.off('consultation_ended');
     _ctrl.dispose();
     _scroll.dispose();
+    _cubit.close();
     super.dispose();
-  }
-
-  Future<void> _loadHistory() async {
-    try {
-      // Load old cross-session history first (if userId is known)
-      if (widget.userId != null && widget.userId!.isNotEmpty) {
-        try {
-          final data = await ApiService.getAstrologerUserMessages(widget.userId!);
-          final old = List<dynamic>.from(data['messages'] ?? []);
-          if (old.isNotEmpty && mounted) {
-            setState(() {
-              _messages.addAll(old.map((m) {
-                final map = Map<String, dynamic>.from(m as Map);
-                map['type'] = map['message_type'] ?? map['type'] ?? 'text';
-                return map;
-              }));
-              _messages.add({'sender_type': 'system', 'content': '─── Current session ───', 'created_at': DateTime.now().toIso8601String()});
-            });
-          }
-        } catch (_) {}
-      }
-
-      final msgs = await ApiService.getAstrologerConsultationMessages(widget.consultationId);
-      if (mounted) {
-        setState(() {
-          _messages.addAll(msgs.map((m) {
-            final map = Map<String, dynamic>.from(m as Map);
-            map['type'] = map['message_type'] ?? map['type'] ?? 'text';
-            return map;
-          }));
-          _loading = false;
-        });
-        _scrollBottom();
-      }
-    } catch (_) {
-      if (mounted) setState(() => _loading = false);
-    }
   }
 
   void _setupSocket() {
     final socket = SocketService.instance;
-    // Join the consultation room so we receive new_message and billing_tick
     socket.joinConsultation(widget.consultationId);
     socket.on('new_message', (data) {
       if (!mounted) return;
       final msg = Map<String, dynamic>.from(data as Map);
       if (msg['sender_type'] == 'astrologer') return;
       final normalized = {...msg, 'type': msg['message_type'] ?? msg['type'] ?? 'text'};
-      setState(() => _messages.add(normalized));
+      _cubit.addMessage(normalized);
       _scrollBottom();
     });
     socket.on('billing_tick', (data) {
       if (!mounted) return;
       final d = Map<String, dynamic>.from(data as Map);
-      setState(() => _elapsed = d['seconds'] ?? _elapsed);
+      _cubit.updateBillingTick(d['seconds'] ?? _cubit.state.elapsed);
     });
     socket.on('peer_typing', (data) {
       if (!mounted) return;
-      setState(() => _isPeerTyping = (data as Map)['is_typing'] == true);
+      _cubit.setPeerTyping((data as Map)['is_typing'] == true);
     });
     socket.on('consultation_ended', (data) {
       if (!mounted) return;
-      final alreadyEnded = _isEnded;
-      setState(() => _isEnded = true);
-      // If we didn't end it ourselves, show summary and auto-close
+      final alreadyEnded = _cubit.state.isEnded;
+      _cubit.setEnded();
       if (!alreadyEnded) {
         final d = Map<String, dynamic>.from(data as Map);
         _showEndDialog(d);
@@ -118,7 +79,7 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
   }
 
   void _showEndDialog(Map<String, dynamic> data) {
-    final duration = data['duration'] ?? _elapsed;
+    final duration = data['duration'] ?? _cubit.state.elapsed;
     final total = double.tryParse(data['total_amount']?.toString() ?? '0') ?? 0;
     showDialog(
       context: context,
@@ -138,9 +99,7 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
         ]),
         actions: [
           ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).popUntil((r) => r.isFirst);
-            },
+            onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
             child: const Text('Done'),
           ),
         ],
@@ -150,24 +109,23 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
 
   void _scrollBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scroll.hasClients) _scroll.animateTo(_scroll.position.maxScrollExtent, duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+      if (_scroll.hasClients) {
+        _scroll.animateTo(_scroll.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+      }
     });
   }
 
   void _sendMessage() {
     final text = _ctrl.text.trim();
-    if (text.isEmpty || _isEnded) return;
-    SocketService.instance.sendTypingStop(widget.consultationId);
-    SocketService.instance.sendMessage(widget.consultationId, text);
-    setState(() => _messages.add({'sender_type': 'astrologer', 'content': text, 'created_at': DateTime.now().toIso8601String()}));
+    if (text.isEmpty || _cubit.state.isEnded) return;
+    _cubit.sendTextMessage(text);
     _ctrl.clear();
     _scrollBottom();
   }
 
-  CameraDevice _cameraDevice = CameraDevice.front;
-
   void _showImageOptions() {
-    if (_isEnded) return;
+    if (_cubit.state.isEnded) return;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
@@ -215,30 +173,8 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
       imageQuality: 80,
     );
     if (picked == null || !mounted) return;
-
-    final localId = 'uploading_${DateTime.now().millisecondsSinceEpoch}';
-    setState(() => _messages.add({
-      'id': localId, 'sender_type': 'astrologer', 'content': '', 'type': 'image_uploading',
-      'created_at': DateTime.now().toIso8601String(),
-    }));
+    await _cubit.uploadAndSendImage(File(picked.path));
     _scrollBottom();
-
-    try {
-      final url = await ApiService.uploadChatImage(File(picked.path));
-      if (!mounted) return;
-      setState(() {
-        final idx = _messages.indexWhere((m) => m['id'] == localId);
-        if (idx != -1) _messages[idx] = {'id': localId, 'sender_type': 'astrologer', 'content': url, 'type': 'image', 'created_at': DateTime.now().toIso8601String()};
-      });
-      SocketService.instance.sendMessage(widget.consultationId, url, type: 'image');
-      _scrollBottom();
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        final idx = _messages.indexWhere((m) => m['id'] == localId);
-        if (idx != -1) _messages[idx] = {'sender_type': 'astrologer', 'content': '⚠️ Image failed to send', 'type': 'text', 'created_at': DateTime.now().toIso8601String()};
-      });
-    }
   }
 
   void _openFullscreen(String url) {
@@ -256,12 +192,10 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
           TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel', style: TextStyle(color: context.clr.txtSecondary))),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context); // close confirm dialog
-              if (!_isEnded) {
-                setState(() => _isEnded = true);
+              Navigator.pop(context);
+              if (!_cubit.state.isEnded) {
+                _cubit.setEnded();
                 SocketService.instance.astrologerEndConsultation(widget.consultationId);
-                // Navigate back immediately — server will echo consultation_ended
-                // but _isEnded guard would skip it, so we close here directly
                 Future.delayed(const Duration(milliseconds: 300), () {
                   if (mounted) Navigator.of(context).popUntil((r) => r.isFirst);
                 });
@@ -274,29 +208,6 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
     );
   }
 
-  Widget _buildTypingIndicator() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-      child: Row(children: [
-        CircleAvatar(
-          radius: 12,
-          backgroundColor: context.clr.accent.withValues(alpha: 0.2),
-          child: Text(widget.userName[0].toUpperCase(), style: TextStyle(color: context.clr.accent, fontSize: 10)),
-        ),
-        const SizedBox(width: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(18)),
-          child: Row(children: List.generate(3, (i) => Container(
-            margin: EdgeInsets.only(right: i < 2 ? 3 : 0),
-            width: 6, height: 6,
-            decoration: BoxDecoration(color: context.clr.txtMuted, shape: BoxShape.circle),
-          ))),
-        ),
-      ]),
-    );
-  }
-
   String _formatTime(int seconds) {
     final m = seconds ~/ 60;
     final s = seconds % 60;
@@ -305,53 +216,63 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: context.clr.surface,
-        titleSpacing: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(widget.userName.split(' ').map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}').join(' '), style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
-            if (_elapsed > 0)
-              Text('Duration: ${_formatTime(_elapsed)}', style: TextStyle(color: context.clr.accent, fontSize: 12)),
-          ],
-        ),
-        actions: [
-          TextButton.icon(
-            onPressed: _endConsultation,
-            icon: Icon(Icons.call_end, color: context.clr.error, size: 18),
-            label: Text('End', style: TextStyle(color: context.clr.error)),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _isEnded
-                ? Center(child: Text('Session ended', style: TextStyle(color: context.clr.txtMuted)))
-                : _loading
-                ? _buildShimmer()
-                : _messages.isEmpty
-                    ? Center(child: Text('No messages yet', style: TextStyle(color: context.clr.txtMuted)))
-                    : ListView.builder(
-                        controller: _scroll,
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _messages.length,
-                        itemBuilder: (_, i) => _AnimatedBubble(
-                          key: ValueKey(_messages[i]['id'] ?? _messages[i]['created_at'] ?? i),
-                          child: _buildMessage(_messages[i]),
-                        ),
-                      ),
-          ),
-          if (_isPeerTyping) _buildTypingIndicator(),
-          if (!_isEnded) _buildInput(),
-        ],
+    return BlocProvider.value(
+      value: _cubit,
+      child: BlocBuilder<ChatCubit, ChatState>(
+        builder: (context, state) {
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: context.clr.surface,
+              titleSpacing: 0,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.userName.split(' ').map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}').join(' '),
+                    style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  if (state.elapsed > 0)
+                    Text('Duration: ${_formatTime(state.elapsed)}', style: TextStyle(color: context.clr.accent, fontSize: 12)),
+                ],
+              ),
+              actions: [
+                TextButton.icon(
+                  onPressed: _endConsultation,
+                  icon: Icon(Icons.call_end, color: context.clr.error, size: 18),
+                  label: Text('End', style: TextStyle(color: context.clr.error)),
+                ),
+              ],
+            ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: state.isEnded
+                      ? Center(child: Text('Session ended', style: TextStyle(color: context.clr.txtMuted)))
+                      : state.loading
+                      ? _buildShimmer(context)
+                      : state.messages.isEmpty
+                          ? Center(child: Text('No messages yet', style: TextStyle(color: context.clr.txtMuted)))
+                          : ListView.builder(
+                              controller: _scroll,
+                              padding: const EdgeInsets.all(16),
+                              itemCount: state.messages.length,
+                              itemBuilder: (_, i) => _AnimatedBubble(
+                                key: ValueKey(state.messages[i]['id'] ?? state.messages[i]['created_at'] ?? i),
+                                child: _buildMessage(context, state.messages[i]),
+                              ),
+                            ),
+                ),
+                if (state.isPeerTyping) _buildTypingIndicator(context),
+                if (!state.isEnded) _buildInput(context),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildShimmer() {
+  Widget _buildShimmer(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: context.clr.card,
       highlightColor: context.clr.surface,
@@ -383,7 +304,7 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
     );
   }
 
-  Widget _buildMessage(Map<String, dynamic> msg) {
+  Widget _buildMessage(BuildContext context, Map<String, dynamic> msg) {
     final senderType = msg['sender_type'] ?? msg['sender_role'] ?? '';
     if (senderType == 'system') {
       return Padding(
@@ -443,7 +364,9 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
       );
     }
 
-    final senderName = isMe ? 'You' : widget.userName.split(' ').map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}').join(' ');
+    final senderName = isMe
+        ? 'You'
+        : widget.userName.split(' ').map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}').join(' ');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -451,19 +374,8 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
         crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(
-              left: isMe ? 0 : 4,
-              right: isMe ? 4 : 0,
-              bottom: 3,
-            ),
-            child: Text(
-              senderName,
-              style: TextStyle(
-                color: context.clr.txtMuted,
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            padding: EdgeInsets.only(left: isMe ? 0 : 4, right: isMe ? 4 : 0, bottom: 3),
+            child: Text(senderName, style: TextStyle(color: context.clr.txtMuted, fontSize: 11, fontWeight: FontWeight.w500)),
           ),
           Align(
             alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -474,7 +386,30 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
     );
   }
 
-  Widget _buildInput() {
+  Widget _buildTypingIndicator(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+      child: Row(children: [
+        CircleAvatar(
+          radius: 12,
+          backgroundColor: context.clr.accent.withValues(alpha: 0.2),
+          child: Text(widget.userName[0].toUpperCase(), style: TextStyle(color: context.clr.accent, fontSize: 10)),
+        ),
+        const SizedBox(width: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(color: context.clr.card, borderRadius: BorderRadius.circular(18)),
+          child: Row(children: List.generate(3, (i) => Container(
+            margin: EdgeInsets.only(right: i < 2 ? 3 : 0),
+            width: 6, height: 6,
+            decoration: BoxDecoration(color: context.clr.txtMuted, shape: BoxShape.circle),
+          ))),
+        ),
+      ]),
+    );
+  }
+
+  Widget _buildInput(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(left: 8, right: 16, top: 12, bottom: MediaQuery.of(context).padding.bottom + 12),
       color: context.clr.surface,

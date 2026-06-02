@@ -1,26 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../cubits/community_cubit.dart';
 import '../../models/astrologer.dart';
 import '../../providers/auth_provider.dart';
-import '../../services/api_service.dart';
 import '../../theme/app_theme.dart';
 
-class AstrologerCommunityScreen extends StatefulWidget {
+class AstrologerCommunityScreen extends StatelessWidget {
   const AstrologerCommunityScreen({super.key});
 
   @override
-  State<AstrologerCommunityScreen> createState() => _AstrologerCommunityScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => CommunityCubit()..load(),
+      child: const _AstrologerCommunityView(),
+    );
+  }
 }
 
-class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
-  List<CommunityPost> _posts = [];
-  bool _loading = true;
+class _AstrologerCommunityView extends StatefulWidget {
+  const _AstrologerCommunityView();
+
+  @override
+  State<_AstrologerCommunityView> createState() => _AstrologerCommunityViewState();
+}
+
+class _AstrologerCommunityViewState extends State<_AstrologerCommunityView> {
   final _postCtrl = TextEditingController();
-  String _selectedCategory = 'general';
-  String? _filterCategory; // null = all
-  String _sortBy = 'latest'; // latest | liked | commented
-  bool _submitting = false;
 
   static const _categories = ['general', 'horoscope', 'tips', 'meditation', 'vastu'];
   static const _sortOptions = [
@@ -29,181 +35,106 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
     {'key': 'commented', 'label': 'Most Commented'},
   ];
 
-  List<CommunityPost> get _sortedPosts {
-    final list = List<CommunityPost>.from(_posts);
-    if (_sortBy == 'liked')     list.sort((a, b) => b.likesCount.compareTo(a.likesCount));
-    if (_sortBy == 'commented') list.sort((a, b) => b.commentsCount.compareTo(a.commentsCount));
-    return list;
-  }
-
-  bool get _hasActiveFilter => _filterCategory != null || _sortBy != 'latest';
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
   @override
   void dispose() {
     _postCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _load() async {
-    if (mounted) setState(() => _loading = true);
-    try {
-      final posts = await ApiService.getCommunityPosts(category: _filterCategory);
-      if (mounted) setState(() { _posts = posts; _loading = false; });
-    } catch (_) {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  Future<void> _createPost() async {
-    final text = _postCtrl.text.trim();
-    if (text.isEmpty) return;
-    setState(() => _submitting = true);
-    try {
-      await ApiService.createPost(text, category: _selectedCategory);
-      _postCtrl.clear();
-      await _load();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Post created!'), backgroundColor: context.clr.success),
-        );
-      }
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error));
-    } finally {
-      if (mounted) setState(() => _submitting = false);
-    }
-  }
-
-  Future<void> _deletePost(String id) async {
-    try {
-      await ApiService.deletePost(id);
-      await _load();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post deleted')));
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error));
-    }
-  }
-
-  Future<void> _toggleLike(String postId) async {
-    await ApiService.toggleLike(postId);
-    await _load();
-  }
-
-  void _openFilterSheet() {
-    // local copies so changes only apply on Apply
-    String tempCategory = _filterCategory ?? 'all';
-    String tempSort = _sortBy;
+  void _openFilterSheet(BuildContext context, CommunityCubit cubit, CommunityState state) {
+    String tempCategory = state.filterCategory ?? 'all';
+    String tempSort = state.sortBy;
 
     showModalBottomSheet(
       context: context,
       backgroundColor: context.clr.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       isScrollControlled: true,
-      builder: (ctx) {
-        return StatefulBuilder(builder: (ctx, setSheet) {
-          return Padding(
-            padding: EdgeInsets.fromLTRB(20, 16, 20, MediaQuery.of(ctx).padding.bottom + 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // handle
-                Center(
-                  child: Container(
-                    width: 40, height: 4,
-                    decoration: BoxDecoration(color: context.clr.border, borderRadius: BorderRadius.circular(2)),
+      builder: (ctx) => StatefulBuilder(builder: (ctx, setSheet) {
+        return Padding(
+          padding: EdgeInsets.fromLTRB(20, 16, 20, MediaQuery.of(ctx).padding.bottom + 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(color: context.clr.border, borderRadius: BorderRadius.circular(2)),
+              )),
+              const SizedBox(height: 20),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text('Filter & Sort', style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.w700)),
+                TextButton(
+                  onPressed: () => setSheet(() { tempCategory = 'all'; tempSort = 'latest'; }),
+                  child: Text('Reset', style: TextStyle(color: context.clr.accent, fontSize: 13)),
+                ),
+              ]),
+              const SizedBox(height: 16),
+              Text('Category', style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 10),
+              GridView.count(
+                crossAxisCount: 3,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                childAspectRatio: 2.6,
+                children: [
+                  _sheetChip(context, 'All', tempCategory == 'all', () => setSheet(() => tempCategory = 'all')),
+                  ..._categories.map((c) => _sheetChip(
+                    context,
+                    c[0].toUpperCase() + c.substring(1),
+                    tempCategory == c,
+                    () => setSheet(() => tempCategory = c),
+                  )),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Text('Sort By', style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 10),
+              GridView.count(
+                crossAxisCount: 3,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                childAspectRatio: 2.6,
+                children: _sortOptions.map((s) => _sheetChip(
+                  context,
+                  s['label']!,
+                  tempSort == s['key'],
+                  () => setSheet(() => tempSort = s['key']!),
+                  activeColor: context.clr.accentAlt,
+                )).toList(),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    cubit.applyFilter(
+                      category: tempCategory == 'all' ? null : tempCategory,
+                      sort: tempSort,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: context.clr.accent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
+                  child: const Text('Apply', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                 ),
-                const SizedBox(height: 20),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Text('Filter & Sort', style: TextStyle(color: context.clr.txtPrimary, fontSize: 16, fontWeight: FontWeight.w700)),
-                  TextButton(
-                    onPressed: () {
-                      setSheet(() { tempCategory = 'all'; tempSort = 'latest'; });
-                    },
-                    child: Text('Reset', style: TextStyle(color: context.clr.accent, fontSize: 13)),
-                  ),
-                ]),
-                const SizedBox(height: 16),
-
-                // Category section
-                Text('Category', style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 10),
-                GridView.count(
-                  crossAxisCount: 3,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  childAspectRatio: 2.6,
-                  children: [
-                    _sheetChip('All', tempCategory == 'all', () => setSheet(() => tempCategory = 'all')),
-                    ..._categories.map((c) => _sheetChip(
-                      c[0].toUpperCase() + c.substring(1),
-                      tempCategory == c,
-                      () => setSheet(() => tempCategory = c),
-                    )),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Sort section
-                Text('Sort By', style: TextStyle(color: context.clr.txtSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 10),
-                GridView.count(
-                  crossAxisCount: 3,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  childAspectRatio: 2.6,
-                  children: _sortOptions.map((s) => _sheetChip(
-                    s['label']!,
-                    tempSort == s['key'],
-                    () => setSheet(() => tempSort = s['key']!),
-                    activeColor: context.clr.accentAlt,
-                  )).toList(),
-                ),
-                const SizedBox(height: 24),
-
-                // Apply button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      setState(() {
-                        _filterCategory = tempCategory == 'all' ? null : tempCategory;
-                        _sortBy = tempSort;
-                      });
-                      _load();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: context.clr.accent,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    ),
-                    child: const Text('Apply', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-                  ),
-                ),
-              ],
-            ),
-          );
-        });
-      },
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 
-  Widget _sheetChip(String label, bool isSelected, VoidCallback onTap, {Color? activeColor}) {
+  Widget _sheetChip(BuildContext context, String label, bool isSelected, VoidCallback onTap, {Color? activeColor}) {
     final color = activeColor ?? context.clr.accent;
     return GestureDetector(
       onTap: onTap,
@@ -232,60 +163,65 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
     final auth = context.watch<AuthProvider>();
     final myName = auth.astrologerProfile?.displayName ?? auth.user?.name ?? '';
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: context.clr.surface,
-        title: const Text('Community', style: TextStyle(color: Colors.white)),
-        actions: [
-          Stack(
-            children: [
-              IconButton(
-                icon: Icon(Icons.tune_rounded, color: context.clr.txtPrimary),
-                onPressed: _openFilterSheet,
-                tooltip: 'Filter & Sort',
-              ),
-              if (_hasActiveFilter)
-                Positioned(
-                  right: 10, top: 10,
-                  child: Container(
-                    width: 8, height: 8,
-                    decoration: BoxDecoration(color: context.clr.accent, shape: BoxShape.circle),
+    return BlocBuilder<CommunityCubit, CommunityState>(
+      builder: (context, state) {
+        final cubit = context.read<CommunityCubit>();
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: context.clr.surface,
+            title: const Text('Community', style: TextStyle(color: Colors.white)),
+            actions: [
+              Stack(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.tune_rounded, color: context.clr.txtPrimary),
+                    onPressed: () => _openFilterSheet(context, cubit, state),
+                    tooltip: 'Filter & Sort',
                   ),
-                ),
+                  if (state.hasActiveFilter)
+                    Positioned(
+                      right: 10, top: 10,
+                      child: Container(
+                        width: 8, height: 8,
+                        decoration: BoxDecoration(color: context.clr.accent, shape: BoxShape.circle),
+                      ),
+                    ),
+                ],
+              ),
             ],
           ),
-        ],
-      ),
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-        children: [
-          _buildComposer(myName),
-          Expanded(
-            child: _loading
-                ? _buildShimmer()
-                : RefreshIndicator(
-                    onRefresh: _load,
-                    color: context.clr.accent,
-                    child: _sortedPosts.isEmpty
-                        ? Center(child: Text(
-                            _filterCategory == null ? 'No posts yet. Share something!' : 'No posts in this category.',
-                            style: TextStyle(color: context.clr.txtMuted)))
-                        : ListView.separated(
-                            padding: const EdgeInsets.all(16),
-                            itemCount: _sortedPosts.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 12),
-                            itemBuilder: (_, i) => _postCard(_sortedPosts[i], myName),
-                          ),
-                  ),
+          body: SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                _buildComposer(context, myName, state, cubit),
+                Expanded(
+                  child: state.loading
+                      ? _buildShimmer(context)
+                      : RefreshIndicator(
+                          onRefresh: cubit.load,
+                          color: context.clr.accent,
+                          child: state.sortedPosts.isEmpty
+                              ? Center(child: Text(
+                                  state.filterCategory == null ? 'No posts yet. Share something!' : 'No posts in this category.',
+                                  style: TextStyle(color: context.clr.txtMuted)))
+                              : ListView.separated(
+                                  padding: const EdgeInsets.all(16),
+                                  itemCount: state.sortedPosts.length,
+                                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                                  itemBuilder: (_, i) => _postCard(context, state.sortedPosts[i], myName, cubit),
+                                ),
+                        ),
+                ),
+              ],
+            ),
           ),
-        ],
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildShimmer() {
+  Widget _buildShimmer(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: context.clr.card,
       highlightColor: context.clr.surface,
@@ -295,10 +231,7 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (_, __) => Container(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Container(width: 32, height: 32, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
@@ -327,12 +260,11 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
     );
   }
 
-  Widget _buildComposer(String myName) {
+  Widget _buildComposer(BuildContext context, String myName, CommunityState state, CommunityCubit cubit) {
     return Container(
       padding: const EdgeInsets.all(16),
       color: context.clr.surface,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
         const SizedBox(height: 12),
         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
           CircleAvatar(
@@ -360,11 +292,26 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
           ),
           const SizedBox(width: 8),
           GestureDetector(
-            onTap: _submitting ? null : _createPost,
+            onTap: state.submitting ? null : () async {
+              final text = _postCtrl.text.trim();
+              final success = await cubit.createPost(text);
+              if (success) {
+                _postCtrl.clear();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: const Text('Post created!'), backgroundColor: context.clr.success),
+                  );
+                }
+              } else if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: const Text('Failed to create post'), backgroundColor: context.clr.error),
+                );
+              }
+            },
             child: Container(
               width: 40, height: 40,
               decoration: BoxDecoration(color: context.clr.accent, shape: BoxShape.circle),
-              child: _submitting
+              child: state.submitting
                   ? const Padding(padding: EdgeInsets.all(10), child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                   : const Icon(Icons.send_rounded, color: Colors.white, size: 18),
             ),
@@ -374,7 +321,7 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
     );
   }
 
-  Widget _postCard(CommunityPost post, String myName) {
+  Widget _postCard(BuildContext context, CommunityPost post, String myName, CommunityCubit cubit) {
     final isMyPost = (post.astrologerName ?? post.authorName) == myName;
     return Container(
       padding: const EdgeInsets.all(14),
@@ -404,7 +351,7 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
           if (isMyPost)
             IconButton(
               icon: Icon(Icons.delete_outline, color: context.clr.error, size: 18),
-              onPressed: () => _deletePost(post.id),
+              onPressed: () => cubit.deletePost(post.id),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
@@ -414,9 +361,10 @@ class _AstrologerCommunityScreenState extends State<AstrologerCommunityScreen> {
         const SizedBox(height: 10),
         Row(children: [
           GestureDetector(
-            onTap: () => _toggleLike(post.id),
+            onTap: () => cubit.toggleLike(post.id),
             child: Row(children: [
-              Icon(post.isLiked ? Icons.favorite : Icons.favorite_border, color: post.isLiked ? context.clr.error : context.clr.txtMuted, size: 18),
+              Icon(post.isLiked ? Icons.favorite : Icons.favorite_border,
+                color: post.isLiked ? context.clr.error : context.clr.txtMuted, size: 18),
               const SizedBox(width: 4),
               Text('${post.likesCount}', style: TextStyle(color: context.clr.txtMuted, fontSize: 12)),
             ]),

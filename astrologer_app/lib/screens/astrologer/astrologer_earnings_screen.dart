@@ -1,116 +1,90 @@
 import 'package:flutter/material.dart';
-import '../../services/api_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../cubits/earnings_cubit.dart';
 import '../../theme/app_theme.dart';
 
-class AstrologerEarningsScreen extends StatefulWidget {
+class AstrologerEarningsScreen extends StatelessWidget {
   const AstrologerEarningsScreen({super.key});
 
   @override
-  State<AstrologerEarningsScreen> createState() => _AstrologerEarningsScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => EarningsCubit()..load(),
+      child: const _AstrologerEarningsView(),
+    );
+  }
 }
 
-class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
-  Map<String, dynamic>? _wallet;
-  List<dynamic> _transactions = [];
-  List<dynamic> _withdrawals = [];
-  bool _loading = true;
+class _AstrologerEarningsView extends StatelessWidget {
+  const _AstrologerEarningsView();
 
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    if (mounted) setState(() => _loading = true);
-    final walletFuture = ApiService.getAstrologerWallet().catchError((_) => <String, dynamic>{});
-    final txFuture = ApiService.getAstrologerTransactions().catchError((_) => <dynamic>[]);
-    final wdFuture = ApiService.getWithdrawals().catchError((_) => <dynamic>[]);
-    final results = await Future.wait([walletFuture, txFuture, wdFuture]);
-    if (mounted) {
-      setState(() {
-        final walletResp = results[0] as Map<String, dynamic>;
-        _wallet = walletResp['data'] as Map<String, dynamic>? ?? walletResp;
-        _transactions = results[1] as List;
-        _withdrawals = results[2] as List;
-        _loading = false;
-      });
-    }
-  }
-
-  void _showWithdrawalSheet() {
+  void _showWithdrawalSheet(BuildContext context, EarningsCubit cubit) {
     final amountCtrl = TextEditingController();
     final bankCtrl = TextEditingController();
     final ifscCtrl = TextEditingController();
     final accountCtrl = TextEditingController();
-    bool submitting = false;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: context.clr.card,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setModalState) => Padding(
-          padding: EdgeInsets.only(
-            left: 24, right: 24, top: 24,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Request Withdrawal', style: TextStyle(color: context.clr.txtPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
-              _modalField(amountCtrl, 'Amount (₹)', keyboardType: TextInputType.number),
-              const SizedBox(height: 12),
-              _modalField(bankCtrl, 'Bank Name'),
-              const SizedBox(height: 12),
-              _modalField(accountCtrl, 'Account Number', keyboardType: TextInputType.number),
-              const SizedBox(height: 12),
-              _modalField(ifscCtrl, 'IFSC Code'),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: submitting ? null : () async {
-                    final amount = double.tryParse(amountCtrl.text);
-                    if (amount == null || amount <= 0) return;
-                    setModalState(() => submitting = true);
-                    try {
-                      await ApiService.requestWithdrawal(amount, {
+      builder: (ctx) {
+        bool submitting = false;
+        return StatefulBuilder(
+          builder: (ctx, setModalState) => Padding(
+            padding: EdgeInsets.only(
+              left: 24, right: 24, top: 24,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Request Withdrawal', style: TextStyle(color: context.clr.txtPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 16),
+                _modalField(context, amountCtrl, 'Amount (₹)', keyboardType: TextInputType.number),
+                const SizedBox(height: 12),
+                _modalField(context, bankCtrl, 'Bank Name'),
+                const SizedBox(height: 12),
+                _modalField(context, accountCtrl, 'Account Number', keyboardType: TextInputType.number),
+                const SizedBox(height: 12),
+                _modalField(context, ifscCtrl, 'IFSC Code'),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: submitting ? null : () async {
+                      final amount = double.tryParse(amountCtrl.text);
+                      if (amount == null || amount <= 0) return;
+                      setModalState(() => submitting = true);
+                      final success = await cubit.requestWithdrawal(amount, {
                         'bank_name': bankCtrl.text.trim(),
                         'account_number': accountCtrl.text.trim(),
                         'ifsc_code': ifscCtrl.text.trim(),
                       });
                       if (ctx.mounted) Navigator.pop(ctx);
-                      await _load();
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Withdrawal request submitted!'), backgroundColor: context.clr.success),
-                        );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(success ? 'Withdrawal request submitted!' : 'Failed to submit request'),
+                          backgroundColor: success ? context.clr.success : context.clr.error,
+                        ));
                       }
-                    } catch (e) {
-                      if (ctx.mounted) {
-                        ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: context.clr.error));
-                      }
-                    } finally {
-                      setModalState(() => submitting = false);
-                    }
-                  },
-                  child: submitting
-                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('Submit Request'),
+                    },
+                    child: submitting
+                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                        : const Text('Submit Request'),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _modalField(TextEditingController ctrl, String label, {TextInputType? keyboardType}) {
+  Widget _modalField(BuildContext context, TextEditingController ctrl, String label, {TextInputType? keyboardType}) {
     return TextField(
       controller: ctrl,
       keyboardType: keyboardType,
@@ -129,48 +103,53 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: context.clr.surface,
-          title: const Text('Earnings & Wallet', style: TextStyle(color: Colors.white)),
-          bottom: TabBar(
-            indicatorColor: context.clr.accent,
-            labelColor: context.clr.accent,
-            unselectedLabelColor: context.clr.txtMuted,
-            tabs: const [Tab(text: 'Transactions'), Tab(text: 'Withdrawals')],
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.account_balance_wallet_outlined, color: context.clr.txtPrimary),
-              onPressed: _showWithdrawalSheet,
-              tooltip: 'Request Withdrawal',
-            ),
-          ],
-        ),
-        body: _loading
-            ? Center(child: CircularProgressIndicator(color: context.clr.accent))
-            : Column(
-                children: [
-                  _buildWalletCard(),
-                  Expanded(
-                    child: TabBarView(
-                      children: [
-                        _buildTransactionsList(),
-                        _buildWithdrawalsList(),
-                      ],
-                    ),
-                  ),
-                ],
+    return BlocBuilder<EarningsCubit, EarningsState>(
+      builder: (context, state) {
+        final cubit = context.read<EarningsCubit>();
+        return DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            appBar: AppBar(
+              backgroundColor: context.clr.surface,
+              title: const Text('Earnings & Wallet', style: TextStyle(color: Colors.white)),
+              bottom: TabBar(
+                indicatorColor: context.clr.accent,
+                labelColor: context.clr.accent,
+                unselectedLabelColor: context.clr.txtMuted,
+                tabs: const [Tab(text: 'Transactions'), Tab(text: 'Withdrawals')],
               ),
-      ),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.account_balance_wallet_outlined, color: context.clr.txtPrimary),
+                  onPressed: () => _showWithdrawalSheet(context, cubit),
+                  tooltip: 'Request Withdrawal',
+                ),
+              ],
+            ),
+            body: state.loading
+                ? Center(child: CircularProgressIndicator(color: context.clr.accent))
+                : Column(
+                    children: [
+                      _buildWalletCard(context, state),
+                      Expanded(
+                        child: TabBarView(
+                          children: [
+                            _buildTransactionsList(context, state),
+                            _buildWithdrawalsList(context, state, cubit),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildWalletCard() {
-    final walletData = _wallet?['wallet'] as Map? ?? _wallet ?? {};
-    final statsData = _wallet?['stats'] as Map? ?? {};
+  Widget _buildWalletCard(BuildContext context, EarningsState state) {
+    final walletData = state.wallet?['wallet'] as Map? ?? state.wallet ?? {};
+    final statsData = state.wallet?['stats'] as Map? ?? {};
     final balance = double.tryParse(walletData['balance']?.toString() ?? '0') ?? 0;
     final totalEarned = double.tryParse(walletData['total_earned']?.toString() ?? '0') ?? 0;
     final thisMonth = double.tryParse(statsData['this_month']?.toString() ?? '0') ?? 0;
@@ -211,17 +190,16 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
     ],
   );
 
-  Widget _buildTransactionsList() {
-    if (_transactions.isEmpty) {
+  Widget _buildTransactionsList(BuildContext context, EarningsState state) {
+    if (state.transactions.isEmpty) {
       return Center(child: Text('No transactions yet', style: TextStyle(color: context.clr.txtMuted)));
     }
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      itemCount: _transactions.length,
+      itemCount: state.transactions.length,
       separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (_, i) {
-        final t = _transactions[i] as Map;
-        final isCredit = (t['type_label'] ?? t['type'] ?? '') == 'credit' || t['type'] == 'earning';
+        final t = state.transactions[i] as Map;
         final amount = double.tryParse(t['amount']?.toString() ?? '0') ?? 0;
         final sessionType = (t['type']?.toString() ?? 'chat').toUpperCase();
         final userName = t['user_name']?.toString() ?? 'User';
@@ -238,10 +216,7 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
           child: Row(children: [
             Container(
               width: 40, height: 40,
-              decoration: BoxDecoration(
-                color: context.clr.success.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: context.clr.success.withValues(alpha: 0.15), shape: BoxShape.circle),
               child: Icon(Icons.arrow_downward, color: context.clr.success, size: 18),
             ),
             const SizedBox(width: 12),
@@ -258,8 +233,8 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
     );
   }
 
-  Widget _buildWithdrawalsList() {
-    if (_withdrawals.isEmpty) {
+  Widget _buildWithdrawalsList(BuildContext context, EarningsState state, EarningsCubit cubit) {
+    if (state.withdrawals.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -268,17 +243,20 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
             const SizedBox(height: 12),
             Text('No withdrawal requests', style: TextStyle(color: context.clr.txtMuted)),
             const SizedBox(height: 16),
-            ElevatedButton(onPressed: _showWithdrawalSheet, child: const Text('Request Withdrawal')),
+            ElevatedButton(
+              onPressed: () => _showWithdrawalSheet(context, cubit),
+              child: const Text('Request Withdrawal'),
+            ),
           ],
         ),
       );
     }
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      itemCount: _withdrawals.length,
+      itemCount: state.withdrawals.length,
       separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (_, i) {
-        final w = _withdrawals[i] as Map;
+        final w = state.withdrawals[i] as Map;
         final status = w['status'] ?? 'pending';
         Color statusColor;
         switch (status) {
@@ -299,7 +277,7 @@ class _AstrologerEarningsScreenState extends State<AstrologerEarningsScreen> {
             ])),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(color: statusColor.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
+              decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20)),
               child: Text(status.toUpperCase(), style: TextStyle(color: statusColor, fontSize: 11, fontWeight: FontWeight.w600)),
             ),
           ]),

@@ -21,27 +21,27 @@ class AppColors {
   static const Color success = Color(0xFF43A047);
 }
 
-// Light theme color palette
+// Light theme Flutter color palette
 class LightColors {
   static const Color background = Color(0xFFFFFFFF);
-  static const Color surface = Color(0xFFF5F5F5);
-  static const Color surfaceLight = Color(0xFFEEEEEE);
-  static const Color card = Color(0xFFF8F8F8);
-  static const Color flutterNavy = Color(0xFF111111);
-  static const Color flutterBlue = Color(0xFF333333);
-  static const Color flutterSky = Color(0xFF111111);
+  static const Color surface = Color(0xFFEEF4FF);
+  static const Color surfaceLight = Color(0xFFE5EEFF);
+  static const Color card = Color(0xFFF0F6FF);
+  static const Color flutterNavy = Color(0xFF042B59);
+  static const Color flutterBlue = Color(0xFF0553B1);
+  static const Color flutterSky = Color(0xFF027DFD);
   static const Color red = Color(0xFFF25D50);
   static const Color yellow = Color(0xFFFFF275);
   static const Color purple = Color(0xFF6200EE);
   static const Color green = Color(0xFF1CDAC5);
   static const Color white = Color(0xFFFFFFFF);
-  static const Color textPrimary = Color(0xFF111111);
-  static const Color textSecondary = Color(0xFF444444);
-  static const Color textMuted = Color(0xFF888888);
-  static const Color border = Color(0xFFDDDDDD);
-  static const Color divider = Color(0xFFE8E8E8);
+  static const Color textPrimary = Color(0xFF042B59);
+  static const Color textSecondary = Color(0xFF0553B1);
+  static const Color textMuted = Color(0xFF666666);
+  static const Color border = Color(0xFFC8D8F0);
+  static const Color divider = Color(0xFFD5E5F5);
   static const Color error = Color(0xFFF25D50);
-  static const Color success = Color(0xFF43A047);
+  static const Color success = Color(0xFF1CDAC5);
   static const Color orange = Color(0xFFE8762A);
 }
 

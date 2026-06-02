@@ -118,7 +118,7 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
           userName: req['user']?['name'] ?? 'User',
           userId: req['user']?['id']?.toString(),
         ),
-      ));
+      )).then((_) => _consultationsKey.refresh());
     } else {
       setState(() => _activeCall = req);
     }

@@ -276,7 +276,7 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
     if (type == 'chat') {
       Navigator.push(context, MaterialPageRoute(
         builder: (_) => AstrologerChatScreen(consultationId: consultationId, userName: userName, userId: userId),
-      ));
+      )).then((_) => _loadConsultations());
     } else {
       Navigator.push(context, MaterialPageRoute(
         builder: (_) => AstrologerCallScreen(
@@ -285,7 +285,7 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
           type: type,
           onEnd: () => Navigator.pop(context),
         ),
-      ));
+      )).then((_) => _loadConsultations());
     }
   }
 

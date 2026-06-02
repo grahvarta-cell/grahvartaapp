@@ -294,9 +294,9 @@ class _HomeScreenState extends State<HomeScreen> {
               )),
           ]),
           const SizedBox(height: 6),
-          Text(astrologer.displayName.split(' ').first, style: TextStyle(color: context.clr.txtPrimary, fontSize: 12, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis, maxLines: 1),
-          Text(astrologer.specializations.isNotEmpty ? astrologer.specializations[0] : '', style: TextStyle(color: context.clr.txtMuted, fontSize: 10)),
-          Text('₹${astrologer.perMinuteRateChat.toInt()}/min', style: TextStyle(color: context.clr.accent, fontSize: 11, fontWeight: FontWeight.w600)),
+          Text(astrologer.displayName.split(' ').first, textAlign: TextAlign.center, style: TextStyle(color: context.clr.txtPrimary, fontSize: 12, fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis, maxLines: 1),
+          Text(astrologer.specializations.isNotEmpty ? astrologer.specializations[0] : '', textAlign: TextAlign.center, style: TextStyle(color: context.clr.txtMuted, fontSize: 10)),
+          Text('₹${astrologer.perMinuteRateChat.toInt()}/min', textAlign: TextAlign.center, style: TextStyle(color: context.clr.accent, fontSize: 11, fontWeight: FontWeight.w600)),
         ]),
       ),
     );

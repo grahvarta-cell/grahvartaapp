@@ -519,7 +519,7 @@ class _AstrologerProfileScreenState extends State<AstrologerProfileScreen>
                 height: 50,
                 decoration: BoxDecoration(
                   gradient: a.isOnline
-                      ? LinearGradient(colors: [context.clr.accent, Color(0xFFB85C1A)])
+                      ? const LinearGradient(colors: [Color(0xFF027DFD), Color(0xFF0553B1)])
                       : null,
                   color: a.isOnline ? null : context.clr.surface,
                   borderRadius: BorderRadius.circular(14),

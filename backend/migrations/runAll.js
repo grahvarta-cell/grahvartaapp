@@ -33,7 +33,7 @@ const migrations = [
 async function runAll() {
   const client = await pool.connect();
   try {
-    // Create migration tracking table so each migration only runs once
+    // Create migration tracking table
     await client.query(`
       CREATE TABLE IF NOT EXISTS _migrations (
         name VARCHAR(255) PRIMARY KEY,
@@ -41,6 +41,34 @@ async function runAll() {
       )
     `);
 
+    // Check if this is an existing deployment (users table already populated)
+    // If the tracking table is brand new (empty) but users table has data,
+    // pre-populate tracking with all previously-known migrations so we don't re-run them.
+    const trackCount = await client.query('SELECT COUNT(*) FROM _migrations');
+    if (parseInt(trackCount.rows[0].count) === 0) {
+      const usersExist = await client.query(`
+        SELECT EXISTS (
+          SELECT 1 FROM information_schema.tables WHERE table_name = 'users'
+        )
+      `);
+      if (usersExist.rows[0].exists) {
+        const userCount = await client.query('SELECT COUNT(*) FROM users');
+        if (parseInt(userCount.rows[0].count) > 0) {
+          // Existing deployment — mark all migrations up to 022 as already applied
+          console.log('Existing deployment detected — pre-marking migrations 001-022 as applied...');
+          const alreadyApplied = migrations.filter(m => m !== '023_second_admin.sql');
+          for (const m of alreadyApplied) {
+            await client.query(
+              'INSERT INTO _migrations (name) VALUES ($1) ON CONFLICT DO NOTHING',
+              [m]
+            );
+          }
+          console.log('  ✓ Pre-populated migration history');
+        }
+      }
+    }
+
+    // Run only migrations not yet tracked
     for (const file of migrations) {
       const filePath = path.join(__dirname, file);
       if (!fs.existsSync(filePath)) {
@@ -48,7 +76,6 @@ async function runAll() {
         continue;
       }
 
-      // Skip if already applied
       const already = await client.query('SELECT 1 FROM _migrations WHERE name = $1', [file]);
       if (already.rows.length) {
         console.log(`  ✓ ${file} (already applied)`);
@@ -61,6 +88,7 @@ async function runAll() {
       await client.query('INSERT INTO _migrations (name) VALUES ($1)', [file]);
       console.log(`  ✓ ${file}`);
     }
+
     console.log('All migrations completed.');
   } catch (err) {
     console.error('Migration failed:', err.message);

@@ -78,6 +78,8 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
     });
     socket.on('consultation_ended', (data) {
       if (!mounted) return;
+      // Switch to sessions tab and refresh
+      setState(() => _currentIndex = 1);
       _consultationsKey.refresh();
     });
 
@@ -215,6 +217,8 @@ class _AstrologerMainScreenState extends State<AstrologerMainScreen> with Single
       onTap: () {
         HapticFeedback.lightImpact();
         setState(() => _currentIndex = index);
+        // Refresh sessions list every time user opens the Sessions tab
+        if (index == 1) _consultationsKey.refresh();
       },
       child: Stack(
         clipBehavior: Clip.none,

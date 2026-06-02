@@ -215,6 +215,27 @@ exports.resendWelcomeEmail = async (req, res) => {
   }
 };
 
+// Admin: reset temp password (for agents activated before password storage was added)
+exports.resetPassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const hiring = await db.query('SELECT * FROM agent_hirings WHERE id = $1', [id]);
+    if (!hiring.rows.length) return res.status(404).json({ success: false, message: 'Application not found' });
+    const app = hiring.rows[0];
+    if (!app.converted_to_astrologer || !app.astrologer_user_id) {
+      return res.status(400).json({ success: false, message: 'Agent has not been onboarded yet' });
+    }
+    const tempPassword = Math.random().toString(36).slice(-8).toUpperCase();
+    const passwordHash = await bcrypt.hash(tempPassword, 10);
+    await db.query('UPDATE users SET password_hash = $1, must_change_password = TRUE WHERE id = $2', [passwordHash, app.astrologer_user_id]);
+    await db.query('UPDATE agent_hirings SET temp_password = $1 WHERE id = $2', [tempPassword, id]);
+    res.json({ success: true, data: { password: tempPassword } });
+  } catch (err) {
+    console.error('resetPassword error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 // Admin: update status
 exports.updateStatus = async (req, res) => {
   try {

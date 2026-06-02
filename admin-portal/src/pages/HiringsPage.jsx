@@ -37,6 +37,24 @@ function DetailPanel({ app, onClose, onUpdated }) {
   const [converting, setConverting] = useState(false);
   const [resending, setResending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [resettingPassword, setResettingPassword] = useState(false);
+  const [livePassword, setLivePassword] = useState(app.temp_password || null);
+
+  const resetPassword = async () => {
+    if (!window.confirm(`Generate a new password for ${app.name}? This will update their login credentials.`)) return;
+    setResettingPassword(true);
+    try {
+      const res = await api.post(`/hirings/${app.id}/reset-password`);
+      setLivePassword(res.data.data.password);
+      setShowPassword(true);
+      toast.success('Password reset successfully');
+      onUpdated();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to reset password');
+    } finally {
+      setResettingPassword(false);
+    }
+  };
 
   const save = async () => {
     setSaving(true);
@@ -125,27 +143,39 @@ function DetailPanel({ app, onClose, onUpdated }) {
             <Row icon={<Phone size={14} />} label="Phone" value={app.phone} />
             <Row icon={<Mail size={14} />} label="Email" value={app.email || '—'} />
             <Row icon={<Smartphone size={14} />} label="Phone type" value={app.phone_type || '—'} capitalize />
-            {app.temp_password && (
+            {app.converted_to_astrologer && (
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-text-muted"><Eye size={14} /></span>
                 <span className="text-text-muted w-24 shrink-0">Password</span>
-                <span className="font-mono text-orange tracking-widest">
-                  {showPassword ? app.temp_password : '••••••••'}
-                </span>
-                <button
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="p-1 rounded hover:bg-surface-light text-text-muted hover:text-white transition-colors"
-                  title={showPassword ? 'Hide' : 'Show'}
-                >
-                  {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
-                </button>
-                {showPassword && (
+                {livePassword ? (
+                  <>
+                    <span className="font-mono text-orange tracking-widest">
+                      {showPassword ? livePassword : '••••••••'}
+                    </span>
+                    <button
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="p-1 rounded hover:bg-surface-light text-text-muted hover:text-white transition-colors"
+                      title={showPassword ? 'Hide' : 'Show'}
+                    >
+                      {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
+                    </button>
+                    {showPassword && (
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(livePassword); toast.success('Copied'); }}
+                        className="p-1 rounded hover:bg-surface-light text-text-muted hover:text-white transition-colors"
+                        title="Copy"
+                      >
+                        <Copy size={13} />
+                      </button>
+                    )}
+                  </>
+                ) : (
                   <button
-                    onClick={() => { navigator.clipboard.writeText(app.temp_password); toast.success('Copied'); }}
-                    className="p-1 rounded hover:bg-surface-light text-text-muted hover:text-white transition-colors"
-                    title="Copy"
+                    onClick={resetPassword}
+                    disabled={resettingPassword}
+                    className="px-2 py-0.5 rounded-lg bg-orange/10 text-orange text-xs hover:bg-orange/20 transition-colors disabled:opacity-40"
                   >
-                    <Copy size={13} />
+                    {resettingPassword ? 'Resetting…' : 'Reset to view'}
                   </button>
                 )}
               </div>

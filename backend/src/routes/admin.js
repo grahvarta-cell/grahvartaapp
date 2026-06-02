@@ -85,6 +85,7 @@ router.get('/hirings', hiringCtrl.listApplications);
 router.patch('/hirings/:id', hiringCtrl.updateStatus);
 router.post('/hirings/:id/activate-as-astrologer', hiringCtrl.activateAsAstrologer);
 router.post('/hirings/:id/resend-email', hiringCtrl.resendWelcomeEmail);
+router.post('/hirings/:id/reset-password', hiringCtrl.resetPassword);
 
 // Recharge Offers Management
 const walletCtrl = require('../controllers/walletController');

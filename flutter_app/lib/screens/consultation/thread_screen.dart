@@ -250,6 +250,49 @@ class _ThreadScreenState extends State<ThreadScreen> {
     }
 
     final isUser = role == 'user';
+    final isImage = type == 'image';
+    final content = msg['message'] ?? msg['content'] ?? '';
+    final bubbleBorderRadius = BorderRadius.only(
+      topLeft: const Radius.circular(18),
+      topRight: const Radius.circular(18),
+      bottomLeft: Radius.circular(isUser ? 18 : 4),
+      bottomRight: Radius.circular(isUser ? 4 : 18),
+    );
+
+    Widget bubbleContent;
+    if (isImage) {
+      bubbleContent = GestureDetector(
+        onTap: () => Navigator.push(context, MaterialPageRoute(
+          builder: (_) => _ThreadFullscreenImage(url: content),
+        )),
+        child: ClipRRect(
+          borderRadius: bubbleBorderRadius,
+          child: Image.network(
+            content, width: 200, height: 160, fit: BoxFit.cover,
+            loadingBuilder: (_, child, p) => p == null
+                ? child
+                : Container(width: 200, height: 160, color: context.clr.card,
+                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2))),
+            errorBuilder: (_, __, ___) => Container(
+              width: 200, height: 80, color: context.clr.card,
+              child: Icon(Icons.broken_image, color: context.clr.txtMuted),
+            ),
+          ),
+        ),
+      );
+    } else {
+      bubbleContent = Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.68),
+        decoration: BoxDecoration(
+          color: isUser ? context.clr.accent : context.clr.card,
+          borderRadius: bubbleBorderRadius,
+          border: isUser ? null : Border.all(color: context.clr.border),
+        ),
+        child: Text(content, style: TextStyle(color: isUser ? Colors.white : context.clr.txtPrimary, fontSize: 13, height: 1.4)),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
@@ -268,33 +311,9 @@ class _ThreadScreenState extends State<ThreadScreen> {
             child: Column(
               crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.68),
-                  decoration: BoxDecoration(
-                    color: isUser ? context.clr.accent : context.clr.card,
-                    borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(18),
-                      topRight: const Radius.circular(18),
-                      bottomLeft: Radius.circular(isUser ? 18 : 4),
-                      bottomRight: Radius.circular(isUser ? 4 : 18),
-                    ),
-                    border: isUser ? null : Border.all(color: context.clr.border),
-                  ),
-                  child: Text(
-                    msg['message'] ?? '',
-                    style: TextStyle(
-                      color: isUser ? Colors.white : context.clr.txtPrimary,
-                      fontSize: 13,
-                      height: 1.4,
-                    ),
-                  ),
-                ),
+                bubbleContent,
                 const SizedBox(height: 2),
-                Text(
-                  _timeLabel(msg['created_at'] ?? ''),
-                  style: TextStyle(color: context.clr.txtMuted, fontSize: 10),
-                ),
+                Text(_timeLabel(msg['created_at'] ?? ''), style: TextStyle(color: context.clr.txtMuted, fontSize: 10)),
               ],
             ),
           ),
@@ -335,6 +354,28 @@ class _ThreadScreenState extends State<ThreadScreen> {
           ),
         ),
       ]),
+    );
+  }
+}
+
+class _ThreadFullscreenImage extends StatelessWidget {
+  final String url;
+  const _ThreadFullscreenImage({required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(backgroundColor: Colors.black, iconTheme: const IconThemeData(color: Colors.white)),
+      body: Center(
+        child: InteractiveViewer(
+          child: Image.network(
+            url, fit: BoxFit.contain,
+            loadingBuilder: (_, child, p) => p == null ? child : const Center(child: CircularProgressIndicator(color: Colors.white)),
+            errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, color: Colors.white, size: 64),
+          ),
+        ),
+      ),
     );
   }
 }

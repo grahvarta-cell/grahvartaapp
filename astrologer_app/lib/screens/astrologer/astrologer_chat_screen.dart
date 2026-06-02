@@ -99,6 +99,10 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
       setState(() => _isEnded = true);
       final d = Map<String, dynamic>.from(data as Map);
       _showEndDialog(d);
+      // Auto-close screen after dialog is dismissed
+      Future.delayed(const Duration(seconds: 6), () {
+        if (mounted) Navigator.of(context).popUntil((r) => r.isFirst || !r.isCurrent);
+      });
     });
   }
 
@@ -123,7 +127,9 @@ class _AstrologerChatScreenState extends State<AstrologerChatScreen> {
         ]),
         actions: [
           ElevatedButton(
-            onPressed: () { Navigator.pop(context); Navigator.pop(context); },
+            onPressed: () {
+              Navigator.of(context).popUntil((r) => r.isFirst);
+            },
             child: const Text('Done'),
           ),
         ],

@@ -34,6 +34,7 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
   @override
   void dispose() {
     SocketService.instance.off('consultation_started');
+    SocketService.instance.off('consultation_ended');
     _tabCtrl.dispose();
     super.dispose();
   }
@@ -57,8 +58,11 @@ class _AstrologerConsultationsScreenState extends State<AstrologerConsultationsS
 
   void _setupSocket() {
     final socket = SocketService.instance;
-    // When a new consultation is accepted and started, reload the list
     socket.on('consultation_started', (data) {
+      if (!mounted) return;
+      _loadConsultations();
+    });
+    socket.on('consultation_ended', (data) {
       if (!mounted) return;
       _loadConsultations();
     });

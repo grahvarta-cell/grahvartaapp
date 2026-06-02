@@ -162,6 +162,10 @@ class _ChatScreenState extends State<ChatScreen> {
           if (mounted) _showEndSummary(data);
         });
       }
+      // Auto-close screen after summary dialog if user doesn't act
+      Future.delayed(const Duration(seconds: 8), () {
+        if (mounted) Navigator.of(context).popUntil((r) => r.isFirst || !r.isCurrent);
+      });
     });
 
     _socket.on('consultation_rejected', (_) {

@@ -7,5 +7,12 @@ WITH ranked AS (
 DELETE FROM reports
 WHERE id IN (SELECT id FROM ranked WHERE rn > 1);
 
--- Add unique constraint so the seed never duplicates again
-ALTER TABLE reports ADD CONSTRAINT IF NOT EXISTS reports_name_unique UNIQUE (name);
+-- Add unique constraint (valid PostgreSQL idiom for IF NOT EXISTS on constraints)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'reports_name_unique'
+  ) THEN
+    ALTER TABLE reports ADD CONSTRAINT reports_name_unique UNIQUE (name);
+  END IF;
+END $$;

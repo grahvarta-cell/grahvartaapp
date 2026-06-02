@@ -259,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
         )
       else
         SizedBox(
-          height: 130,
+          height: 150,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -277,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         width: 90,
         margin: const EdgeInsets.only(right: 12),
-        child: Column(children: [
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center, children: [
           Stack(children: [
             CircleAvatar(
               radius: 30,

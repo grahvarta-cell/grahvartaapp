@@ -425,11 +425,11 @@ class _MarketplaceScreenState extends State<MarketplaceScreen>
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.3))),
+        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(icon, color: color, size: 15),
+          Icon(icon, color: Colors.white, size: 15),
           const SizedBox(width: 5),
-          Text(label, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+          Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
         ]),
       ),
     );

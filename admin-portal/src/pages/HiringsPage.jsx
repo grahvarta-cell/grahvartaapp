@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, X, Phone, Mail, Smartphone, Globe, Calendar, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Phone, Mail, Smartphone, Globe, Calendar, Users, Eye, EyeOff, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import api from '../services/api';
 import PageHeader from '../components/PageHeader';
@@ -36,6 +36,7 @@ function DetailPanel({ app, onClose, onUpdated }) {
   const [saving, setSaving] = useState(false);
   const [converting, setConverting] = useState(false);
   const [resending, setResending] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const save = async () => {
     setSaving(true);
@@ -124,6 +125,31 @@ function DetailPanel({ app, onClose, onUpdated }) {
             <Row icon={<Phone size={14} />} label="Phone" value={app.phone} />
             <Row icon={<Mail size={14} />} label="Email" value={app.email || '—'} />
             <Row icon={<Smartphone size={14} />} label="Phone type" value={app.phone_type || '—'} capitalize />
+            {app.temp_password && (
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-text-muted"><Eye size={14} /></span>
+                <span className="text-text-muted w-24 shrink-0">Password</span>
+                <span className="font-mono text-orange tracking-widest">
+                  {showPassword ? app.temp_password : '••••••••'}
+                </span>
+                <button
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="p-1 rounded hover:bg-surface-light text-text-muted hover:text-white transition-colors"
+                  title={showPassword ? 'Hide' : 'Show'}
+                >
+                  {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
+                </button>
+                {showPassword && (
+                  <button
+                    onClick={() => { navigator.clipboard.writeText(app.temp_password); toast.success('Copied'); }}
+                    className="p-1 rounded hover:bg-surface-light text-text-muted hover:text-white transition-colors"
+                    title="Copy"
+                  >
+                    <Copy size={13} />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Personal */}

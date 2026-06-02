@@ -135,10 +135,10 @@ exports.activateAsAstrologer = async (req, res) => {
        langs, skills]
     );
 
-    // Mark hiring as converted
+    // Mark hiring as converted and store temp password for admin reference
     await client.query(
-      `UPDATE agent_hirings SET converted_to_astrologer = TRUE, astrologer_user_id = $1, updated_at = NOW() WHERE id = $2`,
-      [userId, id]
+      `UPDATE agent_hirings SET converted_to_astrologer = TRUE, astrologer_user_id = $1, temp_password = $2, updated_at = NOW() WHERE id = $3`,
+      [userId, tempPassword, id]
     );
 
     await client.query('COMMIT');
@@ -197,6 +197,7 @@ exports.resendWelcomeEmail = async (req, res) => {
     const tempPassword = Math.random().toString(36).slice(-8).toUpperCase();
     const passwordHash = await bcrypt.hash(tempPassword, 10);
     await db.query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, app.astrologer_user_id]);
+    await db.query('UPDATE agent_hirings SET temp_password = $1 WHERE id = $2', [tempPassword, id]);
 
     await sendAstrologerWelcome({
       to: app.email,

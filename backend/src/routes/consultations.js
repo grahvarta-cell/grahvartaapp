@@ -28,7 +28,8 @@ router.post('/upload-image', authenticate, (req, res, next) => {
   });
 }, (req, res) => {
   if (!req.file) return res.status(400).json({ success: false, message: 'No image received' });
-  res.json({ success: true, data: { url: `/uploads/chat/${req.file.filename}` } });
+  const baseUrl = process.env.APP_URL || 'https://api.grahvarta.com';
+  res.json({ success: true, data: { url: `${baseUrl}/uploads/chat/${req.file.filename}` } });
 });
 
 router.patch('/:id/end', authenticate, async (req, res) => {

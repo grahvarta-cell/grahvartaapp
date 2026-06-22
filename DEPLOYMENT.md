@@ -1,5 +1,88 @@
 # Grahvarta — Deployment Guide
 
+---
+
+## Local Docker Setup (Development)
+
+Run the entire stack locally — no VPS, no SSL needed.
+
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+- Git
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/grahvarta-cell/grahvartaapp.git
+cd grahvartaapp
+```
+
+### 2. Configure backend env
+
+The file `backend/.env.local` is pre-configured for local Docker. Edit it to add your Agora / Razorpay / Firebase keys if needed:
+
+```bash
+# Edit if needed
+notepad backend\.env.local
+```
+
+### 3. Start all services
+
+```bash
+docker compose -f docker-compose.local.yml up -d --build
+```
+
+### 4. Access the apps
+
+| Service | URL |
+|---------|-----|
+| Astrologer Portal | http://localhost |
+| Admin Portal | http://localhost/admin |
+| Backend API | http://localhost/api |
+| Backend direct | http://localhost:3000 |
+| PostgreSQL | localhost:5432 |
+
+Default admin login: `admin@astrovaak.com` / `password`
+
+### 5. For Flutter apps pointing to local backend
+
+Find your machine's local IP (e.g. `192.168.1.x`):
+
+```bash
+# Windows
+ipconfig
+
+# Mac/Linux
+ifconfig
+```
+
+In `flutter_app/lib/services/api_service.dart` and `astrologer_app/lib/services/api_service.dart`, temporarily change:
+```dart
+static const String baseUrl = 'http://192.168.1.YOUR_IP/api';
+static const String socketUrl = 'http://192.168.1.YOUR_IP';
+```
+
+### 6. Useful local commands
+
+```bash
+# View logs
+docker compose -f docker-compose.local.yml logs -f backend
+
+# Restart backend after code change
+docker compose -f docker-compose.local.yml up -d --build backend
+
+# Stop everything
+docker compose -f docker-compose.local.yml down
+
+# Stop + delete all data
+docker compose -f docker-compose.local.yml down -v
+
+# DB shell
+docker compose -f docker-compose.local.yml exec db psql -U grahvarta_user -d grahvarta_db
+```
+
+---
+
 ## Architecture
 
 | Component | Tech | URL |

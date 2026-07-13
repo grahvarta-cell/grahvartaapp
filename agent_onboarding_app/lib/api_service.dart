@@ -25,10 +25,15 @@ class ApiService {
     return body['data'] as Map<String, dynamic>;
   }
 
-  static Future<Map<String, dynamic>> getApplicationStatus(String phone) async {
-    final r = await http.get(Uri.parse('$_base/hirings/status?phone=${Uri.encodeComponent(phone)}'));
-    final body = jsonDecode(r.body);
-    if (r.statusCode != 200) throw body['message'] ?? 'Not found';
-    return body['data'] as Map<String, dynamic>;
+  static Future<Map<String, dynamic>?> getApplicationStatus(String phone) async {
+    try {
+      final r = await http.get(Uri.parse('$_base/hirings/status?phone=${Uri.encodeComponent(phone)}'));
+      final body = jsonDecode(r.body);
+      if (r.statusCode == 404) return null; // Application not submitted yet
+      if (r.statusCode != 200) throw body['message'] ?? 'Failed to load status';
+      return body['data'] as Map<String, dynamic>;
+    } on Exception {
+      throw 'Unable to connect. Please check your internet connection.';
+    }
   }
 }

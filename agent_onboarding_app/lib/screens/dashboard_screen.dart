@@ -17,6 +17,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic>? _data;
   bool _loading = true;
   String? _error;
+  bool _notFound = false;
 
   @override
   void initState() {
@@ -25,10 +26,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _fetchStatus() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() { _loading = true; _error = null; _notFound = false; });
     try {
       final data = await ApiService.getApplicationStatus(widget.phone);
-      setState(() { _data = data; _loading = false; });
+      if (data == null) {
+        setState(() { _notFound = true; _loading = false; });
+      } else {
+        setState(() { _data = data; _loading = false; });
+      }
     } catch (e) {
       setState(() { _error = e.toString(); _loading = false; });
     }
@@ -89,7 +94,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : _error != null
               ? _buildError()
-              : RefreshIndicator(
+              : _notFound
+                  ? _buildNotFound()
+                  : RefreshIndicator(
                   onRefresh: _fetchStatus,
                   color: AppColors.primary,
                   child: SingleChildScrollView(
@@ -348,6 +355,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     ]);
   }
+
+  Widget _buildNotFound() => Center(
+    child: Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const Icon(Icons.assignment_outlined, size: 64, color: AppColors.textMuted),
+        const SizedBox(height: 16),
+        const Text('No Application Found', style: TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8),
+        const Text('We could not find an application for this phone number.\nPlease contact support or register again.', style: TextStyle(color: AppColors.textSecondary, fontSize: 13), textAlign: TextAlign.center),
+        const SizedBox(height: 24),
+        ElevatedButton.icon(onPressed: _fetchStatus, icon: const Icon(Icons.refresh), label: const Text('Retry')),
+      ]),
+    ),
+  );
 
   Widget _buildError() => Center(
     child: Padding(

@@ -6,12 +6,24 @@ class ApiService {
   static const String _base = 'https://api.grahvarta.com/api';
 
   static Future<String> uploadPhoto(File file) async {
-    final req = http.MultipartRequest('POST', Uri.parse('$_base/hirings/upload-photo'));
-    req.files.add(await http.MultipartFile.fromPath('photo', file.path));
-    final res = await req.send();
-    final body = jsonDecode(await res.stream.bytesToString());
-    if (res.statusCode != 200) throw body['message'] ?? 'Upload failed';
-    return body['data']['url'] as String;
+    try {
+      final req = http.MultipartRequest('POST', Uri.parse('$_base/hirings/upload-photo'));
+      req.files.add(await http.MultipartFile.fromPath('photo', file.path));
+      final res = await req.send().timeout(const Duration(seconds: 30));
+      final bodyStr = await res.stream.bytesToString();
+      final body = jsonDecode(bodyStr);
+      if (res.statusCode != 200) throw body['message'] ?? 'Upload failed';
+      return body['data']['url'] as String;
+    } on Exception catch (e) {
+      final msg = e.toString();
+      if (msg.contains('SocketException') || msg.contains('Connection') || msg.contains('host lookup')) {
+        throw 'No internet connection. Please check your network and try again.';
+      }
+      if (msg.contains('TimeoutException')) {
+        throw 'Upload timed out. Please try again on a faster connection.';
+      }
+      rethrow;
+    }
   }
 
   static Future<Map<String, dynamic>> submitApplication(Map<String, dynamic> data) async {

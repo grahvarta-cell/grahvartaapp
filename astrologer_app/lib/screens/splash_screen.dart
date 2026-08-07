@@ -161,17 +161,16 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Mandala
+                  // Logo
                   Opacity(
                     opacity: _mandalaOpacity.value,
                     child: Transform.scale(
                       scale: _mandalaScale.value,
-                      child: Transform.rotate(
-                        angle: _rotController.value * 2 * pi,
-                        child: CustomPaint(
-                          size: const Size(150, 150),
-                          painter: _MandalaPainter(_mandalaReveal.value, accent, accentAlt),
-                        ),
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        width: 150,
+                        height: 150,
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),

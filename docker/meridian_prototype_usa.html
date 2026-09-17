@@ -1,0 +1,2671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian — Client &amp; Staff Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F4FA;
+  --surface:#FFFFFF;
+  --surface-2:#F8F9FD;
+  --ink:#12131C;
+  --ink-2:#4B4E5C;
+  --muted:#8A8FA0;
+  --border:#E7E9F2;
+  --primary:#4338CA;
+  --primary-ink:#FFFFFF;
+  --primary-tint:#EEF0FE;
+  --primary-tint-2:#E1E4FC;
+  --success:#0E7A55;
+  --success-tint:#E4F6EE;
+  --warning:#A8620A;
+  --warning-tint:#FFF2E0;
+  --danger:#C22A3E;
+  --danger-tint:#FCE9EC;
+  --info:#0B6E7D;
+  --info-tint:#E3F4F6;
+  --neutral:#5B5F70;
+  --neutral-tint:#EEEFF4;
+  --radius-lg:20px;
+  --radius-md:14px;
+  --radius-sm:10px;
+  --shadow-card:0 1px 2px rgba(18,19,28,.04), 0 8px 24px -12px rgba(18,19,28,.12);
+  --shadow-phone:0 40px 80px -20px rgba(18,19,28,.45), 0 10px 30px -10px rgba(18,19,28,.3);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:radial-gradient(1200px 600px at 50% -10%, #EDEBFF 0%, var(--bg) 55%);
+  font-family:'Inter',sans-serif;
+  color:var(--ink);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,.num,.figure{font-family:'Manrope',sans-serif;}
+button{font-family:inherit;}
+
+/* ---------- top mode switch ---------- */
+.topbar{
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  padding:22px 16px 8px;
+}
+.brand{
+  position:absolute; left:24px; top:20px;
+  display:flex; align-items:center; gap:8px;
+  font-family:'Manrope',sans-serif; font-weight:800; font-size:15px; color:var(--ink);
+}
+.brand .dot{width:9px;height:9px;border-radius:3px;background:var(--primary);display:inline-block;}
+.mode-switch{
+  display:inline-flex; background:var(--surface); border:1px solid var(--border);
+  border-radius:999px; padding:4px; box-shadow:var(--shadow-card);
+}
+.mode-btn{
+  border:none; background:transparent; padding:9px 18px; border-radius:999px;
+  font-size:13.5px; font-weight:600; color:var(--muted); cursor:pointer; transition:.18s;
+}
+.mode-btn.active{background:var(--primary); color:#fff;}
+
+/* ---------- stage ---------- */
+.stage{ display:flex; justify-content:center; padding:28px 16px 60px; }
+
+/* ---------- PHONE FRAME ---------- */
+.phone{
+  width:390px; height:844px; background:#0C0D12; border-radius:52px; padding:14px;
+  box-shadow:var(--shadow-phone); position:relative; flex:0 0 auto;
+}
+.phone .inner{
+  width:100%; height:100%; background:var(--bg); border-radius:38px; overflow:hidden;
+  display:flex; flex-direction:column; position:relative;
+}
+.notch{
+  position:absolute; top:14px; left:50%; transform:translateX(-50%);
+  width:120px; height:28px; background:#0C0D12; border-radius:16px; z-index:50;
+}
+.statusbar{
+  height:46px; flex:0 0 auto; display:flex; align-items:center; justify-content:space-between;
+  padding:0 26px; font-size:13px; font-weight:600; color:var(--ink);
+}
+.statusbar .icons{display:flex; gap:5px; align-items:center;}
+
+/* header */
+.appheader{
+  flex:0 0 auto; padding:6px 18px 14px; display:flex; align-items:center; gap:10px;
+  background:var(--bg);
+}
+.appheader .backbtn{
+  width:34px;height:34px;border-radius:10px;background:var(--surface);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;
+  box-shadow:var(--shadow-card);
+}
+.appheader .title{font-family:'Manrope',sans-serif; font-weight:700; font-size:17px; flex:1;}
+.appheader .subtitle{font-size:12px; color:var(--muted); margin-top:1px; font-weight:500;}
+.appheader .hbtn{
+  width:34px;height:34px;border-radius:10px;background:var(--surface);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;
+  box-shadow:var(--shadow-card);
+}
+.badge-dot{position:absolute; top:-3px; right:-3px; width:9px;height:9px;background:var(--danger); border-radius:50%; border:2px solid var(--bg);}
+
+/* body scroll */
+.appbody{
+  flex:1 1 auto; overflow-y:auto; padding:2px 18px 18px; background:var(--bg);
+}
+.appbody::-webkit-scrollbar{width:0;}
+.appbody.no-pad{padding:0;}
+
+/* bottom nav */
+.bottomnav{
+  flex:0 0 auto; display:flex; background:var(--surface); border-top:1px solid var(--border);
+  padding:9px 6px 22px;
+}
+.navitem{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer;
+  color:var(--muted); font-size:10.5px; font-weight:600; padding:4px 0;
+}
+.navitem.active{color:var(--primary);}
+.navitem svg{width:21px;height:21px;}
+
+/* ---------- generic components ---------- */
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  padding:16px; box-shadow:var(--shadow-card);
+}
+.section-title{
+  font-size:13px; font-weight:700; color:var(--ink-2); text-transform:none; margin:22px 0 10px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.section-title .link{font-size:12.5px; color:var(--primary); font-weight:700; cursor:pointer;}
+.pill{
+  display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px;
+  font-size:11px; font-weight:700;
+}
+.pill.success{background:var(--success-tint); color:var(--success);}
+.pill.warning{background:var(--warning-tint); color:var(--warning);}
+.pill.danger{background:var(--danger-tint); color:var(--danger);}
+.pill.info{background:var(--info-tint); color:var(--info);}
+.pill.neutral{background:var(--neutral-tint); color:var(--neutral);}
+.pill.primary{background:var(--primary-tint); color:var(--primary);}
+.btn{
+  border:none; border-radius:12px; padding:13px 18px; font-weight:700; font-size:14px;
+  cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px; width:100%;
+  transition:.15s;
+}
+.btn-primary{background:var(--primary); color:#fff;}
+.btn-primary:active{transform:scale(.98);}
+.btn-secondary{background:var(--surface); color:var(--ink); border:1.5px solid var(--border);}
+.btn-ghost{background:transparent; color:var(--primary); font-weight:700;}
+.btn-sm{padding:9px 14px; font-size:12.5px; width:auto;}
+.row{display:flex; align-items:center;}
+.between{justify-content:space-between;}
+.muted{color:var(--muted);}
+.small{font-size:12px;}
+.mt6{margin-top:6px;} .mt10{margin-top:10px;} .mt14{margin-top:14px;} .mt18{margin-top:18px;}
+.avatar{
+  width:42px;height:42px;border-radius:12px;background:var(--primary-tint); color:var(--primary);
+  display:flex;align-items:center;justify-content:center; font-weight:800; font-size:15px; flex:0 0 auto;
+}
+.iconwrap{
+  width:40px;height:40px;border-radius:11px; display:flex;align-items:center;justify-content:center;
+  flex:0 0 auto; font-size:18px;
+}
+.divider{height:1px; background:var(--border); margin:14px 0;}
+.listrow{display:flex; align-items:center; gap:12px; padding:12px 0; cursor:pointer;}
+.listrow:not(:last-child){border-bottom:1px solid var(--border);}
+.chip{
+  padding:7px 13px; border-radius:10px; border:1.5px solid var(--border); background:var(--surface);
+  font-size:12.5px; font-weight:600; color:var(--ink-2); cursor:pointer; white-space:nowrap;
+}
+.chip.active{background:var(--primary); border-color:var(--primary); color:#fff;}
+.scrollx{display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;}
+.scrollx::-webkit-scrollbar{display:none;}
+.progress-track{height:6px; background:var(--border); border-radius:6px; overflow:hidden;}
+.progress-fill{height:100%; background:var(--primary); border-radius:6px;}
+.empty-state{text-align:center; padding:50px 20px; color:var(--muted);}
+.empty-state .emoji{font-size:38px; margin-bottom:10px;}
+.fade-in{animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+.spin{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.check-anim{animation:pop .4s cubic-bezier(.2,1.4,.4,1);}
+@keyframes pop{0%{transform:scale(0);} 70%{transform:scale(1.15);} 100%{transform:scale(1);}}
+
+/* timeline */
+.tl{position:relative; padding-left:26px;}
+.tl-item{position:relative; padding-bottom:22px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-item::before{content:"";position:absolute; left:-26px; top:2px; width:12px;height:12px;border-radius:50%; background:var(--border); border:2px solid var(--surface); box-shadow:0 0 0 2px var(--border);}
+.tl-item.done::before{background:var(--success);}
+.tl-item.current::before{background:var(--primary); box-shadow:0 0 0 4px var(--primary-tint);}
+.tl-item::after{content:"";position:absolute; left:-21px; top:14px; width:1.5px; bottom:-4px; background:var(--border);}
+.tl-item:last-child::after{display:none;}
+
+/* upload dropzone */
+.dropzone{
+  border:1.5px dashed var(--border); border-radius:var(--radius-md); padding:22px; text-align:center;
+  background:var(--surface-2); cursor:pointer;
+}
+.dropzone:hover{border-color:var(--primary);}
+
+/* chat */
+.msg{max-width:78%; padding:10px 13px; border-radius:14px; font-size:13.5px; line-height:1.45; margin-bottom:10px;}
+.msg.them{background:var(--surface); border:1px solid var(--border); border-bottom-left-radius:4px;}
+.msg.me{background:var(--primary); color:#fff; margin-left:auto; border-bottom-right-radius:4px;}
+.msg .time{font-size:10px; opacity:.65; margin-top:4px; display:block;}
+
+/* keypad-ish OTP */
+.otp-row{display:flex; gap:10px; justify-content:center; margin:26px 0 10px;}
+.otp-box{width:46px;height:54px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);
+  display:flex;align-items:center;justify-content:center; font-size:20px; font-weight:700; font-family:'Manrope',sans-serif;}
+.otp-box.filled{border-color:var(--primary); background:var(--primary-tint);}
+
+.hidden{display:none !important;}
+
+/* ---------- dark theme ---------- */
+[data-theme="dark"]{
+  --bg:#0E0F16; --surface:#181A24; --surface-2:#1F212D;
+  --ink:#F2F2F7; --ink-2:#C7C9D6; --muted:#9297AA; --border:#2A2C3A;
+  --primary:#6C63FF; --primary-tint:#232345; --primary-tint-2:#2A2A55;
+  --success-tint:#12301F; --warning-tint:#332507; --danger-tint:#331019;
+  --info-tint:#0C282D; --neutral-tint:#20212D;
+  --shadow-card:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  --shadow-phone:0 40px 80px -20px rgba(0,0,0,.7), 0 10px 30px -10px rgba(0,0,0,.5);
+}
+[data-theme="dark"] body{background:radial-gradient(1200px 600px at 50% -10%, #201C3D 0%, #0E0F16 55%);}
+[data-theme="dark"] .brand{color:var(--ink);}
+[data-theme="dark"] .statusbar svg path,[data-theme="dark"] .statusbar svg rect{fill:var(--ink) !important;}
+[data-theme="dark"] .otp-box{color:var(--ink);}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed; left:50%; bottom:34px; transform:translateX(-50%);
+  background:#12131C; color:#fff; padding:12px 20px; border-radius:12px; font-size:13.5px; font-weight:600;
+  box-shadow:0 12px 30px -8px rgba(0,0,0,.5); z-index:200; display:flex; align-items:center; gap:8px;
+}
+[data-theme="dark"] .toast{background:#2A2C3A;}
+
+/* ---------- modal ---------- */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(10,10,16,.5); display:flex; align-items:center; justify-content:center;
+  z-index:150; padding:20px;
+}
+.modal-card{
+  background:var(--surface); border-radius:18px; padding:24px; width:100%; max-width:380px;
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.4); border:1px solid var(--border);
+}
+
+/* ---------- dropdown ---------- */
+.dropdown-menu{
+  position:absolute; right:0; top:34px; background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; box-shadow:var(--shadow-card); z-index:30; min-width:158px; padding:6px;
+}
+.dropdown-item{padding:9px 12px; font-size:12.5px; font-weight:600; border-radius:7px; cursor:pointer; color:var(--ink-2);}
+.dropdown-item:hover{background:var(--surface-2); color:var(--ink);}
+
+/* ---------- toggle switch (settings) ---------- */
+.toggle-sw{width:38px; height:22px; border-radius:12px; background:var(--border); position:relative; cursor:pointer; flex:0 0 auto;}
+.toggle-sw.on{background:var(--primary);}
+.toggle-sw .knob{position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:.15s;}
+.toggle-sw.on .knob{left:18px;}
+
+/* ---------- STAFF PORTAL ---------- */
+.staff-shell{
+  width:100%; max-width:1180px; background:var(--surface); border-radius:24px; border:1px solid var(--border);
+  box-shadow:var(--shadow-card); overflow:hidden; display:flex; min-height:760px;
+}
+.staff-side{
+  width:224px; flex:0 0 auto; background:#15161F; color:#EDEEF6; padding:22px 14px; display:flex; flex-direction:column;
+}
+.staff-brand{display:flex; align-items:center; gap:9px; font-family:'Manrope',sans-serif; font-weight:800; font-size:15px; padding:6px 10px 26px;}
+.staff-brand .dot{width:9px;height:9px;border-radius:3px;background:#8B85FF;}
+.staff-nav-item{
+  display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:10px; font-size:13.5px; font-weight:600;
+  color:#B7B9CB; cursor:pointer; margin-bottom:2px;
+}
+.staff-nav-item.active{background:#242534; color:#fff;}
+.staff-nav-item svg{width:17px;height:17px; opacity:.85;}
+.staff-side-footer{margin-top:auto; padding:12px 10px; display:flex; align-items:center; gap:10px; border-top:1px solid #26273a; padding-top:16px;}
+.staff-main{flex:1; display:flex; flex-direction:column; min-width:0;}
+.staff-topbar{
+  padding:20px 30px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;
+}
+.staff-body{padding:26px 30px; overflow-y:auto; flex:1;}
+.kpi-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+.kpi-card{background:var(--surface-2); border:1px solid var(--border); border-radius:16px; padding:18px;}
+.kpi-card .num{font-size:26px; font-weight:800;}
+.kpi-card .lbl{font-size:12.5px; color:var(--muted); font-weight:600; margin-top:2px;}
+.attn-card{background:var(--danger-tint); border:1px solid #F3C9CF; border-radius:16px; padding:18px;}
+.staff-table{width:100%; border-collapse:collapse; font-size:13.5px;}
+.staff-table th{text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:.02em; color:var(--muted); padding:10px 12px; border-bottom:1px solid var(--border); font-weight:700;}
+.staff-table td{padding:13px 12px; border-bottom:1px solid var(--border); vertical-align:middle;}
+.staff-table tr:hover td{background:var(--surface-2); cursor:pointer;}
+.tabs-row{display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:20px;}
+.tab-btn{padding:11px 16px; font-size:13.5px; font-weight:600; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent;}
+.tab-btn.active{color:var(--primary); border-color:var(--primary);}
+
+@media (max-width:1240px){
+  .stage{flex-direction:column; align-items:center;}
+}
+@media (max-width:900px){
+  .staff-shell{flex-direction:column; min-height:auto;}
+  .staff-side{width:100%; flex-direction:row; overflow-x:auto; align-items:center; padding:12px;}
+  .staff-brand{padding:6px 14px 6px 4px;}
+  .staff-side-footer{display:none;}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width:430px){
+  .phone{width:100%; max-width:390px; height:100svh; border-radius:0; padding:0;}
+  .phone .inner{border-radius:0;}
+  .notch{display:none;}
+  .stage{padding:0;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="mode-switch">
+    <button class="mode-btn active" id="modeClientBtn" onclick="setMode('client')">Client App</button>
+    <button class="mode-btn" id="modeStaffBtn" onclick="setMode('staff')">CPA Staff Portal</button>
+  </div>
+</div>
+
+<div class="stage">
+  <!-- ===================== CLIENT PHONE APP ===================== -->
+  <div class="phone" id="clientView">
+    <div class="notch"></div>
+    <div class="inner">
+      <div class="statusbar">
+        <span id="clock">9:41</span>
+        <div class="icons">
+          <svg width="16" height="11" viewBox="0 0 16 11" fill="none"><rect x="0" y="6" width="3" height="5" rx="0.5" fill="#12131C"/><rect x="4.5" y="4" width="3" height="7" rx="0.5" fill="#12131C"/><rect x="9" y="2" width="3" height="9" rx="0.5" fill="#12131C"/><rect x="13.5" y="0" width="2.5" height="11" rx="0.5" fill="#12131C"/></svg>
+          <svg width="16" height="11" viewBox="0 0 24 16" fill="none"><rect x="1" y="2" width="19" height="12" rx="3" stroke="#12131C" stroke-width="1.4"/><rect x="3" y="4" width="13" height="8" rx="1.4" fill="#12131C"/><rect x="21.5" y="6" width="1.6" height="4" rx="0.8" fill="#12131C"/></svg>
+        </div>
+      </div>
+      <div class="appheader" id="appheader"></div>
+      <div class="appbody" id="appbody"></div>
+      <div class="bottomnav" id="bottomnav"></div>
+    </div>
+  </div>
+
+  <!-- ===================== CA STAFF PORTAL ===================== -->
+  <div class="staff-shell hidden" id="staffView">
+    <div class="staff-side">
+      <div style="height:8px;"></div>
+      <div id="staffNav"></div>
+      <div class="staff-side-footer" style="flex-direction:column;align-items:stretch;gap:12px;">
+        <div class="row" style="gap:10px;">
+          <div class="avatar" style="background:#2C2E44;color:#C9C6FF;">RM</div>
+          <div>
+            <div style="font-size:12.5px;font-weight:700;color:#fff;">CPA Jennifer Reyes</div>
+            <div style="font-size:11px;color:#9497AC;" id="staffRoleLabel">Senior Associate</div>
+          </div>
+        </div>
+        <div class="mode-switch" style="background:#20212E;border-color:#2A2C3A;padding:3px;">
+          <button class="mode-btn active" id="roleCaBtn" style="font-size:11px;padding:6px 10px;" onclick="setStaffRole('ca')">CA Staff</button>
+          <button class="mode-btn" id="roleAdminBtn" style="font-size:11px;padding:6px 10px;" onclick="setStaffRole('admin')">Firm Admin</button>
+        </div>
+      </div>
+    </div>
+    <div class="staff-main">
+      <div class="staff-topbar">
+        <div>
+          <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:19px;" id="staffPageTitle">Dashboard</div>
+          <div class="muted small" id="staffPageSub">Welcome back, here's what needs attention today</div>
+        </div>
+        <input type="text" id="staffTopSearch" placeholder="🔍 Search clients, invoices, filings…"
+          onkeydown="if(event.key==='Enter'){ flow.staffClientQuery=this.value; staffGo('clients'); }"
+          style="border:1.5px solid var(--border);border-radius:10px;padding:9px 14px;font-size:13px;width:250px;font-family:inherit;color:var(--ink);background:var(--surface);">
+        <div class="row" style="gap:10px;position:relative;">
+          <div class="hbtn" id="staffBellBtn" style="background:var(--surface-2);border:1px solid var(--border);border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;position:relative;" onclick="toggleStaffNotif()">🔔<span style="position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:var(--danger);border-radius:50%;border:2px solid var(--surface);"></span></div>
+          <div id="staffNotifDropdown" class="dropdown-menu hidden" style="top:44px;min-width:290px;right:0;"></div>
+          <div class="avatar" style="background:var(--primary-tint);color:var(--primary);">RM</div>
+        </div>
+      </div>
+      <div class="staff-body" id="staffBody"></div>
+    </div>
+    <div id="staffModalRoot"></div>
+  </div>
+</div>
+<div id="staffToast" class="toast hidden"></div>
+<div id="clientModalRoot"></div>
+
+<script>
+/* =========================================================================
+   DATA
+   ========================================================================= */
+const client = {
+  name:"Sarah Mitchell", business:"Mitchell Apparel Co.", pan:"47-3829156",
+  gstin:"TX-2024-88213", phone:"+1 (512) 555-0142", email:"sarah.mitchell@mitchellapparel.com",
+  address:"4210 Oak Street, Austin, TX 78701", initials:"SM"
+};
+
+const deadlines = [
+  {title:"Sales Tax Return — Aug 2026", category:"Sales Tax", date:"20 Sep 2026", daysLeft:12, urgent:false},
+  {title:"S-Corp Tax Return (Extended) — TY2025", category:"Income Tax", date:"15 Sep 2026", daysLeft:7, urgent:true},
+  {title:"Payroll Tax Deposit — Q3 2026", category:"Payroll Tax", date:"31 Oct 2026", daysLeft:53, urgent:false},
+  {title:"Annual Report Filing (State)", category:"State Filing", date:"30 Nov 2026", daysLeft:83, urgent:false},
+];
+
+const recentDocuments = [
+  {name:"Bank_Statement_Aug2026.pdf", cat:"Accounting", date:"2 Sep 2026", size:"1.2 MB", icon:"📄"},
+  {name:"Sales_Register_Q2.xlsx", cat:"Sales Tax", date:"29 Aug 2026", size:"340 KB", icon:"📊"},
+  {name:"W2_2025.pdf", cat:"Income Tax", date:"18 Aug 2026", size:"210 KB", icon:"📄"},
+];
+
+const services = [
+  {id:"gst", name:"Sales Tax Filing", icon:"🧾", status:"In Progress", color:"warning", desc:"Monthly & quarterly sales tax returns"},
+  {id:"itr", name:"Income Tax Return", icon:"📋", status:"Pending Docs", color:"danger", desc:"Annual income tax filing"},
+  {id:"tds", name:"Payroll Tax", icon:"💸", status:"Completed", color:"success", desc:"Payroll tax withholding & deposits"},
+  {id:"accounting", name:"Accounting", icon:"📚", status:"Ongoing", color:"info", desc:"Bookkeeping & ledger maintenance"},
+  {id:"roc", name:"Business Compliance", icon:"🏢", status:"Upcoming", color:"neutral", desc:"Annual state filings & reports"},
+  {id:"audit", name:"Audit", icon:"🔍", status:"Not Started", color:"neutral", desc:"Statutory & tax audit"},
+  {id:"payroll", name:"Payroll", icon:"👥", status:"Active", color:"success", desc:"Employee payroll processing"},
+  {id:"consult", name:"Tax Consultation", icon:"💡", status:"Scheduled", color:"info", desc:"One-on-one advisory session"},
+];
+
+const serviceDetail = {
+  gst:{
+    assignedCA:"CPA Jennifer Reyes, CPA", period:"August 2026",
+    steps:[
+      {label:"Documents Requested", date:"28 Aug 2026", state:"done"},
+      {label:"Under Review", date:"2 Sep 2026", state:"current"},
+      {label:"Return Filed", date:"Pending", state:"todo"},
+      {label:"Acknowledged", date:"Pending", state:"todo"},
+    ],
+    requiredDocs:[
+      {name:"Sales Invoices — Aug 2026", uploaded:true},
+      {name:"Purchase Invoices — Aug 2026", uploaded:true},
+      {name:"Bank Statement — Aug 2026", uploaded:false},
+      {name:"E-Way Bills (if applicable)", uploaded:false},
+    ],
+    lastMessage:"Please upload your bank statement for Aug so I can finish reconciliation before filing.",
+  }
+};
+
+const tasksData = {
+  pending:[
+    {title:"Upload Bank Statement — Aug 2026", due:"10 Sep 2026", service:"Sales Tax Filing"},
+    {title:"Confirm Form 16 details", due:"12 Sep 2026", service:"Income Tax Return"},
+    {title:"Share Aug attendance sheet", due:"6 Sep 2026", service:"Payroll"},
+  ],
+  progress:[
+    {title:"Sales Tax Return Preparation", due:"18 Sep 2026", service:"Sales Tax Filing", who:"CPA Jennifer Reyes"},
+    {title:"Payroll processing — Aug", due:"5 Sep 2026", service:"Payroll", who:"CPA Jennifer Reyes"},
+  ],
+  done:[
+    {title:"Payroll Tax Return Q1 filed", date:"15 Jul 2026", service:"Payroll Tax"},
+    {title:"June bank reconciliation", date:"5 Jul 2026", service:"Accounting"},
+    {title:"Tax ID verification completed", date:"22 Jun 2026", service:"Onboarding"},
+  ]
+};
+
+const invoices = [
+  {id:"INV-2026-0142", desc:"Sales Tax Filing — Aug 2026 + Consultation", amount:12500, status:"due", date:"1 Sep 2026", dueDate:"15 Sep 2026"},
+  {id:"INV-2026-0138", desc:"Payroll Processing — Aug 2026", amount:6000, status:"paid", date:"25 Aug 2026", paidDate:"26 Aug 2026"},
+  {id:"INV-2026-0121", desc:"Payroll Tax Filing — Q1 2026", amount:4500, status:"paid", date:"10 Jul 2026", paidDate:"11 Jul 2026"},
+  {id:"INV-2026-0099", desc:"Income Tax Return Filing — TY 2025", amount:8500, status:"overdue", date:"20 Jun 2026", dueDate:"5 Jul 2026"},
+];
+
+const allVaultDocs = [
+  {name:"Bank_Statement_Aug2026.pdf", cat:"Accounting", date:"2 Sep 2026", size:"1.2 MB", icon:"📄"},
+  {name:"Sales_Register_Q2.xlsx", cat:"Sales Tax", date:"29 Aug 2026", size:"340 KB", icon:"📊"},
+  {name:"W2_2025.pdf", cat:"Income Tax", date:"18 Aug 2026", size:"210 KB", icon:"📄"},
+  {name:"SalesTaxReturn_Jul2026_Ack.pdf", cat:"Signed Documents", date:"20 Aug 2026", size:"180 KB", icon:"✍️"},
+  {name:"Purchase_Register_Aug.xlsx", cat:"Sales Tax", date:"27 Aug 2026", size:"290 KB", icon:"📊"},
+  {name:"Certificate_of_Incorporation.pdf", cat:"Business", date:"3 Jan 2025", size:"420 KB", icon:"🏢"},
+  {name:"Engagement_Letter_Signed.pdf", cat:"Signed Documents", date:"5 Jan 2025", size:"150 KB", icon:"✍️"},
+  {name:"Articles_of_Incorporation.pdf", cat:"Business", date:"3 Jan 2025", size:"760 KB", icon:"🏢"},
+  {name:"Form1040_2025_Filed.pdf", cat:"Income Tax", date:"28 Jul 2025", size:"310 KB", icon:"📄"},
+];
+const vaultFolders = [
+  {name:"Sales Tax", count:12, icon:"🧾"},
+  {name:"Income Tax", count:8, icon:"📋"},
+  {name:"Business", count:5, icon:"🏢"},
+  {name:"Accounting", count:20, icon:"📚"},
+  {name:"Signed Documents", count:4, icon:"✍️"},
+];
+
+const chatThread = [
+  {from:"them", text:"Hi Sarah, hope you're doing well. I've started your sales tax return for August.", time:"Yesterday, 4:10 PM"},
+  {from:"them", text:"Could you share the bank statement for August so I can complete the reconciliation?", time:"Yesterday, 4:11 PM"},
+  {from:"me", text:"Sure, I'll upload it today evening.", time:"Yesterday, 5:32 PM"},
+  {from:"them", text:"Great, thank you! Filing deadline is 20 Sep, so we're well on track.", time:"Yesterday, 5:40 PM"},
+];
+
+const notifications = [
+  {icon:"⚠️", title:"Tax Notice Received", body:"The department has raised a notice regarding your Aug 2026 sales tax return. Response needed.", time:"40m ago", action:"noticedetail", read:false},
+  {icon:"📄", title:"Document Requested", body:"CPA Jennifer Reyes requested your Aug bank statement for sales tax filing.", time:"2h ago", action:"docrequest", read:false},
+  {icon:"💰", title:"Payment Due", body:"Invoice INV-2026-0142 of $12,500 is due on 15 Sep.", time:"5h ago", action:"invoicedetail", payload:"INV-2026-0142", read:false},
+  {icon:"✅", title:"Filing Completed", body:"Your Payroll Tax Return for Q1 2026 has been filed successfully.", time:"1d ago", action:null, read:false},
+  {icon:"📅", title:"Deadline Reminder", body:"Income tax filing deadline is in 7 days — documents still pending.", time:"1d ago", action:"service", payload:"itr", read:true},
+  {icon:"💬", title:"New Message", body:"CPA Jennifer Reyes sent you a message about sales tax reconciliation.", time:"2d ago", action:"chat", read:true},
+];
+
+const gstNotices = [
+  {id:'NTC/2026/09/00231', title:'Notice for Sales Tax Return mismatch — Aug 2026', date:'5 Sep 2026',
+   status:'Response Pending', desc:'A mismatch was detected between reported sales and the sales tax amount remitted for the return period. Please provide clarification or file a corrected return within 15 days of this notice to avoid penalties.'}
+];
+
+const gstHistory = [
+  {period:"Jul 2026", filedOn:"20 Aug 2026", conf:"CONF-0807260089321"},
+  {period:"Jun 2026", filedOn:"19 Jul 2026", conf:"CONF-0806260077410"},
+  {period:"May 2026", filedOn:"20 Jun 2026", conf:"CONF-0805260065502"},
+];
+
+const extraServices = [
+  {id:"ein", name:"EIN Registration", icon:"🔢", desc:"Get a Federal Employer Identification Number"},
+  {id:"trademark", name:"Trademark Registration", icon:"®️", desc:"Protect your brand name & logo"},
+  {id:"scorp", name:"S-Corp Election (Form 2553)", icon:"📑", desc:"Elect S-Corporation tax status with the IRS"},
+  {id:"dba", name:"DBA / Business Name Registration", icon:"🏭", desc:"Register a Doing Business As name"},
+];
+
+const businesses = [
+  {id:"biz1", name:"Mitchell Apparel Co.", gstin:client.gstin, type:"Sales Tax Registered Business"},
+  {id:"biz2", name:"Sarah Mitchell (Individual)", gstin:"—", type:"Individual Tax Only"},
+];
+let activeBusinessId = "biz1";
+
+let appLang = "en";
+const LANG = {
+  en:{home:"Home", services:"Services", documents:"Documents", tasks:"Tasks", profile:"Profile",
+      greeting:"Good morning, Sarah", compliance:"Compliance Status", actionNeeded:"Action Needed",
+      quickOverview:"Quick Overview", pendingActions:"Pending Actions", nextDeadline:"Next Deadline",
+      outstanding:"Outstanding Payment", payNow:"Pay Now", deadlines:"Upcoming Deadlines",
+      recentDocs:"Recent Documents", logout:"Log Out"},
+  es:{home:"Inicio", services:"Servicios", documents:"Documentos", tasks:"Tareas", profile:"Perfil",
+      greeting:"Buenos días, Sarah", compliance:"Estado de Cumplimiento", actionNeeded:"Acción Requerida",
+      quickOverview:"Resumen Rápido", pendingActions:"Acciones Pendientes", nextDeadline:"Próximo Plazo",
+      outstanding:"Pago Pendiente", payNow:"Pagar Ahora", deadlines:"Próximos Plazos",
+      recentDocs:"Documentos Recientes", logout:"Cerrar Sesión"},
+};
+function t(key){ return (LANG[appLang]&&LANG[appLang][key]) || LANG.en[key] || key; }
+function toggleLang(){ appLang = appLang==='en' ? 'es' : 'en'; render(); }
+
+const complianceBreakdown = [
+  {label:"Filing Timeliness", status:"Good", color:"var(--success)"},
+  {label:"Document Submission", status:"Fair", color:"var(--warning)"},
+  {label:"Payment History", status:"Good", color:"var(--success)"},
+];
+
+const reminderTemplates = [
+  {id:"gst", name:"Sales Tax Filing Reminder", text:"Hi {client_name}, your sales tax return for {period} is due on {due_date}. Please share pending documents at the earliest."},
+  {id:"doc", name:"Document Request Reminder", text:"Hi {client_name}, we're still waiting on {document_name}. Kindly upload it to avoid delays in filing."},
+  {id:"pay", name:"Payment Due Reminder", text:"Hi {client_name}, invoice {invoice_id} of {amount} is due on {due_date}. Please make the payment to avoid late fees."},
+];
+
+const helpFaqs = [
+  {q:"How do I upload a document for my CA?", a:"Go to the relevant service or Document Requests, tap Upload, then choose a file or take a photo."},
+  {q:"When is my sales tax return due?", a:"Check the Compliance Calendar tab — all upcoming Sales Tax, Payroll Tax, Income Tax and State Filing deadlines are listed there."},
+  {q:"How do I pay an outstanding invoice?", a:"Open Invoices & Payments, select the invoice, and tap Pay Now to choose Card, ACH, or Digital Wallet."},
+  {q:"Can I message my CA directly?", a:"Yes — use the chat icon on the dashboard or any service screen to message your assigned CA."},
+];
+
+/* ---- CA staff data ---- */
+const staffKpis = {clients:248, tasksPending:32, filingsDue:18, outstanding:"$482,400"};
+const staffNotifications = [
+  {icon:"📄", text:"Mitchell Apparel uploaded Bank Statement — Aug 2026", time:"12m ago"},
+  {icon:"💰", text:"Invoice INV-2026-0138 paid by Mitchell Apparel", time:"1h ago"},
+  {icon:"⚠️", text:"3 sales tax returns due this week — review pending", time:"3h ago"},
+  {icon:"👤", text:"New client onboarded — Bloom Boutique", time:"1d ago"},
+];
+const attention = [
+  "7 clients haven't submitted sales tax documents",
+  "3 tax returns awaiting your approval",
+  "5 invoices overdue",
+];
+const teamMembers = [
+  {name:"CPA Jennifer Reyes", role:"Senior Associate", clients:42, tasks:8, color:"#4338CA"},
+  {name:"CPA Michael Chen", role:"Associate", clients:35, tasks:11, color:"#0B6E7D"},
+  {name:"Ashley Turner", role:"Staff Accountant", clients:18, tasks:14, color:"#A8620A"},
+  {name:"David Martinez", role:"Staff Accountant", clients:22, tasks:9, color:"#0E7A55"},
+  {name:"CPA Emily Johnson", role:"Associate", clients:31, tasks:6, color:"#C22A3E"},
+];
+const revenueByService = [
+  {label:"Sales Tax Filing", pct:38, color:"#4338CA"},
+  {label:"Income Tax Return", pct:22, color:"#0B6E7D"},
+  {label:"Accounting", pct:20, color:"#A8620A"},
+  {label:"Payroll", pct:12, color:"#0E7A55"},
+  {label:"Others", pct:8, color:"#8A8FA0"},
+];
+const agingBuckets = [
+  {label:"0-30 days", amount:142500, color:"#0E7A55"},
+  {label:"31-60 days", amount:98200, color:"#A8620A"},
+  {label:"61-90 days", amount:54000, color:"#C22A3E"},
+  {label:"90+ days", amount:187700, color:"#7A1F2C"},
+];
+const revenueForecast = [
+  {month:"Oct", amount:310000},
+  {month:"Nov", amount:342000},
+  {month:"Dec", amount:298000},
+];
+let staffTaskBoard = [
+  {id:1, title:"Review Sales Tax Return — Aug 2026", client:"Mitchell Apparel Co.", due:"10 Sep", priority:"High", stage:"pending"},
+  {id:2, title:"Chase pending onboarding documents", client:"Blue Horizon Exports", due:"9 Sep", priority:"High", stage:"pending"},
+  {id:3, title:"Prepare tax return draft", client:"Bloom Boutique", due:"12 Sep", priority:"Medium", stage:"pending"},
+  {id:4, title:"Follow up on overdue invoice", client:"Pioneer Logistics", due:"8 Sep", priority:"High", stage:"pending"},
+  {id:5, title:"Payroll processing — Aug", client:"Mitchell Apparel Co.", due:"5 Sep", priority:"Medium", stage:"progress"},
+  {id:6, title:"Sales tax reconciliation", client:"Vertex Engineering Works", due:"11 Sep", priority:"Low", stage:"progress"},
+  {id:7, title:"Payroll Tax Return Q1 filed", client:"Mitchell Apparel Co.", due:"15 Jul", priority:"Medium", stage:"done"},
+  {id:8, title:"Tax ID verification", client:"Summit Traders", due:"22 Jun", priority:"Low", stage:"done"},
+];
+const staffClients = [
+  {name:"Mitchell Apparel Co.", contact:"Sarah Mitchell", status:"Action Needed", color:"warning", pending:2, outstanding:12500},
+  {name:"Vertex Engineering Works", contact:"Anthony Walsh", status:"On Track", color:"success", pending:0, outstanding:0},
+  {name:"Blue Horizon Exports", contact:"Rachel Kim", status:"Overdue", color:"danger", pending:3, outstanding:28400},
+  {name:"Summit Traders", contact:"James Anderson", status:"On Track", color:"success", pending:1, outstanding:0},
+  {name:"Bloom Boutique", contact:"Kayla Reed", status:"Action Needed", color:"warning", pending:2, outstanding:6200},
+  {name:"Pioneer Logistics", contact:"Robert Jenkins", status:"Overdue", color:"danger", pending:4, outstanding:41200},
+  {name:"Premier Furnishings", contact:"Nathan Silva", status:"On Track", color:"success", pending:0, outstanding:0},
+  {name:"Ashford Pharma Distributors", contact:"Diana Rowe", status:"Action Needed", color:"warning", pending:1, outstanding:9800},
+];
+
+/* =========================================================================
+   ICONS
+   ========================================================================= */
+const ICONS = {
+  back:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="#12131C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  bell:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#12131C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.7 21a2 2 0 0 1-3.4 0" stroke="#12131C" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  chat:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke="#12131C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  home:(a)=>`<svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 3l9 7.5" stroke="${a}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 9.5V21h14V9.5" stroke="${a}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  services:(a)=>`<svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" stroke="${a}" stroke-width="2"/><rect x="13" y="3" width="8" height="8" rx="2" stroke="${a}" stroke-width="2"/><rect x="3" y="13" width="8" height="8" rx="2" stroke="${a}" stroke-width="2"/><rect x="13" y="13" width="8" height="8" rx="2" stroke="${a}" stroke-width="2"/></svg>`,
+  docs:(a)=>`<svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="${a}" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v5h5" stroke="${a}" stroke-width="2" stroke-linejoin="round"/></svg>`,
+  tasks:(a)=>`<svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M9 11l2 2 4-4" stroke="${a}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="4" width="18" height="17" rx="3" stroke="${a}" stroke-width="2"/></svg>`,
+  profile:(a)=>`<svg width="21" height="21" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="${a}" stroke-width="2"/><path d="M4 21c1.5-4.5 5-6 8-6s6.5 1.5 8 6" stroke="${a}" stroke-width="2" stroke-linecap="round"/></svg>`,
+  camera:`<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" stroke="#4338CA" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="14" r="3.4" stroke="#4338CA" stroke-width="1.8"/></svg>`,
+  upload:`<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 16V4M12 4l-4 4M12 4l4 4" stroke="#4338CA" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" stroke="#4338CA" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  search:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#12131C" stroke-width="1.8"/><path d="M21 21l-4.3-4.3" stroke="#12131C" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+};
+
+/* =========================================================================
+   STATE / ROUTER
+   ========================================================================= */
+let stack = [{screen:'splash', params:{}}];
+let flow = {}; // scratch data for in-progress simulated flows
+
+function current(){ return stack[stack.length-1]; }
+function go(screen, params={}){ stack.push({screen, params}); render(); window.scrollTo(0,0); }
+function replace(screen, params={}){ stack[stack.length-1] = {screen, params}; render(); }
+function goBack(){ if(stack.length>1){ stack.pop(); render(); } }
+function goRoot(screen, params={}){ stack = [{screen, params}]; render(); }
+
+const NAV_SCREENS = ['dashboard','services','vault','tasks','profile'];
+const HEADERLESS = ['splash','login','otp','onboarding'];
+
+function fmtINR(n){ return '$' + n.toLocaleString('en-US'); }
+
+/* =========================================================================
+   HEADER + BOTTOM NAV
+   ========================================================================= */
+function renderChrome(){
+  const {screen, params} = current();
+  const headerEl = document.getElementById('appheader');
+  const navEl = document.getElementById('bottomnav');
+
+  if(HEADERLESS.includes(screen)){
+    headerEl.innerHTML = '';
+    navEl.innerHTML = '';
+    return;
+  }
+  const titles = {
+    dashboard:[t('greeting'), businesses.find(b=>b.id===activeBusinessId).name],
+    services:['My Services', client.business],
+    servicedetail:[services.find(s=>s.id===current().params.id)?.name || 'Service', 'Service details'],
+    docrequests:['Document Requests','Pending uploads from your CA'],
+    vault:['Documents Vault', 'All your files, organised'],
+    calendar:['Compliance Calendar','Never miss a deadline'],
+    tasks:['Tasks', client.business],
+    invoices:['Invoices & Payments', client.business],
+    invoicedetail:['Invoice', current().params.id||''],
+    pay:['Payment', 'Choose a payment method'],
+    paysuccess:['', ''],
+    chat:['CPA Jennifer Reyes','Usually replies within an hour'],
+    notifications:['Notifications', ''],
+    profile:['Profile','Business details'],
+    help:['Help & Support',''],
+    filingflow:['Sales Tax Filing','August 2026'],
+    docupload:['Upload Document', current().params.docName||''],
+    noticedetail:['Tax Notice', gstNotices[0].id],
+    search:['Search',''],
+    requestservice:['Request a Service','Explore additional offerings'],
+    tools:['Tax Tools','Quick calculators'],
+    calculator:[params.tool==='tds'?'Payroll Tax Calculator':params.tool==='itr'?'Income Tax Calculator':'Sales Tax Calculator', 'Illustrative estimate'],
+    refer:['Refer & Earn',''],
+    docpreview:[current().params.name||'Document', current().params.cat||''],
+  };
+  const [title, sub] = titles[screen] || ['',''];
+  const showBack = !NAV_SCREENS.includes(screen);
+  const isPaySuccess = screen==='paysuccess';
+  const unread = notifications.filter(n=>!n.read).length;
+  const bellBadge = unread>0 ? `<span class="badge-dot" style="width:auto;min-width:15px;height:15px;border-radius:8px;font-size:9px;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;">${unread}</span>` : '';
+
+  headerEl.innerHTML = `
+    ${showBack ? `<div class="backbtn" onclick="goBack()">${ICONS.back}</div>` : ''}
+    <div style="flex:1;">
+      ${title ? `<div class="title">${title}</div>` : ''}
+      ${sub ? `<div class="subtitle" ${screen==='dashboard'?`onclick="openBusinessSwitcher()" style="cursor:pointer;"`:''}>${sub}${screen==='dashboard'?' ▾':''}</div>` : ''}
+    </div>
+    ${!showBack && !isPaySuccess ? `
+      <div class="hbtn" onclick="go('search')">${ICONS.search}</div>
+      <div class="hbtn" onclick="go('notifications')" style="margin-left:8px;">${ICONS.bell}${bellBadge}</div>
+      <div class="hbtn" onclick="go('chat')" style="margin-left:8px;">${ICONS.chat}</div>
+    ` : ''}
+    ${showBack && !isPaySuccess && screen!=='chat' ? `
+      <div class="hbtn" onclick="go('notifications')">${ICONS.bell}${bellBadge}</div>
+    ` : ''}
+  `;
+
+  if(NAV_SCREENS.includes(screen)){
+    const pendingTasks = tasksData.pending.length;
+    const items = [
+      {key:'dashboard', label:t('home'), icon:ICONS.home},
+      {key:'services', label:t('services'), icon:ICONS.services},
+      {key:'vault', label:t('documents'), icon:ICONS.docs},
+      {key:'tasks', label:t('tasks'), icon:ICONS.tasks, badge:pendingTasks},
+      {key:'profile', label:t('profile'), icon:ICONS.profile},
+    ];
+    navEl.innerHTML = items.map(it=>{
+      const active = it.key===screen;
+      const color = active ? '#4338CA' : '#8A8FA0';
+      const badge = it.badge ? `<span style="position:absolute;top:-3px;right:-7px;background:var(--danger);color:#fff;font-size:8.5px;font-weight:800;min-width:13px;height:13px;border-radius:7px;display:flex;align-items:center;justify-content:center;padding:0 2px;">${it.badge}</span>` : '';
+      return `<div class="navitem ${active?'active':''}" onclick="goRoot('${it.key}')"><div style="position:relative;">${it.icon(color)}${badge}</div><span>${it.label}</span></div>`;
+    }).join('');
+  } else {
+    navEl.innerHTML = '';
+  }
+}
+
+/* =========================================================================
+   SCREENS
+   ========================================================================= */
+function render(){
+  const {screen, params} = current();
+  renderChrome();
+  const body = document.getElementById('appbody');
+  body.classList.toggle('no-pad', ['splash','login','otp','onboarding','paysuccess'].includes(screen));
+  const fns = {
+    splash: renderSplash, login: renderLogin, otp: renderOTP, onboarding: renderOnboarding,
+    dashboard: renderDashboard, services: renderServices, servicedetail: renderServiceDetail,
+    docrequests: renderDocRequests, vault: renderVault, calendar: renderCalendar,
+    tasks: renderTasks, invoices: renderInvoices, invoicedetail: renderInvoiceDetail,
+    pay: renderPay, paysuccess: renderPaySuccess, chat: renderChat, notifications: renderNotifications,
+    profile: renderProfile, help: renderHelp, filingflow: renderFilingFlow, docupload: renderDocUpload,
+    noticedetail: renderNoticeDetail, search: renderSearch, requestservice: renderRequestService,
+    tools: renderTools, calculator: renderCalculator, refer: renderRefer, docpreview: renderDocPreview,
+  };
+  body.innerHTML = `<div class="fade-in">${(fns[screen]||renderDashboard)(params)}</div>`;
+  attachDynamicHandlers(screen);
+}
+
+function renderSplash(){
+  setTimeout(()=>{ if(current().screen==='splash') go('login'); }, 1800);
+  return `
+  <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#4338CA 0%,#332C9E 100%); color:#fff; text-align:center; padding:0 30px;">
+    <div style="width:74px;height:74px;border-radius:20px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:18px;">🧾</div>
+    <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:26px;letter-spacing:-.02em;">Meridian</div>
+    <div style="font-size:13.5px;opacity:.8;margin-top:6px;">Your CPA, in your pocket</div>
+    <div style="margin-top:46px;width:26px;height:26px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;" class="spin"></div>
+  </div>`;
+}
+
+function renderLogin(){
+  return `
+  <div style="height:100%;display:flex;flex-direction:column;padding:50px 26px 30px;">
+    <div style="width:52px;height:52px;border-radius:16px;background:var(--primary-tint);display:flex;align-items:center;justify-content:center;font-size:24px;">🧾</div>
+    <h1 style="font-size:25px;margin:22px 0 6px;letter-spacing:-.01em;">Welcome back</h1>
+    <div class="muted" style="font-size:14px;">Log in to manage your filings, documents and payments in one place.</div>
+    <div style="margin-top:32px;">
+      <label class="small muted" style="font-weight:600;">Mobile Number</label>
+      <div class="row" style="margin-top:8px;border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;background:var(--surface);">
+        <span style="font-weight:600;color:var(--ink-2);margin-right:8px;">🇺🇸 +1</span>
+        <span style="font-weight:600;">(512) 555-0142</span>
+      </div>
+    </div>
+    <button class="btn btn-primary mt18" onclick="go('otp')">Send OTP</button>
+    <div class="muted small" style="text-align:center;margin-top:16px;">By continuing you agree to our Terms & Privacy Policy</div>
+    <div style="flex:1;"></div>
+    <div style="text-align:center;">
+      <span class="chip" onclick="setMode('staff')">Viewing as CPA Staff instead? Switch portal →</span>
+    </div>
+  </div>`;
+}
+
+function renderOTP(){
+  return `
+  <div style="height:100%;display:flex;flex-direction:column;padding:50px 26px 30px;">
+    <h1 style="font-size:23px;margin:0 0 6px;">Verify your number</h1>
+    <div class="muted" style="font-size:13.5px;">Enter the 4-digit code sent to +1 (512) 555-0142</div>
+    <div class="otp-row">
+      <div class="otp-box filled">4</div><div class="otp-box filled">2</div>
+      <div class="otp-box filled">1</div><div class="otp-box filled">7</div>
+    </div>
+    <div style="text-align:center;" class="small muted">Resend code in 00:24</div>
+    <button class="btn btn-primary mt18" onclick="go('onboarding')">Verify & Continue</button>
+  </div>`;
+}
+
+function renderOnboarding(){
+  return `
+  <div style="height:100%;display:flex;flex-direction:column;padding:44px 26px 30px;">
+    <div class="pill primary" style="align-self:flex-start;">Step 2 of 2</div>
+    <h1 style="font-size:22px;margin:16px 0 4px;">Tell us about your business</h1>
+    <div class="muted small">This helps your CPA set up the right compliance calendar.</div>
+    <div class="mt18" style="display:flex;flex-direction:column;gap:14px;">
+      ${['Business Name','Tax ID (EIN)','Sales Tax Permit (optional)','City'].map((l,i)=>`
+        <div>
+          <label class="small muted" style="font-weight:600;">${l}</label>
+          <div style="margin-top:7px;border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;background:var(--surface);font-weight:600;font-size:13.5px;">
+            ${[client.business, client.pan, client.gstin, 'Austin, Texas'][i]}
+          </div>
+        </div>`).join('')}
+    </div>
+    <button class="btn btn-primary mt18" onclick="goRoot('dashboard')">Create My Workspace</button>
+  </div>`;
+}
+
+function complianceBanner(){
+  const pendingCount = deadlines.filter(d=>d.urgent).length + 1;
+  return `
+  <div class="card" style="background:linear-gradient(135deg,#4338CA,#5B4FE0); color:#fff; border:none;">
+    <div class="row between">
+      <div>
+        <div class="small" style="opacity:.85;font-weight:600;">${t('compliance')}</div>
+        <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:19px;margin-top:2px;">${t('actionNeeded')}</div>
+      </div>
+      <div class="pill" style="background:rgba(255,255,255,.18);color:#fff;">${pendingCount} pending</div>
+    </div>
+    <div class="muted small mt10" style="color:rgba(255,255,255,.85);">1 return awaiting review · 2 documents requested · 1 payment due</div>
+  </div>`;
+}
+function complianceScoreWidget(){
+  return `
+  <div class="section-title">Compliance Score</div>
+  <div class="card row" style="gap:20px;align-items:center;">
+    <div style="width:84px;height:84px;border-radius:50%;background:conic-gradient(#0E7A55 0% 82%, var(--border) 82% 100%);position:relative;flex:0 0 auto;">
+      <div style="position:absolute;inset:11px;background:var(--surface);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+        <div style="font-weight:800;font-size:16px;">82</div>
+        <div class="small muted" style="font-size:9px;">/100</div>
+      </div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+      ${complianceBreakdown.map(c=>`<div class="row between small"><span>${c.label}</span><span style="font-weight:700;color:${c.color};">${c.status}</span></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderDashboard(){
+  return `
+  ${complianceBanner()}
+  ${complianceScoreWidget()}
+
+  <div class="section-title">Quick Tools</div>
+  <div class="scrollx">
+    <div class="chip" onclick="go('calculator',{tool:'gst'})">🧮 Sales Tax Calculator</div>
+    <div class="chip" onclick="go('calculator',{tool:'tds'})">💸 Payroll Tax Calculator</div>
+    <div class="chip" onclick="go('calculator',{tool:'itr'})">📊 Income Tax Calculator</div>
+  </div>
+
+  <div class="section-title">${t('quickOverview')}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div class="card" onclick="go('tasks')">
+      <div class="row between"><span class="small muted" style="font-weight:600;">${t('pendingActions')}</span><span>📌</span></div>
+      <div class="num" style="font-size:24px;font-weight:800;margin-top:8px;">${tasksData.pending.length}</div>
+      <div class="small muted">Need your attention</div>
+    </div>
+    <div class="card" onclick="go('calendar')">
+      <div class="row between"><span class="small muted" style="font-weight:600;">${t('nextDeadline')}</span><span>📅</span></div>
+      <div class="num" style="font-size:24px;font-weight:800;margin-top:8px;">7 days</div>
+      <div class="small muted">Tax Return Filing · 15 Sep</div>
+    </div>
+  </div>
+
+  <div class="section-title">${t('outstanding')}</div>
+  <div class="card" onclick="go('invoicedetail',{id:'INV-2026-0142'})">
+    <div class="row between">
+      <div>
+        <div style="font-size:22px;font-weight:800;font-family:'Manrope',sans-serif;">${fmtINR(12500)}</div>
+        <div class="small muted mt6">Sales Tax Filing — Aug 2026 + Consultation</div>
+      </div>
+      <div class="pill warning">Due 15 Sep</div>
+    </div>
+    <button class="btn btn-primary mt14" onclick="event.stopPropagation(); go('invoicedetail',{id:'INV-2026-0142'})">${t('payNow')}</button>
+  </div>
+
+  <div class="section-title">${t('deadlines')} <span class="link" onclick="go('calendar')">View calendar</span></div>
+  <div class="card" style="padding:6px 16px;">
+    ${deadlines.slice(0,3).map(d=>`
+      <div class="listrow">
+        <div class="iconwrap" style="background:${d.urgent?'var(--danger-tint)':'var(--primary-tint)'};">${d.urgent?'⚠️':'📅'}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:13.5px;">${d.title}</div>
+          <div class="small muted">${d.date}</div>
+        </div>
+        <div class="pill ${d.urgent?'danger':'neutral'}">${d.daysLeft}d</div>
+      </div>
+    `).join('')}
+  </div>
+
+  <div class="section-title">${t('recentDocs')} <span class="link" onclick="go('vault')">See all</span></div>
+  <div class="card" style="padding:6px 16px;">
+    ${recentDocuments.map(doc=>`
+      <div class="listrow">
+        <div class="iconwrap" style="background:var(--surface-2);">${doc.icon}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:13.5px;">${doc.name}</div>
+          <div class="small muted">${doc.cat} · ${doc.date}</div>
+        </div>
+        <span class="small muted">${doc.size}</span>
+      </div>
+    `).join('')}
+  </div>
+  <div style="height:6px;"></div>
+  `;
+}
+
+function renderServices(){
+  const requested = (flow.requestedServices||[]).map(id=>extraServices.find(s=>s.id===id)).filter(Boolean);
+  return `
+  <div class="section-title" style="margin-top:14px;">All Services</div>
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    ${services.map(s=>`
+      <div class="card row" style="gap:13px;cursor:pointer;" onclick="go('servicedetail',{id:'${s.id}'})">
+        <div class="iconwrap" style="background:var(--primary-tint);font-size:20px;">${s.icon}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:14.5px;">${s.name}</div>
+          <div class="small muted mt6">${s.desc}</div>
+        </div>
+        <div class="pill ${s.color}">${s.status}</div>
+      </div>
+    `).join('')}
+    ${requested.map(s=>`
+      <div class="card row" style="gap:13px;">
+        <div class="iconwrap" style="background:var(--primary-tint);font-size:20px;">${s.icon}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:14.5px;">${s.name}</div>
+          <div class="small muted mt6">${s.desc}</div>
+        </div>
+        <div class="pill neutral">Requested</div>
+      </div>
+    `).join('')}
+  </div>
+  <button class="btn btn-secondary mt14" onclick="go('requestservice')">+ Request a New Service</button>
+  <div style="height:6px;"></div>
+  `;
+}
+
+function renderServiceDetail(params){
+  const svc = services.find(s=>s.id===params.id) || services[0];
+  const detail = serviceDetail[svc.id] || serviceDetail.gst;
+  const isGstFlow = svc.id==='gst';
+  return `
+  <div class="card row" style="gap:12px;margin-top:10px;">
+    <div class="iconwrap" style="background:var(--primary-tint);font-size:20px;">${svc.icon}</div>
+    <div style="flex:1;">
+      <div style="font-weight:700;font-size:15px;">${svc.name}</div>
+      <div class="small muted">${detail.period || 'Ongoing'}</div>
+    </div>
+    <div class="pill ${svc.color}">${svc.status}</div>
+  </div>
+
+  <div class="section-title">Assigned CPA</div>
+  <div class="card row" style="gap:12px;">
+    <div class="avatar">RM</div>
+    <div style="flex:1;">
+      <div style="font-weight:700;font-size:13.5px;">${detail.assignedCA}</div>
+      <div class="small muted">Tax & Accounting Specialist</div>
+    </div>
+    <div class="hbtn" onclick="go('chat')">${ICONS.chat}</div>
+  </div>
+
+  <div class="section-title">Timeline</div>
+  <div class="card">
+    <div class="tl">
+      ${detail.steps.map(st=>`
+        <div class="tl-item ${st.state}">
+          <div style="font-weight:700;font-size:13.5px;">${st.label}</div>
+          <div class="small muted">${st.date}</div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+
+  <div class="section-title">Required Documents</div>
+  <div class="card" style="padding:6px 16px;">
+    ${detail.requiredDocs.map(d=>`
+      <div class="listrow" ${!d.uploaded?`onclick="go('docupload',{docName:'${d.name}', from:'servicedetail', svcId:'${svc.id}'})"`:''}>
+        <div class="iconwrap" style="background:${d.uploaded?'var(--success-tint)':'var(--surface-2)'};">${d.uploaded?'✅':'📎'}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:13.5px;">${d.name}</div>
+          <div class="small muted">${d.uploaded?'Uploaded':'Tap to upload'}</div>
+        </div>
+        ${!d.uploaded?`<span class="link" style="color:var(--primary);font-weight:700;font-size:12.5px;">Upload</span>`:''}
+      </div>
+    `).join('')}
+  </div>
+
+  ${isGstFlow ? `
+  <div class="section-title">Notices <span class="pill danger">1 New</span></div>
+  <div class="card" onclick="go('noticedetail',{})" style="cursor:pointer;">
+    <div class="row between">
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:13.5px;">${gstNotices[0].title}</div>
+        <div class="small muted mt6">${gstNotices[0].date} · ${gstNotices[0].id}</div>
+      </div>
+      <span class="pill danger">${gstNotices[0].status}</span>
+    </div>
+  </div>` : ''}
+
+  ${isGstFlow ? `
+  <div class="section-title">Filing History</div>
+  <div class="card" style="padding:6px 16px;">
+    ${gstHistory.map(h=>`
+      <div class="listrow" style="cursor:default;">
+        <div class="iconwrap" style="background:var(--success-tint);">✅</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:13.5px;">Sales Tax Return — ${h.period}</div>
+          <div class="small muted">Filed ${h.filedOn} · Confirmation #${h.conf}</div>
+        </div>
+        <span class="pill success">Filed</span>
+      </div>
+    `).join('')}
+  </div>` : ''}
+
+  <div class="section-title">Messages</div>
+  <div class="card row" style="gap:12px;cursor:pointer;" onclick="go('chat')">
+    <div class="avatar">RM</div>
+    <div style="flex:1;">
+      <div style="font-weight:700;font-size:13px;">CPA Jennifer Reyes</div>
+      <div class="small muted" style="margin-top:3px;">${detail.lastMessage}</div>
+    </div>
+  </div>
+
+  ${isGstFlow ? `<button class="btn btn-primary mt18" onclick="go('filingflow',{step:0})">View Requirements & Continue Filing</button>` : ''}
+  <div style="height:10px;"></div>
+  `;
+}
+
+function renderNoticeDetail(){
+  const n = gstNotices[0];
+  const responded = flow['submitted_Notice Response — '+n.id];
+  return `
+  <div class="card mt10" style="background:var(--danger-tint); border:none;">
+    <div class="row between">
+      <span class="small" style="color:var(--danger); font-weight:700;">${n.id}</span>
+      <span class="pill ${responded?'success':'danger'}">${responded?'Response Submitted':n.status}</span>
+    </div>
+    <div style="font-weight:800;font-size:15px;margin-top:10px;">${n.title}</div>
+    <div class="small" style="margin-top:8px;color:#7A1F2C;line-height:1.5;">${n.desc}</div>
+  </div>
+  <div class="section-title">Notice Details</div>
+  <div class="card">
+    <div class="row between"><span class="small muted">Issued On</span><span style="font-weight:700;font-size:13px;">${n.date}</span></div>
+    <div class="row between mt10"><span class="small muted">Return Period</span><span style="font-weight:700;font-size:13px;">Aug 2026</span></div>
+    <div class="row between mt10"><span class="small muted">Response Due</span><span style="font-weight:700;font-size:13px;">20 Sep 2026</span></div>
+    <div class="row between mt10"><span class="small muted">Assigned CPA</span><span style="font-weight:700;font-size:13px;">CPA Jennifer Reyes</span></div>
+  </div>
+  ${!responded ? `
+  <div class="card mt14" style="background:var(--info-tint); border:none;">
+    <div class="small" style="color:var(--info); font-weight:600;">CPA Jennifer Reyes has prepared a clarification. Review and submit your response, or upload supporting documents.</div>
+  </div>
+  <button class="btn btn-primary mt18" onclick="go('docupload',{docName:'Notice Response — ${n.id}', from:'noticedetail'})">Upload Response & Submit</button>
+  <button class="btn btn-ghost" onclick="go('chat')">Message your CA about this notice</button>
+  ` : `
+  <div class="card mt14" style="text-align:center;padding:22px 16px;">
+    <div style="font-size:26px;">✅</div>
+    <div style="font-weight:700;font-size:13.5px;margin-top:8px;">Response submitted to the department</div>
+  </div>`}
+  <div style="height:8px;"></div>
+  `;
+}
+
+let _searchResults = [];
+function buildSearchIndex(){
+  const idx = [];
+  services.forEach(s=> idx.push({type:'Service', icon:s.icon, label:s.name, sub:s.status, screen:'servicedetail', params:{id:s.id}}));
+  invoices.forEach(i=> idx.push({type:'Invoice', icon:'💳', label:i.id, sub:i.desc, screen:'invoicedetail', params:{id:i.id}}));
+  allVaultDocs.forEach(d=> idx.push({type:'Document', icon:d.icon, label:d.name, sub:d.cat, screen:'vault', params:{}}));
+  ['pending','progress','done'].forEach(k=> tasksData[k].forEach(t=> idx.push({type:'Task', icon:'✓', label:t.title, sub:t.service, screen:'tasks', params:{}})));
+  return idx;
+}
+function renderSearchResultsHTML(){
+  const q = (flow.searchQuery||'').toLowerCase();
+  if(!q){ _searchResults=[]; return `<div class="empty-state"><div class="emoji">🔎</div>Search across services, documents, invoices and tasks.</div>`; }
+  const all = buildSearchIndex();
+  _searchResults = all.filter(r=> r.label.toLowerCase().includes(q) || (r.sub||'').toLowerCase().includes(q));
+  if(_searchResults.length===0) return `<div class="empty-state"><div class="emoji">🙈</div>No results for "${flow.searchQuery}"</div>`;
+  return _searchResults.map((r,i)=>`
+    <div class="card row" style="gap:12px;cursor:pointer;" onclick="searchGo(${i})">
+      <div class="iconwrap" style="background:var(--primary-tint);">${r.icon}</div>
+      <div style="flex:1;">
+        <div class="small muted" style="font-weight:700;text-transform:uppercase;letter-spacing:.03em;font-size:10px;">${r.type}</div>
+        <div style="font-weight:700;font-size:13.5px;margin-top:2px;">${r.label}</div>
+        <div class="small muted mt6">${r.sub}</div>
+      </div>
+    </div>
+  `).join('');
+}
+function updateSearch(val){
+  flow.searchQuery = val;
+  const el = document.getElementById('searchResults');
+  if(el) el.innerHTML = renderSearchResultsHTML();
+}
+function searchGo(i){ const r=_searchResults[i]; if(r) go(r.screen, r.params); }
+function renderSearch(){
+  return `
+  <div class="mt10">
+    <input type="text" autofocus placeholder="Search services, documents, invoices, tasks…" value="${flow.searchQuery||''}"
+      oninput="updateSearch(this.value)"
+      style="width:100%;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;background:var(--surface);font-size:13.5px;color:var(--ink);font-family:inherit;">
+  </div>
+  <div class="mt14" id="searchResults" style="display:flex;flex-direction:column;gap:8px;">${renderSearchResultsHTML()}</div>
+  <div style="height:8px;"></div>
+  `;
+}
+
+function renderRequestService(){
+  return `
+  <div class="small muted mt10">Choose a service to request from your CA firm. They'll reach out to get started.</div>
+  <div class="mt14" style="display:flex;flex-direction:column;gap:10px;">
+    ${extraServices.map(s=>{
+      const requested = (flow.requestedServices||[]).includes(s.id);
+      return `
+      <div class="card row" style="gap:13px;">
+        <div class="iconwrap" style="background:var(--primary-tint);font-size:18px;">${s.icon}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:13.5px;">${s.name}</div>
+          <div class="small muted mt6">${s.desc}</div>
+        </div>
+        ${requested ? `<span class="pill neutral">Requested</span>` : `<button class="btn btn-primary btn-sm" onclick="requestService('${s.id}')">Request</button>`}
+      </div>`;
+    }).join('')}
+  </div>
+  <div style="height:8px;"></div>
+  `;
+}
+function requestService(id){
+  flow.requestedServices = flow.requestedServices || [];
+  if(!flow.requestedServices.includes(id)) flow.requestedServices.push(id);
+  const s = extraServices.find(x=>x.id===id);
+  render();
+  showToast(`✅ ${s.name} requested — your CA will reach out shortly`);
+}
+function rateFiling(n){ flow.filingRating = n; render(); }
+
+/* -------- shared client-side modal / share / business switch -------- */
+function closeClientModal(){ document.getElementById('clientModalRoot').innerHTML=''; }
+function openShareSheet(label){
+  document.getElementById('clientModalRoot').innerHTML = `
+    <div class="modal-overlay" onclick="closeClientModal()">
+      <div class="modal-card" onclick="event.stopPropagation()" style="max-width:340px;">
+        <div style="font-weight:800;font-size:15px;">Share "${label}"</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:16px;">
+          <div class="listrow" onclick="shareVia('WhatsApp')"><div class="iconwrap" style="background:var(--success-tint);">💬</div><div style="flex:1;font-weight:600;font-size:13.5px;">WhatsApp</div></div>
+          <div class="listrow" onclick="shareVia('Email')"><div class="iconwrap" style="background:var(--info-tint);">✉️</div><div style="flex:1;font-weight:600;font-size:13.5px;">Email</div></div>
+          <div class="listrow" onclick="shareVia('Copy Link')" style="border-bottom:none;"><div class="iconwrap" style="background:var(--surface-2);">🔗</div><div style="flex:1;font-weight:600;font-size:13.5px;">Copy Link</div></div>
+        </div>
+        <button class="btn btn-secondary mt14" onclick="closeClientModal()">Cancel</button>
+      </div>
+    </div>`;
+}
+function shareVia(method){ closeClientModal(); showToast(`✅ Shared via ${method}`); }
+function openBusinessSwitcher(){
+  document.getElementById('clientModalRoot').innerHTML = `
+    <div class="modal-overlay" onclick="closeClientModal()">
+      <div class="modal-card" onclick="event.stopPropagation()">
+        <div style="font-weight:800;font-size:15px;">Switch Business</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:16px;">
+          ${businesses.map(b=>`
+            <div class="listrow" onclick="switchBusiness('${b.id}')">
+              <div class="iconwrap" style="background:var(--primary-tint);">🏢</div>
+              <div style="flex:1;">
+                <div style="font-weight:700;font-size:13.5px;">${b.name}</div>
+                <div class="small muted">${b.type}</div>
+              </div>
+              ${activeBusinessId===b.id?'<span style="color:var(--primary);font-weight:800;">✓</span>':''}
+            </div>
+          `).join('')}
+        </div>
+        <button class="btn btn-secondary mt14" onclick="closeClientModal()">Close</button>
+      </div>
+    </div>`;
+}
+function switchBusiness(id){
+  activeBusinessId = id;
+  closeClientModal();
+  render();
+  showToast(`Switched to ${businesses.find(b=>b.id===id).name}`);
+}
+
+/* -------- calculators -------- */
+function renderTools(){
+  return `
+  <div class="small muted mt10">Quick calculators to help you estimate your tax obligations.</div>
+  <div class="mt14" style="display:flex;flex-direction:column;gap:10px;">
+    ${[
+      {id:'gst', icon:'🧮', name:'Sales Tax Calculator', desc:'Calculate sales tax & total amount'},
+      {id:'tds', icon:'💸', name:'Payroll Tax Calculator', desc:'Estimate payroll & contractor withholding'},
+      {id:'itr', icon:'📊', name:'Income Tax Calculator', desc:'Estimate tax under the new regime'},
+    ].map(t=>`
+      <div class="card row" style="gap:13px;cursor:pointer;" onclick="go('calculator',{tool:'${t.id}'})">
+        <div class="iconwrap" style="background:var(--primary-tint);font-size:20px;">${t.icon}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:14px;">${t.name}</div>
+          <div class="small muted mt6">${t.desc}</div>
+        </div>
+      </div>
+    `).join('')}
+  </div>
+  <div style="height:8px;"></div>`;
+}
+function fieldStyle(){ return "width:100%;margin-top:7px;border:1.5px solid var(--border);border-radius:10px;padding:11px 12px;font-size:14px;font-weight:600;font-family:inherit;color:var(--ink);background:var(--surface);"; }
+function renderCalculator(params){
+  const tool = params.tool || 'gst';
+  if(tool==='tds') return renderTdsCalc();
+  if(tool==='itr') return renderItrCalc();
+  return renderGstCalc();
+}
+function renderGstCalc(){
+  return `
+  <div class="card mt10">
+    <label class="small muted" style="font-weight:600;">Amount ($)</label>
+    <input type="number" id="gstAmount" placeholder="e.g. 5000" oninput="computeGst()" style="${fieldStyle()}">
+    <label class="small muted mt14" style="font-weight:600;display:block;">Combined Sales Tax Rate</label>
+    <select id="gstRate" onchange="computeGst()" style="${fieldStyle()}">
+      <option value="6">6.0% (avg. state rate)</option><option value="7.25">7.25%</option><option value="8.25" selected>8.25%</option><option value="9.5">9.5%</option>
+    </select>
+    <label class="small muted mt14" style="font-weight:600;display:block;">Amount Type</label>
+    <select id="gstType" onchange="computeGst()" style="${fieldStyle()}">
+      <option value="excl">Exclusive of Sales Tax</option><option value="incl">Inclusive of Sales Tax</option>
+    </select>
+  </div>
+  <div class="section-title">Result</div>
+  <div class="card" id="gstResult">Enter an amount to calculate.</div>
+  <div style="height:8px;"></div>`;
+}
+function computeGst(){
+  const amt = parseFloat(document.getElementById('gstAmount').value)||0;
+  const rate = parseFloat(document.getElementById('gstRate').value);
+  const type = document.getElementById('gstType').value;
+  const el = document.getElementById('gstResult');
+  if(amt<=0){ el.innerHTML='Enter an amount to calculate.'; return; }
+  let base, tax;
+  if(type==='excl'){ base=amt; tax=amt*rate/100; } else { base=amt/(1+rate/100); tax=amt-base; }
+  const total = base+tax;
+  el.innerHTML = `
+    <div class="row between"><span class="small muted">Taxable Amount</span><span style="font-weight:700;">${fmtINR(Math.round(base))}</span></div>
+    <div class="row between mt10"><span class="small muted">Sales Tax (${rate}%)</span><span style="font-weight:700;">${fmtINR(Math.round(tax))}</span></div>
+    <div class="divider"></div>
+    <div class="row between"><span style="font-weight:700;">Total Amount</span><span style="font-weight:800;font-size:16px;">${fmtINR(Math.round(total))}</span></div>`;
+}
+function renderTdsCalc(){
+  return `
+  <div class="card mt10">
+    <label class="small muted" style="font-weight:600;">Payment / Wage Amount ($)</label>
+    <input type="number" id="tdsAmount" placeholder="e.g. 5000" oninput="computeTds()" style="${fieldStyle()}">
+    <label class="small muted mt14" style="font-weight:600;display:block;">Withholding Type</label>
+    <select id="tdsSection" onchange="computeTds()" style="${fieldStyle()}">
+      <option value="22">Federal Income Tax Withholding (approx. 22%)</option>
+      <option value="6.2">Social Security Tax (6.2%)</option>
+      <option value="1.45">Medicare Tax (1.45%)</option>
+      <option value="24">1099 Contractor — Backup Withholding (24%)</option>
+    </select>
+  </div>
+  <div class="section-title">Result</div>
+  <div class="card" id="tdsResult">Enter a payment amount to calculate.</div>
+  <div style="height:8px;"></div>`;
+}
+function computeTds(){
+  const amt = parseFloat(document.getElementById('tdsAmount').value)||0;
+  const rate = parseFloat(document.getElementById('tdsSection').value);
+  const el = document.getElementById('tdsResult');
+  if(amt<=0){ el.innerHTML='Enter a payment amount to calculate.'; return; }
+  const withheld = amt*rate/100, net = amt-withheld;
+  el.innerHTML = `
+    <div class="row between"><span class="small muted">Withholding Rate</span><span style="font-weight:700;">${rate}%</span></div>
+    <div class="row between mt10"><span class="small muted">Amount Withheld</span><span style="font-weight:700;color:var(--danger);">− ${fmtINR(Math.round(withheld))}</span></div>
+    <div class="divider"></div>
+    <div class="row between"><span style="font-weight:700;">Net Payable</span><span style="font-weight:800;font-size:16px;">${fmtINR(Math.round(net))}</span></div>`;
+}
+function renderItrCalc(){
+  return `
+  <div class="card mt10">
+    <label class="small muted" style="font-weight:600;">Annual Income ($)</label>
+    <input type="number" id="itrIncome" placeholder="e.g. 85000" oninput="computeItr()" style="${fieldStyle()}">
+    <div class="small muted mt10">Estimated federal tax, single filer. Illustrative only — actual liability may vary with deductions and state tax.</div>
+  </div>
+  <div class="section-title">Result</div>
+  <div class="card" id="itrResult">Enter your annual income to calculate.</div>
+  <div style="height:8px;"></div>`;
+}
+function computeItr(){
+  const income = parseFloat(document.getElementById('itrIncome').value)||0;
+  const el = document.getElementById('itrResult');
+  if(income<=0){ el.innerHTML='Enter your annual income to calculate.'; return; }
+  const slabs = [[11600,.10],[47150,.12],[100525,.22],[191950,.24],[243725,.32],[Infinity,.35]];
+  let tax=0, prev=0;
+  for(const [limit,rate] of slabs){
+    if(income>prev){ tax += (Math.min(income,limit)-prev)*rate; prev=limit; } else break;
+  }
+  el.innerHTML = `
+    <div class="row between"><span class="small muted">Taxable Income</span><span style="font-weight:700;">${fmtINR(Math.round(income))}</span></div>
+    <div class="divider"></div>
+    <div class="row between"><span style="font-weight:700;">Estimated Federal Tax</span><span style="font-weight:800;font-size:16px;">${fmtINR(Math.round(tax))}</span></div>`;
+}
+
+/* -------- refer & earn -------- */
+function renderRefer(){
+  return `
+  <div class="card mt10" style="text-align:center;padding:28px 18px;background:linear-gradient(135deg,#4338CA,#5B4FE0);color:#fff;border:none;">
+    <div style="font-size:28px;">🎁</div>
+    <div style="font-weight:800;font-size:16px;margin-top:10px;">Refer a business, earn $50</div>
+    <div class="small" style="opacity:.85;margin-top:6px;">Both you and your friend get $50 credited when they file their first return with us.</div>
+  </div>
+  <div class="section-title">Your Referral Code</div>
+  <div class="card row between">
+    <span style="font-weight:800;font-size:16px;letter-spacing:.05em;font-family:'Manrope',sans-serif;">SARAH500</span>
+    <button class="btn btn-secondary btn-sm" onclick="openShareSheet('Referral Code')">Copy & Share</button>
+  </div>
+  <div class="section-title">Your Rewards</div>
+  <div class="card row between">
+    <div><div class="small muted">Total Earned</div><div style="font-weight:800;font-size:19px;margin-top:4px;">${fmtINR(150)}</div></div>
+    <div class="pill success">3 Referrals</div>
+  </div>
+  <div style="height:8px;"></div>`;
+}
+
+/* -------- document preview -------- */
+function renderDocPreview(params){
+  const signed = params.cat === 'Signed Documents';
+  return `
+  <div class="card mt10" style="padding:0;overflow:hidden;">
+    <div style="background:var(--surface-2);padding:40px 20px;text-align:center;border-bottom:1px solid var(--border);">
+      <div style="font-size:40px;">${params.icon||'📄'}</div>
+    </div>
+    <div style="padding:16px;">
+      <div style="font-weight:700;font-size:14px;">${params.name}</div>
+      <div class="small muted mt6">${params.cat}</div>
+      ${signed ? `
+      <div class="card mt14" style="background:var(--success-tint);border:none;">
+        <div class="row" style="gap:8px;">
+          <span>✍️</span>
+          <div>
+            <div style="font-weight:700;font-size:12.5px;color:var(--success);">Digitally Signed</div>
+            <div class="small" style="color:var(--success);">Electronic Signature · ${client.name}</div>
+          </div>
+        </div>
+      </div>` : ''}
+    </div>
+  </div>
+  <div class="row" style="gap:10px;margin-top:16px;">
+    <button class="btn btn-secondary" onclick="showToast('⬇️ Download started')">Download</button>
+    <button class="btn btn-primary" onclick="openShareSheet('${params.name}')">Share</button>
+  </div>
+  <div style="height:8px;"></div>`;
+}
+
+/* -------- Flagship Flow 1: Sales Tax Filing journey -------- */
+const filingSteps = [
+  {key:'requirements', title:'Filing Requirements', sub:'What we need from you for the Aug 2026 sales tax return'},
+  {key:'upload', title:'Upload Documents', sub:'Add your bank statement to proceed'},
+  {key:'review', title:'CPA Review', sub:'Your CPA is reviewing the submitted data'},
+  {key:'approval', title:'Client Approval', sub:'Review the prepared return before filing'},
+  {key:'esign', title:'E-Sign', sub:'Authorise the filing with your e-signature'},
+  {key:'submitted', title:'Filing Submitted', sub:'Your return has been sent to the Department of Revenue'},
+];
+
+function renderFilingFlow(params){
+  const step = params.step || 0;
+  const s = filingSteps[step];
+  const pct = Math.round(((step)/(filingSteps.length-1))*100);
+
+  let content = '';
+  if(s.key==='requirements'){
+    content = `
+      <div class="card">
+        <div style="font-weight:700;font-size:14px;">Documents needed for Sales Tax Return — Aug 2026</div>
+        <div class="divider"></div>
+        ${['Sales Invoices — Aug 2026 ✓','Purchase Invoices — Aug 2026 ✓','Bank Statement — Aug 2026','Receipts for Deductible Expenses'].map(t=>`
+          <div class="row" style="gap:10px;padding:8px 0;">
+            <span style="color:${t.includes('✓')?'var(--success)':'var(--muted)'};">${t.includes('✓')?'✅':'⬜'}</span>
+            <span style="font-size:13.5px;font-weight:600;">${t.replace(' ✓','')}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="card mt14" style="background:var(--info-tint); border:none;">
+        <div class="small" style="color:var(--info); font-weight:600;">2 of 4 documents received. Upload your bank statement to keep this filing on schedule for the 20 Sep deadline.</div>
+      </div>
+      <button class="btn btn-primary mt18" onclick="go('filingflow',{step:1})">Upload Bank Statement</button>
+    `;
+  } else if(s.key==='upload'){
+    const uploaded = flow.gstUploaded;
+    const errored = flow.gstUploadError;
+    content = `
+      <div class="dropzone" onclick="${errored?'':'simulateUpload()'}" style="${errored?'border-color:#F3C9CF;background:var(--danger-tint);':''}">
+        ${errored ? `
+          <div style="font-size:30px;">⚠️</div>
+          <div style="font-weight:700;font-size:14px;margin-top:8px;color:var(--danger);">Upload failed</div>
+          <div class="small mt6" style="color:var(--danger);">Network interrupted before the file finished uploading. Please try again.</div>
+        ` : !uploaded ? `
+          <div style="display:flex;gap:14px;justify-content:center;margin-bottom:8px;">
+            <div class="iconwrap" style="background:var(--primary-tint);">${ICONS.camera}</div>
+            <div class="iconwrap" style="background:var(--primary-tint);">${ICONS.upload}</div>
+          </div>
+          <div style="font-weight:700;font-size:14px;">Tap to upload</div>
+          <div class="small muted mt6">Take a photo or choose a file (PDF, JPG, PNG — up to 10 MB)</div>
+        ` : `
+          <div class="check-anim" style="font-size:34px;">✅</div>
+          <div style="font-weight:700;font-size:14px;margin-top:8px;">Bank_Statement_Aug2026.pdf</div>
+          <div class="small muted mt6">1.2 MB · Uploaded successfully</div>
+        `}
+      </div>
+      ${errored ? `<button class="btn btn-primary mt18" onclick="simulateUpload()">Retry Upload</button>` :
+        `<button class="btn ${uploaded?'btn-primary':'btn-secondary'} mt18" ${!uploaded?'disabled style="opacity:.5;pointer-events:none;"':''} onclick="go('filingflow',{step:2})">Submit for Review</button>`}
+    `;
+  } else if(s.key==='review'){
+    if(!flow.reviewStarted){ flow.reviewStarted=true; setTimeout(()=>{ flow.reviewDone=true; if(current().screen==='filingflow'&&current().params.step===2) render(); }, 1800); }
+    content = flow.reviewDone ? `
+      <div class="card" style="text-align:center;padding:30px 16px;">
+        <div style="font-size:32px;">✅</div>
+        <div style="font-weight:700;font-size:15px;margin-top:10px;">Review complete</div>
+        <div class="small muted mt6">CPA Jennifer Reyes has reviewed your data and prepared the sales tax return. Tax payable: <strong>${fmtINR(8420)}</strong>. Deductions applied: <strong>${fmtINR(3120)}</strong>.</div>
+      </div>
+      <button class="btn btn-primary mt18" onclick="go('filingflow',{step:3})">View Prepared Return</button>
+    ` : `
+      <div class="card" style="text-align:center;padding:36px 16px;">
+        <div style="width:30px;height:30px;border:2.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;margin:0 auto;" class="spin"></div>
+        <div style="font-weight:700;font-size:14px;margin-top:16px;">CPA Jennifer Reyes is reviewing your documents…</div>
+        <div class="small muted mt6">This usually takes a few minutes. We'll notify you when it's ready for approval.</div>
+      </div>
+    `;
+  } else if(s.key==='approval'){
+    content = `
+      <div class="card">
+        <div class="row between"><span class="small muted" style="font-weight:600;">Return Type</span><span style="font-weight:700;font-size:13.5px;">Sales Tax Return</span></div>
+        <div class="divider"></div>
+        <div class="row between mt6"><span class="small muted">Taxable Turnover</span><span style="font-weight:700;">${fmtINR(184200)}</span></div>
+        <div class="row between mt10"><span class="small muted">Sales Tax Collected</span><span style="font-weight:700;">${fmtINR(11540)}</span></div>
+        <div class="row between mt10"><span class="small muted">Deductions Applied</span><span style="font-weight:700;color:var(--success);">− ${fmtINR(3120)}</span></div>
+        <div class="divider"></div>
+        <div class="row between"><span style="font-weight:700;">Net Tax Payable</span><span style="font-weight:800;font-size:16px;">${fmtINR(8420)}</span></div>
+      </div>
+      <div class="card mt14" style="background:var(--warning-tint); border:none;">
+        <div class="small" style="color:var(--warning); font-weight:600;">Please review the figures carefully. Once approved, this return will be prepared for e-signature and filing with the state Department of Revenue.</div>
+      </div>
+      <button class="btn btn-primary mt18" onclick="go('filingflow',{step:4})">Approve & Continue to E-Sign</button>
+      <button class="btn btn-ghost" onclick="go('chat')">Have a question? Message your CPA</button>
+    `;
+  } else if(s.key==='esign'){
+    const signed = flow.esigned;
+    content = `
+      <div class="card" style="text-align:center;padding:${signed?'26px':'34px'} 16px;">
+        ${signed ? `
+          <div class="check-anim" style="font-size:34px;">✍️</div>
+          <div style="font-weight:700;font-size:14.5px;margin-top:10px;">Document e-signed</div>
+          <div class="small muted mt6">Authorized by ${client.name} via electronic signature · ${new Date().toLocaleDateString('en-US',{day:'2-digit',month:'short',year:'numeric'})}</div>
+        ` : `
+          <div style="font-size:30px;">✍️</div>
+          <div style="font-weight:700;font-size:14.5px;margin-top:10px;">Authorize sales tax filing</div>
+          <div class="small muted mt6">Tap below to sign electronically. A verification code will be sent to your registered mobile.</div>
+        `}
+      </div>
+      ${!signed ? `<button class="btn btn-primary mt18" onclick="simulateSign()">Sign Electronically</button>` :
+        `<button class="btn btn-primary mt18" onclick="go('filingflow',{step:5})">File Return with State</button>`}
+    `;
+  } else if(s.key==='submitted'){
+    return `
+    <div style="min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 10px;">
+      <div class="check-anim" style="width:74px;height:74px;border-radius:50%;background:var(--success-tint);display:flex;align-items:center;justify-content:center;font-size:34px;">🎉</div>
+      <h2 style="font-size:20px;margin:20px 0 6px;">Filing Submitted!</h2>
+      <div class="muted small" style="max-width:260px;">Sales Tax Return for August 2026 has been filed with the state Department of Revenue. Confirmation #: <strong>CONF-0809260012345</strong></div>
+      <div class="card mt18" style="width:100%;text-align:left;">
+        <div class="row between"><span class="small muted">Filed On</span><span style="font-weight:700;font-size:13px;">8 Sep 2026, 3:42 PM</span></div>
+        <div class="row between mt10"><span class="small muted">Tax Paid</span><span style="font-weight:700;font-size:13px;">${fmtINR(8420)}</span></div>
+        <div class="row between mt10"><span class="small muted">Status</span><span class="pill success">Acknowledged</span></div>
+      </div>
+      <div class="card mt14" style="width:100%;text-align:center;">
+        <div style="font-weight:700;font-size:13px;">Rate your filing experience</div>
+        <div class="row" style="justify-content:center;gap:6px;margin-top:10px;">
+          ${[1,2,3,4,5].map(n=>`<span style="font-size:23px;cursor:pointer;" onclick="rateFiling(${n})">${(flow.filingRating||0)>=n?'⭐':'☆'}</span>`).join('')}
+        </div>
+        ${flow.filingRating ? `<div class="small muted mt10">Thanks for the ${flow.filingRating}-star rating!</div>` : ''}
+      </div>
+      <button class="btn btn-primary mt18" onclick="goRoot('dashboard')">Back to Dashboard</button>
+      <button class="btn btn-ghost" onclick="go('vault')">View in Documents Vault</button>
+    </div>`;
+  }
+
+  return `
+  <div class="mt10">
+    <div class="progress-track"><div class="progress-fill" style="width:${pct}%;"></div></div>
+    <div class="row between small muted mt6"><span>Step ${step+1} of ${filingSteps.length}</span><span>${s.title}</span></div>
+  </div>
+  <div class="section-title" style="margin-top:18px;">${s.title}</div>
+  <div class="small muted" style="margin-top:-8px;margin-bottom:14px;">${s.sub}</div>
+  ${content}
+  <div style="height:8px;"></div>
+  `;
+}
+function simulateUpload(){
+  if(flow.gstUploaded) return;
+  flow.gstAttempts = (flow.gstAttempts||0)+1;
+  flow.gstUploadError = false;
+  const body = document.getElementById('appbody');
+  body.innerHTML = `<div class="fade-in" style="min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div style="width:30px;height:30px;border:2.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;" class="spin"></div>
+    <div class="small muted mt14">Uploading Bank_Statement_Aug2026.pdf…</div>
+  </div>`;
+  setTimeout(()=>{
+    if(flow.gstAttempts===1 && Math.random()<0.4){ flow.gstUploadError = true; }
+    else { flow.gstUploaded = true; }
+    render();
+  }, 1100);
+}
+function simulateSign(){
+  const body = document.getElementById('appbody');
+  body.innerHTML = `<div class="fade-in" style="min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div style="width:30px;height:30px;border:2.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;" class="spin"></div>
+    <div class="small muted mt14">Verifying signature…</div>
+  </div>`;
+  setTimeout(()=>{ flow.esigned = true; render(); }, 1200);
+}
+
+/* -------- Document Requests / generic upload (also used by Flow 3) -------- */
+function renderDocRequests(){
+  const items = [
+    {name:'Bank Statement — Aug 2026', service:'Sales Tax Filing', due:'10 Sep 2026', uploaded: !!flow.gstUploaded},
+    {name:'Sales Invoices — Aug 2026', service:'Sales Tax Filing', due:'—', uploaded:true},
+    {name:'W-2 — FY 2025-26', service:'Income Tax Return', due:'14 Sep 2026', uploaded:false},
+    {name:'Aug Attendance Sheet', service:'Payroll', due:'6 Sep 2026', uploaded:false},
+  ];
+  return `
+  <div class="mt10" style="display:flex;flex-direction:column;gap:10px;">
+    ${items.map(it=>`
+      <div class="card">
+        <div class="row between">
+          <div>
+            <div style="font-weight:700;font-size:13.5px;">${it.name}</div>
+            <div class="small muted mt6">${it.service} · Due ${it.due}</div>
+          </div>
+          ${it.uploaded ? `<span class="pill success">Uploaded</span>` : `<span class="pill warning">Pending</span>`}
+        </div>
+        ${!it.uploaded ? `<button class="btn btn-secondary mt10" onclick="go('docupload',{docName:'${it.name}', from:'docrequests'})">Upload Now</button>` : ''}
+      </div>
+    `).join('')}
+  </div>
+  <div style="height:8px;"></div>
+  `;
+}
+
+function renderDocUpload(params){
+  const uploaded = flow['upload_'+params.docName];
+  const errored = flow['error_'+params.docName];
+  return `
+  <div class="card mt10">
+    <div style="font-weight:700;font-size:14px;">${params.docName}</div>
+    <div class="small muted mt6">Accepted formats: PDF, JPG, PNG · Max 10 MB</div>
+  </div>
+  <div class="dropzone mt14" onclick="${errored?'':`simulateGenericUpload('${params.docName}')`}" style="${errored?'border-color:#F3C9CF;background:var(--danger-tint);':''}">
+    ${errored ? `
+      <div style="font-size:28px;">⚠️</div>
+      <div style="font-weight:700;font-size:14px;margin-top:8px;color:var(--danger);">Upload failed</div>
+      <div class="small mt6" style="color:var(--danger);">The file couldn't be uploaded. Please try again.</div>
+    ` : !uploaded ? `
+      <div style="display:flex;gap:14px;justify-content:center;margin-bottom:8px;">
+        <div class="iconwrap" style="background:var(--primary-tint);">${ICONS.camera}</div>
+        <div class="iconwrap" style="background:var(--primary-tint);">${ICONS.upload}</div>
+      </div>
+      <div style="font-weight:700;font-size:14px;">Take a photo or choose a file</div>
+      <div class="small muted mt6">Tap to simulate camera / file picker</div>
+    ` : `
+      <div class="check-anim" style="font-size:34px;">📄</div>
+      <div style="font-weight:700;font-size:13.5px;margin-top:10px;">Document ready for preview</div>
+    `}
+  </div>
+  ${errored ? `<button class="btn btn-primary mt18" onclick="simulateGenericUpload('${params.docName}')">Retry Upload</button>` : ''}
+  ${uploaded ? `
+    <div class="card mt14 row" style="gap:12px;">
+      <div class="iconwrap" style="background:var(--surface-2);">📄</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:13px;">${params.docName.split('—')[0].trim().replace(/\s+/g,'_')}.pdf</div>
+        <div class="small muted">1.1 MB · Preview ready</div>
+      </div>
+    </div>
+    <button class="btn btn-primary mt18" onclick="submitDocUpload('${params.docName}','${params.from}','${params.svcId||''}')">Submit to CA</button>
+  ` : ''}
+  <div style="height:8px;"></div>
+  `;
+}
+function simulateGenericUpload(name){
+  if(flow['upload_'+name]) return;
+  flow['attempts_'+name] = (flow['attempts_'+name]||0)+1;
+  flow['error_'+name] = false;
+  const body = document.getElementById('appbody');
+  body.innerHTML = `<div class="fade-in" style="min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div style="width:30px;height:30px;border:2.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;" class="spin"></div>
+    <div class="small muted mt14">Uploading document…</div>
+  </div>`;
+  setTimeout(()=>{
+    if(flow['attempts_'+name]===1 && Math.random()<0.35){ flow['error_'+name] = true; }
+    else { flow['upload_'+name] = true; }
+    render();
+  }, 1000);
+}
+function submitDocUpload(name, from){
+  flow['submitted_'+name] = true;
+  const body = document.getElementById('appbody');
+  body.innerHTML = `<div class="fade-in" style="min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 20px;">
+    <div class="check-anim" style="width:64px;height:64px;border-radius:50%;background:var(--success-tint);display:flex;align-items:center;justify-content:center;font-size:28px;">✅</div>
+    <div style="font-weight:700;font-size:15px;margin-top:16px;">Document sent to your CA</div>
+    <div class="small muted mt6">CPA Jennifer Reyes has been notified and will review it shortly.</div>
+  </div>`;
+  setTimeout(()=>{
+    stack = stack.filter(s=>s.screen!=='docupload');
+    if(from==='docrequests') goRoot('docrequests');
+    else if(from==='noticedetail') goRoot('servicedetail',{id:'gst'});
+    else goRoot('dashboard');
+  }, 1400);
+}
+
+function getFilteredVaultDocs(){
+  const query = (flow.vaultQuery||'').toLowerCase();
+  const activeFolder = flow.vaultFolder || 'All';
+  return allVaultDocs.filter(d=>{
+    const matchesFolder = activeFolder==='All' || d.cat===activeFolder;
+    const matchesQuery = !query || d.name.toLowerCase().includes(query) || d.cat.toLowerCase().includes(query);
+    return matchesFolder && matchesQuery;
+  });
+}
+function updateVaultSearch(val){
+  flow.vaultQuery = val;
+  const filtered = getFilteredVaultDocs();
+  const listEl = document.getElementById('vaultFileList');
+  if(listEl) listEl.innerHTML = renderVaultFileList(filtered);
+  const countEl = document.getElementById('vaultResultCount');
+  if(countEl) countEl.textContent = `${filtered.length} result${filtered.length!==1?'s':''}`;
+}
+function selectVaultFolder(name){ flow.vaultFolder = name; render(); }
+function renderVault(){
+  const activeFolder = flow.vaultFolder || 'All';
+  const filtered = getFilteredVaultDocs();
+  return `
+  <div class="mt10" style="position:relative;">
+    <input type="text" placeholder="🔍 Search documents…" value="${flow.vaultQuery||''}" oninput="updateVaultSearch(this.value)"
+      style="width:100%;border:1.5px solid var(--border);border-radius:12px;padding:11px 14px;background:var(--surface);font-size:13.5px;color:var(--ink);font-family:inherit;">
+  </div>
+  <div class="section-title">Folders</div>
+  <div class="scrollx">
+    <div class="chip ${activeFolder==='All'?'active':''}" onclick="selectVaultFolder('All')">All (${allVaultDocs.length})</div>
+    ${vaultFolders.map(f=>`<div class="chip ${activeFolder===f.name?'active':''}" onclick="selectVaultFolder('${f.name}')">${f.icon} ${f.name} (${f.count})</div>`).join('')}
+  </div>
+  <div class="section-title">${activeFolder==='All'?'All Files':activeFolder} <span class="muted small" id="vaultResultCount" style="font-weight:600;">${filtered.length} result${filtered.length!==1?'s':''}</span></div>
+  <div id="vaultFileList">${renderVaultFileList(filtered)}</div>`;
+}
+function renderVaultFileList(filtered){
+  if(filtered.length===0){
+    return `<div class="empty-state"><div class="emoji">🗂️</div>No documents match your search.<div class="small mt6">Try a different keyword or clear the filter.</div></div>`;
+  }
+  return `
+  <div class="card" style="padding:6px 16px;">
+    ${filtered.map(doc=>`
+      <div class="listrow" onclick="go('docpreview',{name:'${doc.name}', cat:'${doc.cat}', icon:'${doc.icon}'})">
+        <div class="iconwrap" style="background:var(--surface-2);">${doc.icon}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:13.5px;">${doc.name}</div>
+          <div class="small muted">${doc.cat} · ${doc.date}</div>
+        </div>
+        <span class="small muted">${doc.size}</span>
+      </div>
+    `).join('')}
+  </div>
+  <div style="height:8px;"></div>
+  `;
+}
+function renderCalendar(){
+  const groups = {'Sales Tax':'#4338CA', 'Payroll Tax':'#0B6E7D', 'Income Tax':'#C22A3E', 'State Filing':'#A8620A'};
+  return `
+  <div class="scrollx mt10">
+    ${Object.keys(groups).map(g=>`<div class="chip" style="border-color:${groups[g]}33;color:${groups[g]};">${g}</div>`).join('')}
+  </div>
+  <div class="section-title">September 2026</div>
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    ${deadlines.map(d=>`
+      <div class="card row" style="gap:14px;">
+        <div style="width:46px;text-align:center;flex:0 0 auto;">
+          <div style="font-weight:800;font-size:17px;font-family:'Manrope',sans-serif;color:${groups[d.category]};">${d.date.split(' ')[0]}</div>
+          <div class="small muted">${d.date.split(' ')[1]}</div>
+        </div>
+        <div style="width:3px;align-self:stretch;border-radius:2px;background:${groups[d.category]};"></div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:13.5px;">${d.title}</div>
+          <div class="small muted mt6">${d.category} deadline</div>
+        </div>
+        <div class="pill ${d.urgent?'danger':'neutral'}">${d.daysLeft}d</div>
+      </div>
+    `).join('')}
+  </div>
+  <div style="height:8px;"></div>
+  `;
+}
+
+function renderTasks(){
+  const tab = flow.taskTab || 'pending';
+  const tabs = [['pending','Pending'],['progress','In Progress'],['done','Completed']];
+  const list = tasksData[tab];
+  return `
+  <div class="tabs-row" style="margin-top:14px;">
+    ${tabs.map(([k,l])=>`<div class="tab-btn ${tab===k?'active':''}" onclick="flow.taskTab='${k}';render();">${l} ${k!=='done'?`· ${tasksData[k].length}`:''}</div>`).join('')}
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    ${list.map(t=>`
+      <div class="card">
+        <div class="row between">
+          <div style="font-weight:700;font-size:13.5px;flex:1;">${t.title}</div>
+          ${tab==='done' ? `<span class="pill success">Done</span>` : `<span class="pill ${tab==='progress'?'info':'warning'}">${tab==='progress'?'In Progress':'Pending'}</span>`}
+        </div>
+        <div class="small muted mt6">${t.service} ${t.who?`· ${t.who}`:''}</div>
+        <div class="small muted mt6" style="font-weight:600;">${tab==='done'?`Completed ${t.date}`:`Due ${t.due}`}</div>
+      </div>
+    `).join('')}
+    ${list.length===0?`<div class="empty-state"><div class="emoji">🗂️</div>No tasks here yet.</div>`:''}
+  </div>
+  <div style="height:8px;"></div>
+  `;
+}
+
+function renderInvoices(){
+  const statusMap = {due:'warning', paid:'success', overdue:'danger'};
+  return `
+  <div class="section-title" style="margin-top:14px;">All Invoices</div>
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    ${invoices.map(inv=>`
+      <div class="card" onclick="go('invoicedetail',{id:'${inv.id}'})" style="cursor:pointer;">
+        <div class="row between">
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:13.5px;">${inv.id}</div>
+            <div class="small muted mt6">${inv.desc}</div>
+          </div>
+          <span class="pill ${statusMap[inv.status]}">${inv.status[0].toUpperCase()+inv.status.slice(1)}</span>
+        </div>
+        <div class="row between mt10">
+          <span style="font-weight:800;font-size:16px;font-family:'Manrope',sans-serif;">${fmtINR(inv.amount)}</span>
+          <span class="small muted">${inv.status==='paid'?`Paid ${inv.paidDate}`:`Due ${inv.dueDate}`}</span>
+        </div>
+      </div>
+    `).join('')}
+  </div>
+  <div style="height:8px;"></div>
+  `;
+}
+
+function renderInvoiceDetail(params){
+  const inv = invoices.find(i=>i.id===params.id) || invoices[0];
+  const statusMap = {due:'warning', paid:'success', overdue:'danger'};
+  return `
+  <div class="card mt10" style="text-align:center;padding:26px 16px;">
+    <div class="small muted" style="font-weight:600;">Amount ${inv.status==='paid'?'Paid':'Due'}</div>
+    <div style="font-size:30px;font-weight:800;font-family:'Manrope',sans-serif;margin-top:6px;">${fmtINR(inv.amount)}</div>
+    <div class="pill ${statusMap[inv.status]}" style="margin-top:10px;">${inv.status[0].toUpperCase()+inv.status.slice(1)}</div>
+  </div>
+  <div class="card mt14">
+    <div class="row between"><span class="small muted">Invoice No.</span><span style="font-weight:700;font-size:13px;">${inv.id}</span></div>
+    <div class="row between mt10"><span class="small muted">Description</span><span style="font-weight:700;font-size:13px;text-align:right;max-width:180px;">${inv.desc}</span></div>
+    <div class="row between mt10"><span class="small muted">Issued On</span><span style="font-weight:700;font-size:13px;">${inv.date}</span></div>
+    <div class="row between mt10"><span class="small muted">${inv.status==='paid'?'Paid On':'Due Date'}</span><span style="font-weight:700;font-size:13px;">${inv.status==='paid'?inv.paidDate:inv.dueDate}</span></div>
+    <div class="divider"></div>
+    <div class="row between"><span class="small muted">Sales Tax (8.25%)</span><span style="font-weight:600;font-size:13px;">Included</span></div>
+  </div>
+  ${inv.status!=='paid' ? `<button class="btn btn-primary mt18" onclick="go('pay',{id:'${inv.id}'})">Pay Now</button>` :
+    `<div class="row mt18" style="gap:10px;">
+      <button class="btn btn-secondary" onclick="showToast('⬇️ Receipt downloaded')">Download</button>
+      <button class="btn btn-primary" onclick="openShareSheet('${inv.id}')">Share</button>
+    </div>`}
+  <div style="height:8px;"></div>
+  `;
+}
+
+function renderPay(params){
+  const inv = invoices.find(i=>i.id===params.id) || invoices[0];
+  const method = flow.payMethod || 'card';
+  return `
+  <div class="card mt10" style="text-align:center;">
+    <div class="small muted" style="font-weight:600;">Paying</div>
+    <div style="font-size:26px;font-weight:800;font-family:'Manrope',sans-serif;margin-top:4px;">${fmtINR(inv.amount)}</div>
+    <div class="small muted mt6">${inv.id} · ${inv.desc}</div>
+  </div>
+  <div class="section-title">Choose Payment Method</div>
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <div class="card row" style="gap:12px;cursor:pointer;${method==='card'?'border-color:var(--primary);':''}" onclick="flow.payMethod='card';render();">
+      <div class="iconwrap" style="background:var(--primary-tint);">💳</div>
+      <div style="flex:1;"><div style="font-weight:700;font-size:13.5px;">Credit / Debit Card</div><div class="small muted">Visa, Mastercard, Amex, Discover</div></div>
+      <div style="width:19px;height:19px;border-radius:50%;border:2px solid ${method==='card'?'var(--primary)':'var(--border)'};background:${method==='card'?'var(--primary)':'transparent'};"></div>
+    </div>
+    <div class="card row" style="gap:12px;cursor:pointer;${method==='ach'?'border-color:var(--primary);':''}" onclick="flow.payMethod='ach';render();">
+      <div class="iconwrap" style="background:var(--primary-tint);">🏦</div>
+      <div style="flex:1;"><div style="font-weight:700;font-size:13.5px;">ACH Bank Transfer</div><div class="small muted">Pay directly from your bank account</div></div>
+      <div style="width:19px;height:19px;border-radius:50%;border:2px solid ${method==='ach'?'var(--primary)':'var(--border)'};background:${method==='ach'?'var(--primary)':'transparent'};"></div>
+    </div>
+    <div class="card row" style="gap:12px;cursor:pointer;${method==='wallet'?'border-color:var(--primary);':''}" onclick="flow.payMethod='wallet';render();">
+      <div class="iconwrap" style="background:var(--primary-tint);">📱</div>
+      <div style="flex:1;"><div style="font-weight:700;font-size:13.5px;">Digital Wallet</div><div class="small muted">Apple Pay, Google Pay</div></div>
+      <div style="width:19px;height:19px;border-radius:50%;border:2px solid ${method==='wallet'?'var(--primary)':'var(--border)'};background:${method==='wallet'?'var(--primary)':'transparent'};"></div>
+    </div>
+  </div>
+  <button class="btn btn-primary mt18" onclick="simulatePayment('${inv.id}')">${method==='card'?'Pay with Card':method==='ach'?'Continue to Bank Transfer':'Pay with Digital Wallet'}</button>
+  <div style="height:8px;"></div>
+  `;
+}
+function simulatePayment(id){
+  const body = document.getElementById('appbody');
+  body.innerHTML = `<div class="fade-in" style="min-height:560px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div style="width:32px;height:32px;border:2.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;" class="spin"></div>
+    <div style="font-weight:700;font-size:14px;margin-top:16px;">Processing payment…</div>
+    <div class="small muted mt6">Please don't close the app</div>
+  </div>`;
+  setTimeout(()=>{
+    const inv = invoices.find(i=>i.id===id);
+    if(inv){ inv.status='paid'; inv.paidDate = new Date().toLocaleDateString('en-US',{day:'2-digit',month:'short',year:'numeric'}); }
+    goRoot('paysuccess',{id});
+  }, 1500);
+}
+function renderPaySuccess(params){
+  const inv = invoices.find(i=>i.id===params.id) || invoices[0];
+  return `
+  <div style="min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 26px;">
+    <div class="check-anim" style="width:78px;height:78px;border-radius:50%;background:var(--success-tint);display:flex;align-items:center;justify-content:center;font-size:36px;">✅</div>
+    <h2 style="font-size:21px;margin:20px 0 4px;">Payment Successful</h2>
+    <div class="muted small">$${inv.amount.toLocaleString('en-US')} paid for ${inv.id}</div>
+    <div class="card mt20" style="width:100%;text-align:left;">
+      <div class="row between"><span class="small muted">Transaction ID</span><span style="font-weight:700;font-size:12.5px;">TXN29385710224</span></div>
+      <div class="row between mt10"><span class="small muted">Paid On</span><span style="font-weight:700;font-size:12.5px;">${inv.paidDate}</span></div>
+      <div class="row between mt10"><span class="small muted">Method</span><span style="font-weight:700;font-size:12.5px;">${(flow.payMethod||'card').toUpperCase()}</span></div>
+      <div class="divider"></div>
+      <div class="row between"><span style="font-weight:700;">Amount Paid</span><span style="font-weight:800;font-size:16px;">${fmtINR(inv.amount)}</span></div>
+    </div>
+    <button class="btn btn-primary mt20" onclick="showToast('⬇️ Receipt downloaded')">Download Receipt</button>
+    <button class="btn btn-secondary" onclick="openShareSheet('${inv.id} Receipt')">Share Receipt</button>
+    <button class="btn btn-ghost" onclick="goRoot('dashboard')">Back to Dashboard</button>
+  </div>`;
+}
+
+function renderChat(){
+  return `
+  <div style="display:flex;flex-direction:column;height:100%;">
+    <div style="flex:1;overflow-y:auto;padding-top:10px;">
+      <div style="text-align:center;" class="small muted mt10">Today</div>
+      ${chatThread.map(m=>`
+        <div class="msg ${m.from==='me'?'me':'them'}">${m.text}<span class="time">${m.time}</span></div>
+      `).join('')}
+      <div id="chatEnd"></div>
+    </div>
+    <div class="row" style="gap:8px;padding:10px 0 4px;border-top:1px solid var(--border);">
+      <div class="hbtn">📎</div>
+      <div style="flex:1;border:1.5px solid var(--border);border-radius:12px;padding:11px 13px;font-size:13px;color:var(--muted);background:var(--surface);">Type a message…</div>
+      <div class="hbtn" style="background:var(--primary);border-color:var(--primary);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2l-7 20-4-9-9-4 20-7z" stroke="white" stroke-width="2" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderNotifications(){
+  const html = `
+  <div class="mt10" style="display:flex;flex-direction:column;gap:10px;">
+    ${notifications.map((n,i)=>`
+      <div class="card row" style="gap:12px;cursor:pointer;${!n.read?'background:var(--primary-tint);border-color:var(--primary-tint-2);':''}" onclick="handleNotifTap('${n.action}','${n.payload||''}')">
+        <div class="iconwrap" style="background:${!n.read?'#fff':'var(--surface-2)'};font-size:18px;">${n.icon}</div>
+        <div style="flex:1;">
+          <div class="row" style="gap:6px;">
+            <div style="font-weight:700;font-size:13.5px;">${n.title}</div>
+            ${!n.read?'<span style="width:7px;height:7px;border-radius:50%;background:var(--primary);display:inline-block;"></span>':''}
+          </div>
+          <div class="small muted mt6">${n.body}</div>
+        </div>
+        <div class="small muted" style="flex:0 0 auto;">${n.time}</div>
+      </div>
+    `).join('')}
+  </div>
+  <div style="height:8px;"></div>
+  `;
+  notifications.forEach(n=>n.read=true);
+  return html;
+}
+function handleNotifTap(action, payload){
+  if(action==='docrequest') go('docupload',{docName:'Bank Statement — Aug 2026', from:'docrequests'});
+  else if(action==='invoicedetail') go('invoicedetail',{id:payload});
+  else if(action==='service') go('servicedetail',{id:payload});
+  else if(action==='chat') go('chat');
+  else if(action==='noticedetail') go('noticedetail',{});
+}
+
+function renderProfile(){
+  const biz = businesses.find(b=>b.id===activeBusinessId);
+  return `
+  <div class="card mt10" style="text-align:center;padding:26px 16px;">
+    <div class="avatar" style="width:60px;height:60px;font-size:20px;border-radius:16px;margin:0 auto;">${client.initials}</div>
+    <div style="font-weight:800;font-size:17px;margin-top:12px;font-family:'Manrope',sans-serif;">${client.name}</div>
+    <div class="small muted mt6" style="cursor:pointer;" onclick="openBusinessSwitcher()">${biz.name} ▾</div>
+    <div class="pill success mt10" style="display:inline-flex;">KYC Verified</div>
+  </div>
+  <div class="section-title">Business Details</div>
+  <div class="card" style="padding:6px 16px;">
+    ${[['Tax ID (EIN)', client.pan], ['Sales Tax Permit', biz.gstin], ['Mobile', client.phone], ['Email', client.email], ['Address', client.address]].map(([l,v])=>`
+      <div class="listrow" style="cursor:default;">
+        <div style="flex:1;">
+          <div class="small muted">${l}</div>
+          <div style="font-weight:700;font-size:13.5px;margin-top:3px;">${v}</div>
+        </div>
+      </div>
+    `).join('')}
+  </div>
+  <div class="section-title">Documents & Rewards</div>
+  <div class="card row" style="gap:12px;cursor:pointer;" onclick="go('vault')">
+    <div class="iconwrap" style="background:var(--primary-tint);">✍️</div>
+    <div style="flex:1;">
+      <div style="font-weight:700;font-size:13.5px;">Engagement Letter</div>
+      <div class="small muted mt6">Signed 5 Jan 2025 · view in Signed Documents</div>
+    </div>
+    <span class="pill success">Signed</span>
+  </div>
+  <div class="card row mt10" style="gap:12px;cursor:pointer;" onclick="go('refer')">
+    <div class="iconwrap" style="background:var(--primary-tint);">🎁</div>
+    <div style="flex:1;">
+      <div style="font-weight:700;font-size:13.5px;">Refer & Earn</div>
+      <div class="small muted mt6">$150 earned so far · 3 referrals</div>
+    </div>
+    <span class="muted">›</span>
+  </div>
+  <div class="section-title">Settings</div>
+  <div class="card" style="padding:6px 16px;">
+    ${['Notification Preferences','Linked Bank Accounts'].map(l=>`
+      <div class="listrow"><div style="flex:1;font-weight:600;font-size:13.5px;">${l}</div><span class="muted">›</span></div>
+    `).join('')}
+    <div class="listrow" style="cursor:default;">
+      <div style="flex:1;font-weight:600;font-size:13.5px;">Language</div>
+      <div class="row" style="gap:6px;">
+        <div class="chip ${appLang==='en'?'active':''}" style="padding:5px 10px;" onclick="if(appLang!=='en'){toggleLang();}">EN</div>
+        <div class="chip ${appLang==='es'?'active':''}" style="padding:5px 10px;" onclick="if(appLang!=='es'){toggleLang();}">ES</div>
+      </div>
+    </div>
+    <div class="listrow" style="cursor:default;">
+      <div style="flex:1;font-weight:600;font-size:13.5px;">Dark Mode</div>
+      <div class="toggle-sw ${document.documentElement.getAttribute('data-theme')==='dark'?'on':''}" onclick="toggleTheme()"><div class="knob"></div></div>
+    </div>
+    <div class="listrow" onclick="go('help')"><div style="flex:1;font-weight:600;font-size:13.5px;">Help & Support</div><span class="muted">›</span></div>
+  </div>
+  <button class="btn btn-secondary mt18" onclick="goRoot('login')" style="color:var(--danger);border-color:#F3C9CF;">${t('logout')}</button>
+  <div class="mt14" style="text-align:center;">
+    <span class="chip" onclick="setMode('staff')">Switch to CPA Staff Portal view →</span>
+  </div>
+  <div style="height:8px;"></div>
+  `;
+}
+
+function renderHelp(){
+  return `
+  <div class="card mt10 row" style="gap:12px;">
+    <div class="iconwrap" style="background:var(--primary-tint);">💬</div>
+    <div style="flex:1;">
+      <div style="font-weight:700;font-size:13.5px;">Chat with your CA</div>
+      <div class="small muted">Fastest way to get answers</div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="go('chat')">Chat</button>
+  </div>
+  <div class="section-title">Frequently Asked Questions</div>
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    ${helpFaqs.map(f=>`
+      <div class="card">
+        <div style="font-weight:700;font-size:13.5px;">${f.q}</div>
+        <div class="small muted mt6">${f.a}</div>
+      </div>
+    `).join('')}
+  </div>
+  <div class="section-title">Contact Us</div>
+  <div class="card" style="padding:6px 16px;">
+    <div class="listrow"><div class="iconwrap" style="background:var(--surface-2);">📞</div><div style="flex:1;"><div style="font-weight:700;font-size:13.5px;">Call Support</div><div class="small muted">+1 (512) 555-0100</div></div></div>
+    <div class="listrow"><div class="iconwrap" style="background:var(--surface-2);">✉️</div><div style="flex:1;"><div style="font-weight:700;font-size:13.5px;">Email Us</div><div class="small muted">support@meridiantax.com</div></div></div>
+  </div>
+  <div style="height:8px;"></div>
+  `;
+}
+
+/* extra handlers hook (placeholder for future use) */
+function attachDynamicHandlers(screen){
+  if(screen==='chat'){
+    const el = document.getElementById('chatEnd');
+    if(el) el.scrollIntoView();
+  }
+}
+
+/* =========================================================================
+   CA STAFF PORTAL
+   ========================================================================= */
+let staffScreen = 'dashboard';
+let staffParams = {};
+let staffRole = 'ca';
+function staffGo(screen, params={}){ staffScreen=screen; staffParams=params; flow.openRowMenu=null; renderStaff(); }
+function setStaffRole(role){
+  staffRole = role;
+  document.getElementById('staffRoleLabel').textContent = role==='admin' ? 'Firm Admin' : 'Senior Associate';
+  document.getElementById('roleCaBtn').classList.toggle('active', role==='ca');
+  document.getElementById('roleAdminBtn').classList.toggle('active', role==='admin');
+  if(role==='ca' && ['team','settings'].includes(staffScreen)) staffScreen='dashboard';
+  renderStaff();
+}
+
+const STAFF_NAV_BASE = [
+  {key:'dashboard', label:'Dashboard', icon:'▦'},
+  {key:'clients', label:'Clients', icon:'👥'},
+  {key:'tasks', label:'Tasks', icon:'✓'},
+  {key:'documents', label:'Documents', icon:'📄'},
+  {key:'filings', label:'Filings', icon:'🧾'},
+  {key:'billing', label:'Billing', icon:'💳'},
+  {key:'communication', label:'Communication', icon:'💬'},
+  {key:'reports', label:'Reports', icon:'📈'},
+];
+function getStaffNav(){
+  const items = [...STAFF_NAV_BASE];
+  if(staffRole==='admin'){
+    items.push({key:'team', label:'Team', icon:'🧑‍💼'});
+    items.push({key:'settings', label:'Firm Settings', icon:'⚙️'});
+  }
+  return items;
+}
+
+function renderStaffNav(){
+  document.getElementById('staffNav').innerHTML = getStaffNav().map(n=>`
+    <div class="staff-nav-item ${staffScreen===n.key?'active':''}" onclick="staffGo('${n.key}')">
+      <span style="width:17px;display:inline-block;text-align:center;">${n.icon}</span>${n.label}
+    </div>
+  `).join('');
+}
+
+const staffTitles = {
+  dashboard:['Dashboard',"Welcome back, here's what needs attention today"],
+  clients:['Clients','248 active clients across your firm'],
+  clientprofile:['Client Workspace', staffParams.name||''],
+  tasks:['Tasks','Firm-wide task tracker'],
+  documents:['Documents','All client documents in one place'],
+  filings:['Filings','Track filing status across clients'],
+  billing:['Billing','Invoices and outstanding payments'],
+  communication:['Communication','Messages across all clients'],
+  reports:['Reports','Practice performance at a glance'],
+  team:['Team','Manage staff workload and access'],
+  settings:['Firm Settings','Branding, branches and subscription'],
+};
+
+function renderStaff(){
+  renderStaffNav();
+  document.getElementById('staffPageTitle').textContent = (staffTitles[staffScreen]||['',''])[0];
+  document.getElementById('staffPageSub').textContent = staffScreen==='clientprofile' ? (staffParams.name||'') : (staffTitles[staffScreen]||['',''])[1];
+  const fns = {
+    dashboard: renderStaffDashboard, clients: renderStaffClients, clientprofile: renderStaffClientProfile,
+    tasks: renderStaffTasks, documents: renderStaffDocuments, filings: renderStaffFilings,
+    billing: renderStaffBilling, communication: renderStaffCommunication, reports: renderStaffReports,
+    team: renderStaffTeam, settings: renderStaffSettings,
+  };
+  document.getElementById('staffBody').innerHTML = `<div class="fade-in">${(fns[staffScreen]||renderStaffDashboard)()}</div>`;
+}
+
+/* ---- modal / toast helpers ---- */
+function openAddTaskModal(prefillClient){
+  document.getElementById('staffModalRoot').innerHTML = `
+   <div class="modal-overlay" onclick="closeModal()">
+     <div class="modal-card" onclick="event.stopPropagation()">
+       <div style="font-weight:800;font-size:16px;">New Task</div>
+       <div class="small muted mt6">Create a task and assign it to a client</div>
+       <div class="mt14" style="display:flex;flex-direction:column;gap:12px;">
+         <div><label class="small muted" style="font-weight:600;">Client</label>
+           <div class="mt6" style="border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-weight:600;font-size:13.5px;">${prefillClient||'Select client…'}</div></div>
+         <div><label class="small muted" style="font-weight:600;">Task Title</label>
+           <div class="mt6" style="border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-weight:600;font-size:13.5px;color:var(--muted);">e.g. Review sales tax return for Aug</div></div>
+         <div><label class="small muted" style="font-weight:600;">Due Date</label>
+           <div class="mt6" style="border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-weight:600;font-size:13.5px;">12 Sep 2026</div></div>
+       </div>
+       <div class="row" style="gap:10px;margin-top:22px;">
+         <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+         <button class="btn btn-primary" onclick="createTaskDummy()">Create Task</button>
+       </div>
+     </div>
+   </div>`;
+}
+function closeModal(){ document.getElementById('staffModalRoot').innerHTML=''; }
+function createTaskDummy(){ closeModal(); showToast('✅ Task created successfully'); }
+function openAddClientWizard(){
+  flow.onboardStep = 1;
+  flow.onboardServices = [];
+  renderAddClientModal();
+}
+function renderAddClientModal(){
+  const step = flow.onboardStep;
+  let body='';
+  if(step===1){
+    body = `
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div><label class="small muted" style="font-weight:600;">Business Name</label><div class="mt6" style="border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-weight:600;font-size:13.5px;">Artisan Crafts Co.</div></div>
+        <div><label class="small muted" style="font-weight:600;">Contact Person</label><div class="mt6" style="border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-weight:600;font-size:13.5px;">Emma Wilson</div></div>
+        <div><label class="small muted" style="font-weight:600;">Mobile</label><div class="mt6" style="border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-weight:600;font-size:13.5px;">+1 (415) 555-0199</div></div>
+      </div>`;
+  } else if(step===2){
+    const opts = ['Sales Tax','Income Tax','Payroll Tax','Payroll','Accounting','Compliance'];
+    body = `
+      <div class="small muted mt6">Select the services this client needs</div>
+      <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:12px;">
+        ${opts.map(o=>`<div class="chip ${flow.onboardServices.includes(o)?'active':''}" onclick="toggleOnboardService('${o}')">${o}</div>`).join('')}
+      </div>`;
+  } else {
+    body = `
+      <div class="card" style="background:var(--surface-2);border:none;">
+        <div class="row between"><span class="small muted">Business</span><span style="font-weight:700;">Artisan Crafts Co.</span></div>
+        <div class="row between mt10"><span class="small muted">Contact</span><span style="font-weight:700;">Emma Wilson</span></div>
+        <div class="row between mt10"><span class="small muted">Services</span><span style="font-weight:700;text-align:right;max-width:160px;">${flow.onboardServices.join(', ')||'None selected'}</span></div>
+      </div>`;
+  }
+  document.getElementById('staffModalRoot').innerHTML = `
+   <div class="modal-overlay" onclick="closeModal()">
+     <div class="modal-card" onclick="event.stopPropagation()">
+       <div class="row between"><div style="font-weight:800;font-size:16px;">Add New Client</div><span class="small muted">Step ${step} of 3</span></div>
+       <div class="progress-track mt10"><div class="progress-fill" style="width:${step*33}%;"></div></div>
+       <div class="mt14">${body}</div>
+       <div class="row" style="gap:10px;margin-top:22px;">
+         ${step>1?`<button class="btn btn-secondary" onclick="flow.onboardStep=${step-1}; renderAddClientModal();">Back</button>`:`<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>`}
+         ${step<3?`<button class="btn btn-primary" onclick="flow.onboardStep=${step+1}; renderAddClientModal();">Next</button>`:`<button class="btn btn-primary" onclick="createClientDummy()">Create Client</button>`}
+       </div>
+     </div>
+   </div>`;
+}
+function toggleOnboardService(o){
+  const i = flow.onboardServices.indexOf(o);
+  if(i>-1) flow.onboardServices.splice(i,1); else flow.onboardServices.push(o);
+  renderAddClientModal();
+}
+function createClientDummy(){
+  staffClients.push({name:'Artisan Crafts Co.', contact:'Emma Wilson', status:'On Track', color:'success', pending:0, outstanding:0});
+  closeModal();
+  showToast('✅ Client onboarded successfully');
+  if(staffScreen==='clients') renderStaff();
+}
+function openNewInvoiceModal(){
+  document.getElementById('staffModalRoot').innerHTML = `
+   <div class="modal-overlay" onclick="closeModal()">
+     <div class="modal-card" onclick="event.stopPropagation()">
+       <div style="font-weight:800;font-size:16px;">New Invoice</div>
+       <div class="small muted mt6">Create and send an invoice to a client</div>
+       <div class="mt14" style="display:flex;flex-direction:column;gap:12px;">
+         <div><label class="small muted" style="font-weight:600;">Client</label>
+           <div class="mt6" style="border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-weight:600;font-size:13.5px;">Select client…</div></div>
+         <div><label class="small muted" style="font-weight:600;">Description</label>
+           <div class="mt6" style="border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-weight:600;font-size:13.5px;color:var(--muted);">e.g. Sales Tax Filing — Sep 2026</div></div>
+         <div><label class="small muted" style="font-weight:600;">Amount ($)</label>
+           <div class="mt6" style="border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-weight:600;font-size:13.5px;color:var(--muted);">0.00</div></div>
+       </div>
+       <div class="row" style="gap:10px;margin-top:22px;">
+         <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+         <button class="btn btn-primary" onclick="closeModal(); showToast('✅ Invoice created & sent to client')">Create & Send</button>
+       </div>
+     </div>
+   </div>`;
+}
+function toggleStaffNotif(){
+  const el = document.getElementById('staffNotifDropdown');
+  if(!el) return;
+  if(el.classList.contains('hidden')){
+    el.innerHTML = staffNotifications.map(n=>`
+      <div class="dropdown-item" style="white-space:normal;line-height:1.4;padding:10px 12px;cursor:default;">
+        <div class="row" style="gap:8px;align-items:flex-start;">
+          <span>${n.icon}</span>
+          <div style="flex:1;">
+            <div style="font-weight:600;font-size:12.5px;color:var(--ink);">${n.text}</div>
+            <div class="small muted" style="margin-top:2px;">${n.time}</div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+    el.classList.remove('hidden');
+  } else {
+    el.classList.add('hidden');
+  }
+}
+function showToast(msg){
+  const t = document.getElementById('staffToast');
+  t.textContent = msg; t.classList.remove('hidden');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.add('hidden'), 2200);
+}
+
+function renderStaffDashboard(){
+  return `
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="num">${staffKpis.clients}</div><div class="lbl">Active Clients</div></div>
+    <div class="kpi-card"><div class="num">${staffKpis.tasksPending}</div><div class="lbl">Tasks Pending</div></div>
+    <div class="kpi-card"><div class="num">${staffKpis.filingsDue}</div><div class="lbl">Filings Due This Week</div></div>
+    <div class="kpi-card"><div class="num">${staffKpis.outstanding}</div><div class="lbl">Outstanding</div></div>
+  </div>
+  <div class="attn-card mt18">
+    <div style="font-weight:800;font-size:14.5px;color:var(--danger);">Attention Required</div>
+    <div style="margin-top:10px;display:flex;flex-direction:column;gap:9px;">
+      ${attention.map(a=>`<div class="row" style="gap:9px;font-size:13.5px;font-weight:600;color:#7A1F2C;"><span>•</span>${a}</div>`).join('')}
+    </div>
+  </div>
+  <div class="row between" style="margin-top:26px;">
+    <div style="font-weight:800;font-family:'Manrope',sans-serif;font-size:15.5px;">Clients Needing Follow-up</div>
+    <span class="link" style="color:var(--primary);font-weight:700;font-size:12.5px;cursor:pointer;" onclick="staffGo('clients')">View all clients</span>
+  </div>
+  <table class="staff-table mt10">
+    <thead><tr><th>Client</th><th>Status</th><th>Pending Items</th><th>Outstanding</th></tr></thead>
+    <tbody>
+      ${staffClients.filter(c=>c.status!=='On Track').map(c=>`
+        <tr onclick="staffGo('clientprofile',{name:'${c.name}'})">
+          <td><div style="font-weight:700;">${c.name}</div><div class="small muted">${c.contact}</div></td>
+          <td><span class="pill ${c.color}">${c.status}</span></td>
+          <td>${c.pending}</td>
+          <td>${c.outstanding?fmtINR(c.outstanding):'—'}</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+  `;
+}
+
+function getFilteredStaffClients(){
+  const query = (flow.staffClientQuery||'').toLowerCase();
+  const activeFilter = flow.staffClientFilter || 'All';
+  return staffClients.filter(c=>{
+    const matchesFilter = activeFilter==='All' || c.status===activeFilter;
+    const matchesQuery = !query || c.name.toLowerCase().includes(query) || c.contact.toLowerCase().includes(query);
+    return matchesFilter && matchesQuery;
+  });
+}
+function renderStaffClientRows(filtered){
+  if(filtered.length===0) return `<div class="empty-state"><div class="emoji">🔍</div>No clients match your search or filter.</div>`;
+  const selected = flow.selectedClients || [];
+  const allSelected = filtered.length>0 && filtered.every(c=>selected.includes(c.name));
+  return `
+  <table class="staff-table">
+    <thead><tr>
+      <th style="width:30px;"><input type="checkbox" ${allSelected?'checked':''} onchange="toggleSelectAllClients()"></th>
+      <th>Client</th><th>Contact</th><th>Status</th><th>Pending</th><th>Outstanding</th><th></th></tr></thead>
+    <tbody>
+      ${filtered.map((c,i)=>`
+        <tr onclick="staffGo('clientprofile',{name:'${c.name}'})">
+          <td onclick="event.stopPropagation();"><input type="checkbox" ${selected.includes(c.name)?'checked':''} onchange="toggleClientSelect('${c.name}')"></td>
+          <td style="font-weight:700;">${c.name}</td>
+          <td>${c.contact}</td>
+          <td><span class="pill ${c.color}">${c.status}</span></td>
+          <td>${c.pending}</td>
+          <td>${c.outstanding?fmtINR(c.outstanding):'—'}</td>
+          <td style="position:relative;text-align:right;" onclick="event.stopPropagation();">
+            <span class="chip" style="padding:5px 10px;" onclick="flow.openRowMenu = flow.openRowMenu==='${i}' ? null : '${i}'; renderStaff();">•••</span>
+            ${flow.openRowMenu===String(i) ? `
+              <div class="dropdown-menu">
+                <div class="dropdown-item" onclick="flow.openRowMenu=null; flow.staffClientTab='communication'; staffGo('clientprofile',{name:'${c.name}'});">Message</div>
+                <div class="dropdown-item" onclick="flow.openRowMenu=null; openAddTaskModal('${c.name}');">Assign Task</div>
+                <div class="dropdown-item" onclick="flow.openRowMenu=null; staffGo('clientprofile',{name:'${c.name}'});">View Profile</div>
+              </div>` : ''}
+          </td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+  ${selected.length>0 ? `
+  <div class="card row between" style="margin-top:14px;background:var(--primary-tint);border-color:var(--primary-tint-2);">
+    <span style="font-weight:700;font-size:13px;color:var(--primary);">${selected.length} selected</span>
+    <div class="row" style="gap:8px;">
+      <button class="btn btn-secondary btn-sm" onclick="bulkSendReminder()">Send Reminder</button>
+      <button class="btn btn-secondary btn-sm" onclick="flow.selectedClients=[]; renderStaff();">Clear</button>
+    </div>
+  </div>` : ''}`;
+}
+function toggleClientSelect(name){
+  flow.selectedClients = flow.selectedClients || [];
+  const i = flow.selectedClients.indexOf(name);
+  if(i>-1) flow.selectedClients.splice(i,1); else flow.selectedClients.push(name);
+  renderStaff();
+}
+function toggleSelectAllClients(){
+  const filtered = getFilteredStaffClients();
+  const selected = flow.selectedClients || [];
+  const allSelected = filtered.length>0 && filtered.every(c=>selected.includes(c.name));
+  flow.selectedClients = allSelected ? [] : filtered.map(c=>c.name);
+  renderStaff();
+}
+function bulkSendReminder(){
+  const n = (flow.selectedClients||[]).length;
+  flow.selectedClients = [];
+  renderStaff();
+  showToast(`📨 Reminder sent to ${n} client${n!==1?'s':''}`);
+}
+function updateStaffClientSearch(val){
+  flow.staffClientQuery = val;
+  const el = document.getElementById('staffClientRows');
+  if(el) el.innerHTML = renderStaffClientRows(getFilteredStaffClients());
+}
+function selectStaffClientFilter(f){ flow.staffClientFilter = f; renderStaff(); }
+function renderStaffClients(){
+  const activeFilter = flow.staffClientFilter || 'All';
+  const filtered = getFilteredStaffClients();
+  return `
+  <div class="row between mt0" style="margin-bottom:16px;">
+    <input type="text" placeholder="🔍 Search clients…" value="${flow.staffClientQuery||''}"
+      oninput="updateStaffClientSearch(this.value)"
+      style="border:1.5px solid var(--border);border-radius:10px;padding:9px 14px;font-size:13px;color:var(--ink);width:260px;font-family:inherit;">
+    <div class="row" style="gap:10px;">
+      <div class="scrollx" style="width:auto;">
+        ${['All','Action Needed','Overdue','On Track'].map(f=>`<div class="chip ${activeFilter===f?'active':''}" onclick="selectStaffClientFilter('${f}')">${f}</div>`).join('')}
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openAddClientWizard()">+ Add Client</button>
+    </div>
+  </div>
+  <div id="staffClientRows">${renderStaffClientRows(filtered)}</div>
+  `;
+}
+
+function renderStaffClientProfile(){
+  const name = staffParams.name || staffClients[0].name;
+  const c = staffClients.find(cl=>cl.name===name) || staffClients[0];
+  const tab = flow.staffClientTab || 'overview';
+  const tabs = [['overview','Overview'],['tasks','Tasks'],['documents','Documents'],['filings','Filings'],['billing','Billing'],['communication','Communication']];
+  let content = '';
+  if(tab==='overview'){
+    content = `
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="kpi-card"><div class="num" style="font-size:20px;">${c.pending}</div><div class="lbl">Pending Items</div></div>
+        <div class="kpi-card"><div class="num" style="font-size:20px;">${c.outstanding?fmtINR(c.outstanding):'$0'}</div><div class="lbl">Outstanding</div></div>
+        <div class="kpi-card"><div class="num" style="font-size:20px;"><span class="pill ${c.color}">${c.status}</span></div><div class="lbl">Compliance Status</div></div>
+      </div>
+      <div class="section-title">Business Info</div>
+      <div class="card">
+        <div class="row between"><span class="small muted">Primary Contact</span><span style="font-weight:700;">${c.contact}</span></div>
+        <div class="row between mt10"><span class="small muted">Services</span><span style="font-weight:700;">Sales Tax · Income Tax · Payroll</span></div>
+        <div class="row between mt10"><span class="small muted">Assigned CPA</span><span style="font-weight:700;">CPA Jennifer Reyes</span></div>
+      </div>
+    `;
+  } else if(tab==='tasks'){
+    content = `<div style="display:flex;flex-direction:column;gap:10px;">
+      ${['Upload Aug bank statement (client)','Prepare Sales Tax Return','Review reconciliation'].map(t=>`
+        <div class="card row between"><span style="font-weight:600;font-size:13.5px;">${t}</span><span class="pill warning">Pending</span></div>
+      `).join('')}
+    </div>`;
+  } else if(tab==='documents'){
+    content = `<table class="staff-table"><thead><tr><th>File</th><th>Category</th><th>Uploaded</th></tr></thead><tbody>
+      ${recentDocuments.map(d=>`<tr><td style="font-weight:700;">${d.name}</td><td>${d.cat}</td><td>${d.date}</td></tr>`).join('')}
+    </tbody></table>`;
+  } else if(tab==='filings'){
+    content = `<table class="staff-table"><thead><tr><th>Return</th><th>Period</th><th>Status</th></tr></thead><tbody>
+      <tr><td style="font-weight:700;">Sales Tax Return</td><td>Aug 2026</td><td><span class="pill warning">Under Review</span></td></tr>
+      <tr><td style="font-weight:700;">Payroll Tax 941</td><td>Q1 2026</td><td><span class="pill success">Filed</span></td></tr>
+      <tr><td style="font-weight:700;">Form 1120-S</td><td>TY 2025</td><td><span class="pill danger">Docs Pending</span></td></tr>
+    </tbody></table>`;
+  } else if(tab==='billing'){
+    content = `<table class="staff-table"><thead><tr><th>Invoice</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+      ${invoices.map(i=>`<tr><td style="font-weight:700;">${i.id}</td><td>${fmtINR(i.amount)}</td><td><span class="pill ${i.status==='paid'?'success':i.status==='due'?'warning':'danger'}">${i.status}</span></td></tr>`).join('')}
+    </tbody></table>`;
+  } else if(tab==='communication'){
+    content = `<div style="max-width:520px;">
+      ${chatThread.map(m=>`<div class="msg ${m.from==='me'?'them':'me'}" style="${m.from==='me'?'':'margin-left:auto;'}">${m.text}<span class="time">${m.time}</span></div>`).join('')}
+    </div>`;
+  }
+  return `
+  <div class="card row" style="gap:14px;margin-bottom:6px;">
+    <div class="avatar" style="width:50px;height:50px;font-size:16px;">${c.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+    <div style="flex:1;">
+      <div style="font-weight:800;font-size:16px;">${c.name}</div>
+      <div class="small muted mt6">${c.contact} · Client since Jan 2025</div>
+    </div>
+    <span class="pill ${c.color}">${c.status}</span>
+  </div>
+  <div class="tabs-row" style="margin-top:18px;">
+    ${tabs.map(([k,l])=>`<div class="tab-btn ${tab===k?'active':''}" onclick="flow.staffClientTab='${k}';renderStaff();">${l}</div>`).join('')}
+  </div>
+  ${content}
+  `;
+}
+
+function renderStaffTasks(){
+  const view = flow.staffTaskView || 'list';
+  return `
+  <div class="row between" style="margin-bottom:2px;">
+    <div class="row" style="gap:8px;">
+      <div class="chip ${view==='list'?'active':''}" onclick="flow.staffTaskView='list'; renderStaff();">List</div>
+      <div class="chip ${view==='board'?'active':''}" onclick="flow.staffTaskView='board'; renderStaff();">Board</div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="openAddTaskModal()">+ New Task</button>
+  </div>
+  <div class="divider" style="margin-top:12px;"></div>
+  ${view==='board' ? renderTaskBoard() : renderTaskListView()}
+  `;
+}
+function renderTaskListView(){
+  const stageInfo = {pending:['warning','Pending'], progress:['info','In Progress'], done:['success','Completed']};
+  return `<table class="staff-table">
+    <thead><tr><th>Task</th><th>Client</th><th>Due</th><th>Priority</th><th>Stage</th></tr></thead>
+    <tbody>
+      ${staffTaskBoard.map(t=>{
+        const [color,label] = stageInfo[t.stage];
+        return `<tr onclick="staffGo('clientprofile',{name:'${t.client}'})">
+          <td style="font-weight:700;">${t.title}</td><td>${t.client}</td><td>${t.due}</td>
+          <td><span class="pill ${t.priority==='High'?'danger':t.priority==='Medium'?'warning':'neutral'}">${t.priority}</span></td>
+          <td><span class="pill ${color}">${label}</span></td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+function renderTaskBoard(){
+  const cols = [['pending','Pending','warning'],['progress','In Progress','info'],['done','Completed','success']];
+  return `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+    ${cols.map(([key,label,color])=>`
+      <div ondragover="event.preventDefault()" ondrop="dropTask(event,'${key}')" style="background:var(--surface-2);border-radius:14px;padding:12px;min-height:220px;">
+        <div class="row between" style="margin-bottom:10px;">
+          <span style="font-weight:700;font-size:12.5px;">${label}</span>
+          <span class="pill ${color}">${staffTaskBoard.filter(t=>t.stage===key).length}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${staffTaskBoard.filter(t=>t.stage===key).map(t=>`
+            <div class="card" draggable="true" ondragstart="dragTask(event,${t.id})" style="padding:12px;cursor:grab;">
+              <div style="font-weight:700;font-size:12.5px;">${t.title}</div>
+              <div class="small muted mt6">${t.client}</div>
+              <div class="row between mt10">
+                <span class="small muted">${t.due}</span>
+                <span class="pill ${t.priority==='High'?'danger':t.priority==='Medium'?'warning':'neutral'}" style="font-size:10px;">${t.priority}</span>
+              </div>
+            </div>
+          `).join('') || `<div class="small muted" style="text-align:center;padding:20px 0;">No tasks</div>`}
+        </div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+let _draggedTaskId = null;
+function dragTask(e,id){ _draggedTaskId = id; e.dataTransfer.effectAllowed='move'; }
+function dropTask(e, stage){
+  e.preventDefault();
+  const task = staffTaskBoard.find(x=>x.id===_draggedTaskId);
+  if(task){ task.stage = stage; renderStaff(); }
+}
+function renderStaffDocuments(){
+  return `<table class="staff-table">
+    <thead><tr><th>File</th><th>Client</th><th>Category</th><th>Uploaded</th></tr></thead>
+    <tbody>
+      <tr><td style="font-weight:700;">Bank_Statement_Aug2026.pdf</td><td>Mitchell Apparel</td><td>Accounting</td><td>2 Sep 2026</td></tr>
+      <tr><td style="font-weight:700;">Export_Invoices_Jul.xlsx</td><td>Blue Horizon Exports</td><td>Sales Tax</td><td>30 Aug 2026</td></tr>
+      <tr><td style="font-weight:700;">Business_License.pdf</td><td>Bloom Boutique</td><td>Business</td><td>28 Aug 2026</td></tr>
+      <tr><td style="font-weight:700;">Payroll_Register_Aug.xlsx</td><td>Summit Traders</td><td>Accounting</td><td>27 Aug 2026</td></tr>
+    </tbody>
+  </table>`;
+}
+function renderStaffFilings(){
+  return `<table class="staff-table">
+    <thead><tr><th>Client</th><th>Return</th><th>Period</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td style="font-weight:700;">Mitchell Apparel</td><td>Sales Tax Return</td><td>Aug 2026</td><td><span class="pill warning">Under Review</span></td></tr>
+      <tr><td style="font-weight:700;">Vertex Engineering</td><td>Sales Tax Return</td><td>Aug 2026</td><td><span class="pill success">Filed</span></td></tr>
+      <tr><td style="font-weight:700;">Blue Horizon Exports</td><td>Sales Tax Report</td><td>Aug 2026</td><td><span class="pill danger">Docs Pending</span></td></tr>
+      <tr><td style="font-weight:700;">Ashford Pharma</td><td>Payroll Tax 941</td><td>Q2 2026</td><td><span class="pill warning">In Progress</span></td></tr>
+    </tbody>
+  </table>`;
+}
+function renderStaffBilling(){
+  return `<div class="row between" style="margin-bottom:4px;">
+    <div class="small muted" style="font-weight:600;">Track and manage client invoices</div>
+    <button class="btn btn-primary btn-sm" onclick="openNewInvoiceModal()">+ New Invoice</button>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin:16px 0 20px;">
+    <div class="kpi-card"><div class="num">${fmtINR(482400)}</div><div class="lbl">Total Outstanding</div></div>
+    <div class="kpi-card"><div class="num">${fmtINR(215000)}</div><div class="lbl">Collected This Month</div></div>
+    <div class="kpi-card"><div class="num">5</div><div class="lbl">Overdue Invoices</div></div>
+  </div>
+  <table class="staff-table">
+    <thead><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td style="font-weight:700;">INV-2026-0142</td><td>Mitchell Apparel</td><td>${fmtINR(12500)}</td><td><span class="pill warning">Due</span></td></tr>
+      <tr><td style="font-weight:700;">INV-2026-0140</td><td>Pioneer Logistics</td><td>${fmtINR(41200)}</td><td><span class="pill danger">Overdue</span></td></tr>
+      <tr><td style="font-weight:700;">INV-2026-0138</td><td>Mitchell Apparel</td><td>${fmtINR(6000)}</td><td><span class="pill success">Paid</span></td></tr>
+    </tbody>
+  </table>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;">
+    <div class="card">
+      <div style="font-weight:700;font-size:14px;">Aging Receivables</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">
+        ${agingBuckets.map(b=>{
+          const maxAmt = Math.max(...agingBuckets.map(x=>x.amount));
+          return `<div>
+            <div class="row between small" style="margin-bottom:5px;"><span style="font-weight:600;">${b.label}</span><span class="muted">${fmtINR(b.amount)}</span></div>
+            <div class="progress-track"><div class="progress-fill" style="width:${(b.amount/maxAmt)*100}%;background:${b.color};"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-weight:700;font-size:14px;">Revenue Forecast — Next 3 Months</div>
+      <div class="row" style="gap:14px;align-items:flex-end;margin-top:20px;height:110px;">
+        ${revenueForecast.map(f=>{
+          const maxAmt = Math.max(...revenueForecast.map(x=>x.amount));
+          const h = Math.round((f.amount/maxAmt)*90)+10;
+          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div style="width:100%;height:${h}px;background:var(--primary);border-radius:6px 6px 0 0;opacity:.8;"></div>
+            <div class="small muted" style="font-size:10px;">${f.month}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+function toggleTemplate(id){ flow['tmpl_'+id] = !flow['tmpl_'+id]; renderStaff(); }
+function previewTemplate(id){
+  const rt = reminderTemplates.find(r=>r.id===id);
+  document.getElementById('staffModalRoot').innerHTML = `
+   <div class="modal-overlay" onclick="closeModal()">
+     <div class="modal-card" onclick="event.stopPropagation()">
+       <div style="font-weight:800;font-size:15px;">${rt.name}</div>
+       <div class="card mt14" style="background:var(--surface-2);border:none;font-size:13px;line-height:1.5;">${rt.text}</div>
+       <button class="btn btn-primary mt14" onclick="closeModal()">Close</button>
+     </div>
+   </div>`;
+}
+function renderStaffCommunication(){
+  return `<div style="display:flex;flex-direction:column;gap:10px;">
+    ${staffClients.slice(0,5).map(c=>`
+      <div class="card row" style="gap:12px;cursor:pointer;" onclick="staffGo('clientprofile',{name:'${c.name}'})">
+        <div class="avatar">${c.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:13.5px;">${c.name}</div>
+          <div class="small muted mt6">"Sure, I'll upload it today evening."</div>
+        </div>
+        <span class="small muted">1d ago</span>
+      </div>
+    `).join('')}
+  </div>
+  <div class="section-title">Automated Reminder Templates</div>
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    ${reminderTemplates.map(rt=>`
+      <div class="card">
+        <div class="row between">
+          <div style="font-weight:700;font-size:13.5px;">${rt.name}</div>
+          <div class="toggle-sw ${flow['tmpl_'+rt.id]?'on':''}" onclick="toggleTemplate('${rt.id}')"><div class="knob"></div></div>
+        </div>
+        <div class="small muted mt6">Auto-send ${flow['tmpl_'+rt.id]?'enabled':'disabled'}</div>
+        <button class="btn btn-ghost mt10" style="width:auto;padding:0;" onclick="previewTemplate('${rt.id}')">Preview message →</button>
+      </div>
+    `).join('')}
+  </div>`;
+}
+function buildConicGradient(data){
+  let acc=0; const stops=[];
+  data.forEach(d=>{ const start=acc; acc+=d.pct; stops.push(`${d.color} ${start}% ${acc}%`); });
+  return `conic-gradient(${stops.join(',')})`;
+}
+function renderStaffReports(){
+  return `
+  <div class="kpi-grid" style="margin-bottom:20px;">
+    <div class="kpi-card"><div class="num">${fmtINR(2840000)}</div><div class="lbl">Revenue (FY to date)</div></div>
+    <div class="kpi-card"><div class="num">96%</div><div class="lbl">On-time Filing Rate</div></div>
+    <div class="kpi-card"><div class="num">4.8★</div><div class="lbl">Avg. Client Rating</div></div>
+    <div class="kpi-card"><div class="num">18</div><div class="lbl">New Clients (QTD)</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div class="card">
+      <div style="font-weight:700;font-size:14px;">Revenue by Service</div>
+      <div class="row" style="gap:22px;margin-top:18px;align-items:center;">
+        <div style="width:126px;height:126px;border-radius:50%;background:${buildConicGradient(revenueByService)};position:relative;flex:0 0 auto;">
+          <div style="position:absolute;inset:18px;background:var(--surface);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+            <div style="font-weight:800;font-size:13.5px;">${fmtINR(2840000)}</div>
+            <div class="small muted">Total</div>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:9px;">
+          ${revenueByService.map(d=>`<div class="row between small"><span class="row" style="gap:7px;"><span style="width:9px;height:9px;border-radius:3px;background:${d.color};display:inline-block;"></span>${d.label}</span><span style="font-weight:700;">${d.pct}%</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-weight:700;font-size:14px;">Filings by Type — This Quarter</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:18px;">
+        ${[['Sales Tax',68],['Income Tax',22],['Payroll Tax',31],['State Filing',9]].map(([l,v])=>`
+          <div>
+            <div class="row between small" style="margin-bottom:5px;"><span style="font-weight:600;">${l}</span><span class="muted">${v}</span></div>
+            <div class="progress-track"><div class="progress-fill" style="width:${v*1.2}%;"></div></div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+function renderStaffTeam(){
+  return `
+  <div class="row between" style="margin-bottom:16px;">
+    <div class="small muted">${teamMembers.length} team members across the firm</div>
+    <button class="btn btn-primary btn-sm" onclick="showToast('✅ Invite sent to new team member')">+ Add Team Member</button>
+  </div>
+  <table class="staff-table">
+    <thead><tr><th>Name</th><th>Role</th><th>Active Clients</th><th>Tasks Pending</th></tr></thead>
+    <tbody>
+      ${teamMembers.map(m=>`
+        <tr>
+          <td><div class="row" style="gap:10px;"><div class="avatar" style="width:32px;height:32px;font-size:11px;background:${m.color}22;color:${m.color};">${m.name.replace('CA ','').split(' ').map(w=>w[0]).slice(0,2).join('')}</div><span style="font-weight:700;">${m.name}</span></div></td>
+          <td>${m.role}</td>
+          <td>${m.clients}</td>
+          <td>${m.tasks}</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>`;
+}
+function renderStaffSettings(){
+  return `
+  <div class="card">
+    <div style="font-weight:700;font-size:14px;">Firm Profile</div>
+    <div class="divider"></div>
+    <div class="row between"><span class="small muted">Firm Name</span><span style="font-weight:700;">Meridian CPA Firm LLP</span></div>
+    <div class="row between mt10"><span class="small muted">Firm License #</span><span style="font-weight:700;">TX-CPA-012345</span></div>
+    <div class="row between mt10"><span class="small muted">Head Office</span><span style="font-weight:700;">Austin, Texas</span></div>
+  </div>
+  <div class="section-title">Branding</div>
+  <div class="card row" style="gap:14px;">
+    ${['#4338CA','#0B6E7D','#A8620A','#0E7A55','#C22A3E'].map((c,i)=>`<div style="width:30px;height:30px;border-radius:9px;background:${c};cursor:pointer;${i===0?'box-shadow:0 0 0 2px var(--surface),0 0 0 4px '+c+';':''}" onclick="showToast('Brand color updated')"></div>`).join('')}
+  </div>
+  <div class="section-title">Branches</div>
+  <div class="card" style="padding:6px 16px;">
+    <div class="listrow"><div style="flex:1;"><div style="font-weight:700;font-size:13.5px;">Austin HQ</div><div class="small muted">142 clients · 4 staff</div></div><span class="pill success">Active</span></div>
+    <div class="listrow"><div style="flex:1;"><div style="font-weight:700;font-size:13.5px;">Dallas Branch</div><div class="small muted">106 clients · 3 staff</div></div><span class="pill success">Active</span></div>
+  </div>
+  <div class="section-title">Subscription</div>
+  <div class="card row between">
+    <div>
+      <div style="font-weight:700;font-size:13.5px;">Growth Plan</div>
+      <div class="small muted mt6">Up to 300 clients · Renews 1 Jan 2027</div>
+    </div>
+    <button class="btn btn-secondary btn-sm">Manage Plan</button>
+  </div>`;
+}
+
+/* =========================================================================
+   MODE SWITCH + INIT
+   ========================================================================= */
+function setMode(mode){
+  document.getElementById('clientView').classList.toggle('hidden', mode!=='client');
+  document.getElementById('staffView').classList.toggle('hidden', mode!=='staff');
+  document.getElementById('modeClientBtn').classList.toggle('active', mode==='client');
+  document.getElementById('modeStaffBtn').classList.toggle('active', mode==='staff');
+  if(mode==='staff') renderStaff();
+}
+
+function toggleTheme(){
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  render();
+  if(!document.getElementById('staffView').classList.contains('hidden')) renderStaff();
+}
+function updateClock(){
+  const el = document.getElementById('clock');
+  if(el) el.textContent = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}).replace(' ','').toLowerCase().replace('am',' AM').replace('pm',' PM');
+}
+updateClock(); setInterval(updateClock, 30000);
+
+render();
+renderStaff();
+</script>
+</body>
+</html>
